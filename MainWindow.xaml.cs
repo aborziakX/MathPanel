@@ -81,7 +81,7 @@ Dynamo.Console(hz.ToString());
         static object locker = new object();
         static int loglevel = 0;
         static string canvasBg = "#000000";
-
+        static string ext_params = "";
         public Dynamo()
         {
             InitializeComponent();
@@ -2170,30 +2170,27 @@ Dynamo.Console(hz.ToString());
                 webConsole.InvokeScript("ext_div", data);
             });
         }
-        /*
-        public class Script
+        /// <summary>
+        /// set html into control
+        /// </summary>
+        /// <param name="data">html string</param>
+        public static string GetParams()
         {
-            double my_compare(object x, object y)
+            ext_params = "";
+            if (!bReady || dispObj.HasShutdownStarted) return ext_params;
+            while (true)
             {
-                double x1 = (double)x;
-                double y1 = (double)y;
-                double dMax = (Math.Abs(x1) > Math.Abs(y1)) ? Math.Abs(x1) : Math.Abs(y1);
-                if (dMax == 0) return 0.0;    //equal
-                var q = Math.Abs(x1 - y1) / dMax;
-                return q <= 0.01 ? 0.0 : -1.0;
+                //мы запускаем код в UI потоке
+                dispObj.Invoke(delegate
+                {
+                    ext_params = (string)webConsole.InvokeScript("ext_params");
+                });
+                if (ext_params != "") break;
+                System.Threading.Thread.Sleep(100);
             }
-            public void Execute()
-            {
-                Dynamo.Console("test48_compare_float");
-                object[] f0 = { 1, 2, 3, 4, 7 };
-                object[] f1 = { 1.1, 2.01, 3.1, 4.01, 5.1, 6.1, 7 };
-                var solv = new MathPanelExt.Similarica();
-                double dScore = solv.Calc(f0, f1, my_compare);
+            return ext_params;
+        }
 
-                var sRs = solv.PrintStrings("font-size:14pt;");
-                Dynamo.SetHtml(sRs);
-            }
-        }*/
 
 
     }
