@@ -565,7 +565,7 @@ Dynamo.Console(hz.ToString());
         /// popup alert
         /// </summary>
         /// <param name="s">popup text</param>
-        public static void Allert(string s)
+        public static void Alert(string s)
         {
             //s = Eval("1+3", typeof(int)).ToString();
             MessageBox.Show(s);
