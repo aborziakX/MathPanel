@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Canvas drawing</title>
+    <style type="text/css">
+        body { background-color:#ffe; border:2px solid #cfc; }
+        #file1 { width: 45%; height:100px; margin-right:10px; float:left; border:1px solid #ccc; }
+        #result  {width: 45%; height: 100px; float:left; border:1px solid #ccc;}
+        #canvas1 { border:1px solid #cfc; }
+        #canvas2 { border:1px solid #ccf; }
+        #controls {display: none;}
+        #divX {display: none;}
+        #cont1 {overflow:hidden; width:1px; height:1px;}
+        #logg {width:200px; height:400px; overflow:auto;}
+        #info { float:right; width:200px;}
+        .red { background-color:#fcc; }
+        .green { background-color:#cfc; }
+        #scoretable td { width:24px; }
+    </style>
+    <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+</head>
+<body onload="my_onload()">
+<div id="controls">
+    <div id="1">Fill a box with data, click "Eval".</div>
+    <textarea id="file1">2;10
+5;55
+9;36</textarea>
+    scale <input id="scale" type="text" />
+    <a href="#" onclick="return show();">Show</a>
+    <a href="#" onclick="return ext_json($('#file1').val());">Eval</a>
+    <a href="#" onclick="return ext_copy();">Copy</a>
+    <div id="result">results</div>
+</div>
+<div style="clear:both;"></div>
+<div id="divX">divX</div>
+<div id="comment">?</div>
+<div id="cont1">
+<canvas id="canvas1" width="1100" height="600"></canvas>
+</div>
+<canvas id="canvas2" width="1100" height="600"></canvas>
+<div id="info">
+    Для перемещения камеры используйте стрелки Плюс, Минус, Влево, Вправо, Вверх, Вниз. <br />
+    Для вращения дополнительно нажмите Shift.<br />
+    <img id="img1" scr="" style="display:none" />
+    <textarea id="logg">Log here</textarea>
+</div>
+    
+
+<script type="text/javascript" src="graphix.js"></script>
+<script type="text/javascript">
+function getWidth() {
+  return Math.max(
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+}
+
+function getHeight() {
+  return Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+}
+var width_x, height_x;
+function my_onload() {
+    width_x = Math.floor( getWidth() ) - 40;
+    height_x = Math.floor( getHeight() ) - 60;
+    $("#comment").text(width_x + ","+ height_x);
+    width_x = height_x;//debug
+
+    var cnv = document.getElementById("canvas1");
+    cnv.width = width_x;
+    cnv.height = height_x;
+
+    cnv = document.getElementById("canvas2");
+    cnv.width = width_x;
+    cnv.height = height_x;
+
+    $( "#canvas2" )
+      .mouseup(function() {
+        $( "#comment" ).append( "<span style='color:#f00;'>Mouse up.</span>" );
+      })
+      .mousedown(function(event) {
+        var msg = "Mouse down at " + event.pageX + ", " + event.pageY;
+        $( "#comment" ).append( "<span style='color:#00f;'>" + msg + "</span>" );
+      });
+
+    jQuery.support.cors = true;//to allow cross-domain!
+
+    var d = new Date();
+    logg("now=" + d.getTime());
+    return false;
+}
+function logg(w) {
+    $("#logg").text($("#logg").text() + "\n" + w);
+}
+function show() {
+    var scale = $("#scale").val();
+    var s1 = $("#file1").val();
+    var arr1 = s1.split("\n");
+
+    var iScale = parseInt(scale, 10);
+    if( isNaN(iScale) || iScale < 1 || iScale > 1000 ) iScale = 1;
+    var len = parseInt("" + arr1.length / iScale, 10);
+    if( len < 1 ) {
+        $("#result").html("bad totlen=" + arr1.length);
+        return;
+    }
+
+    var dd = new Array();
+    var x0 = 1, x1 = 1, y0 = 1, y1 = 1;
+    for (var j = 0; j < 100000 && j < arr1.length; j++) {
+        var aa = arr1[j].split(";");
+        if(aa.length <= 1 ) { break; }
+        var x = aa[0] * 1;
+        var y = aa[1] * 1;
+        if( j == 0 ) {
+            x0 = x;
+            x1 = x;
+            y0 = y;
+            y1 = y;
+        }
+        else {
+            if( x0 > x ) x0 = x;
+            if( x1 < x ) x1 = x;
+            if( y0 > y ) y0 = y;
+            if( y1 < y ) y1 = y;
+        }
+        var sz = null;//5 + j * 2;
+        var clr = null;//(j % 2 == 0 ? "#ff0000" : "#ffaa00");
+        dd.push(new Array(x, y, sz, clr));
+    }
+    var extra = (x1 - x0) * 0.01;
+    x0 -= extra;
+    x1 += extra;
+    extra = (y1 - y0) * 0.01;
+    y0 -= extra;
+    y1 += extra;
+    $("#result").html("totlen=" + arr1.length + ", scale=" + iScale + ", len=" + len + ", x0=" + x0 + ", x1=" + x1 + ", y0=" + y0 + ", y1=" + y1 + ",extra=" + extra);
+
+    //prepare canvas
+    var cnv = document.getElementById("canvas1");
+    if( 2*len > 1100)
+        cnv.width = 2*len + 1;
+    GRAPHIX.AX_CL = "#ffff00";
+    GRAPHIX.PADDING = 2;
+    GRAPHIX.drawAxes('canvas1');
+
+    //draw our data
+    var opt2 = {"x0": x0, "x1": x1, "y0": y0, "y1": y1, "color": "#ff0000", "style": "circle", "size":10 };
+    GRAPHIX.drawData('canvas1', dd, opt2);
+
+    return false;
+}
+function ext_load(w) {
+    //alert(w);
+    $("#file1").val(w);
+}
+function ext_alert(w) {
+    //alert(w);
+    $("#result").html(w);
+}
+function ext_json(w) {
+    //draw our data
+    var d1 = new Date().getTime();
+    var dpa = GRAPHIX.drawJson("canvas2", w);
+    var d2 = new Date().getTime();
+    logg("draw ms=" + (d2 - d1) + ", parse=" + (dpa-d1));
+    //to avoid flashing
+    //ext_copy();
+    return false;
+}
+
+function ext_copy() {
+    var cnv = document.getElementById("canvas1");
+    var ctx = cnv.getContext('2d');
+    var imgData = ctx.getImageData(0, 0, width_x, height_x);
+
+    var cnv2 = document.getElementById("canvas2");
+    var ctx2 = cnv2.getContext('2d');
+    ctx2.putImageData(imgData, 0, 0);
+    return false;
+}
+
+function ext_SaveScripresult( user, pass, server, scid, data ) {
+    //alert("grab");
+    var uu = server + "?box=save_scripresult&r=" + Math.random();
+    //var uu = "https://www.pvobr.ru/jsonp_model.aspx?box=test&param1=1" + Math.random();
+    //alert(uu + "," + user + "," + pass);
+    $.ajax({
+        url: uu,
+        type: "POST",
+        crossDomain: true,
+        data: {
+            param1: user,
+            param2: pass,
+            param3: 0,
+            param4: scid,
+            param5: data
+        },
+        dataType: "json",
+        success: function (result) {
+            //alert("result.data=" + result.data);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error: " + textStatus + "||" + errorThrown);
+        }
+    });
+}
+
+//draw our text data
+function ext_div(w) {
+    $("#canvas2").hide();
+    $("#divX").show();
+    $("#divX").html(w);
+    return false;
+}
+//prepare to draw our graph data
+function ext_graph() {
+    $("#divX").hide();
+    $("#canvas2").show();
+    return false;
+}
+
+    </script>
+</body>
+</html>

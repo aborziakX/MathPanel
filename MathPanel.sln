@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Blend for Visual Studio Version 16
+# Visual Studio Version 16
 VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathPanel", "MathPanel\MathPanel.csproj", "{39EA500F-E842-40B9-A395-1DA136BB02F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathPanel", "MathPanel.csproj", "{39EA500F-E842-40B9-A395-1DA136BB02F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {915716C5-20D2-403C-BF42-90D24DF633B2}
+		SolutionGuid = {E471046D-A488-4E84-A52D-DC55DC4C65A4}
 	EndGlobalSection
 EndGlobal
