@@ -14,4 +14,10 @@
 API
 Пример рисования текста и линий вместе с геом.объектами дан в "scripts\test36_text_3d.cs"
 
+Нужен пакет
+Npgsql.4.1.3.1
+
+Bin/Debug и Bin/Release скопировать
+graphix.js, jquery-1.11.1.min.js, test_graph.htm, ru.local, scripts/template.cs
+
 
