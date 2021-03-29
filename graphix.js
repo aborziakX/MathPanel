@@ -82,6 +82,8 @@ if (typeof GRAPHIX == "undefined") {
             if (textdown == "undefined") textdown = 0; 
             var fontsize = "" + opt.fontsize;
             if (fontsize == "undefined") fontsize = 10; 
+            var textonbottom = "" + opt.textonbottom;
+            if (textonbottom == "undefined") textonbottom = 0;
  
             var ctx = cnv.getContext('2d');
             ctx.beginPath();
@@ -149,15 +151,21 @@ if (typeof GRAPHIX == "undefined") {
                     if (text != "") ctx.fillText(text, l, m - 10);
                 }
                 else if (style == "hist") {
+                    m0 = h + this.PADDING;
                     if (fromzero == 0) {
-                        ctx.moveTo(l, h + this.PADDING);
+                        ctx.moveTo(l, m0);
                     } else {
                         m0 = Math.round((h - (h * (0 - y0)) / dy) + this.PADDING);
                         ctx.moveTo(l, m0);
                     }
+                    if (m == m0) m = m0 - 1;
                     ctx.lineTo(l, m);
                     ctx.stroke();
-                    if (text != "") ctx.fillText(text, l, m - 10);
+                    if (text != "") {
+                        if (textonbottom == 0)
+                            ctx.fillText(text, l, m - 10);
+                        else ctx.fillText(text, l, m0 + fontsize * 1);
+                    }
                 }
                 else if (style == "hist_3") {
                     if (textonly != 1) {
@@ -219,6 +227,13 @@ if (typeof GRAPHIX == "undefined") {
                         ctx.stroke();
                     }                  
                     if (text != "") ctx.fillText(text, l, m - 10);
+                }
+                else if (style == "text") {
+                    if (text != "") {
+                        if (textonbottom == 0)
+                            ctx.fillText(text, l, m - fontsize * 1);
+                        else ctx.fillText(text, l, m + fontsize * 1);
+                    }
                 }
 
                 if(bRestoreSize) {

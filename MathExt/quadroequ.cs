@@ -160,5 +160,22 @@ namespace MathPanelExt
 			return sb.ToString();
 		}
 
+		/// <summary>
+		/// подготовки данных рисования текста
+		/// </summary>
+		public static string DrawText(double x, double y, string text)
+		{
+			string s = "{{\"x\":{0},\"y\":{1}, \"txt\":\"{2}\", \"sty\":\"circle\"}}";
+			return string.Format(s, Dynamo.D2S(x), Dynamo.D2S(y), text);
+		}
+
+		/// <summary>
+		/// подготовки данных для точки
+		/// </summary>
+		public static string DrawPoint(double x, double y, string text, string style)
+		{
+			string s = "{{\"x\":{0},\"y\":{1}, \"txt\":\"{2}\", \"sty\":\"{3}\"}}";
+			return string.Format(s, Dynamo.D2S(x), Dynamo.D2S(y), text, style);
+		}
 	}
 }
