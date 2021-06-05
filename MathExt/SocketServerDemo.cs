@@ -37,7 +37,8 @@ namespace MathPanelExt
         static int POLL_MS_CONN = 1000;
         static string sLogFile = "SocketServer_demo.log";
         public static int loglevel = 0;
-         ManualResetEvent allDone = new ManualResetEvent(false);
+        public bool bKeep = true;
+        ManualResetEvent allDone = new ManualResetEvent(false);
         int port;
         string name = "tunnel", host;
         public string sStart = "", sEnd = "\r\n\r\n";
@@ -234,6 +235,11 @@ namespace MathPanelExt
             StateObject state = (StateObject)ar.AsyncState;
             Socket handler = state.workSocket;
             handler.EndSend(ar);
+            if (!bKeep)
+            {
+                handler.Close();
+                return;
+            }
 
             StateObject newstate = new StateObject();
             newstate.workSocket = handler;
