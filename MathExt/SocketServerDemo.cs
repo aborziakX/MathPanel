@@ -29,6 +29,10 @@ namespace MathPanelExt
         public Socket workSocket = null;
         public byte[] buffer = new byte[BUFSIZE];
         public StringBuilder sb = new StringBuilder();
+
+        //AB 2021-06-07 for big data continue reading/sending
+        public byte[] bytesToSend = null;
+        public int offset = 0;
     }
     public delegate byte[] PerformCalculation(StateObject state);
     public class SocketServer
@@ -209,38 +213,69 @@ namespace MathPanelExt
 
             // Data was read from the client socket.
             if (read > 0)
-            {
+            {   //AB 2021-06-07 for big data continue reading
                 state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, read));
-
-                byte[] bytesToSend = pc_hand != null ? pc_hand(state) : Process(state);
-
-                if (bytesToSend != null)
-                {
-                    handler.BeginSend(bytesToSend, 0, bytesToSend.Length, SocketFlags.None,
-                        new AsyncCallback(sendCallback), state);
-                }
-                else
+                if (read == StateObject.BUFSIZE)
                 {
                     handler.BeginReceive(state.buffer, 0, StateObject.BUFSIZE, 0, new AsyncCallback(readCallback), state);
+                    return;
                 }
+            }
+
+            byte[] bytesToSend = pc_hand != null ? pc_hand(state) : Process(state);
+            if (bytesToSend != null)
+            {
+                state.bytesToSend = bytesToSend;
+                state.offset = 0;
+                int len = bytesToSend.Length;
+                if (len > StateObject.BUFSIZE) len = StateObject.BUFSIZE;
+                handler.BeginSend(bytesToSend, 0, len, SocketFlags.None,
+                    new AsyncCallback(sendCallback), state);
             }
             else
             {
-                handler.Close();
+                //if (!bKeep)
+                    handler.Close();
             }
         }
+
         //завершить передачу
         void sendCallback(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
             Socket handler = state.workSocket;
-            handler.EndSend(ar);
+            int iSent = handler.EndSend(ar);
+            if (iSent <= 0)
+            {
+                Log(name + ",mmm=" + mmm + ",error:" + "no data sent", 3);
+                handler.Close();
+                return;
+            }
+
+            if (!IsSocketConnected(handler))
+            {
+                handler.Close();
+                return;
+            }
+
+            //AB 2021-06-07 for big data continue sending
+            if (state.offset + iSent < state.bytesToSend.Length)
+            {
+                state.offset += iSent;
+                int len = state.bytesToSend.Length - state.offset;
+                if (len > StateObject.BUFSIZE) len = StateObject.BUFSIZE;
+                handler.BeginSend(state.bytesToSend, state.offset, len, SocketFlags.None,
+                    new AsyncCallback(sendCallback), state);
+                return;
+            }
+
             if (!bKeep)
             {
                 handler.Close();
                 return;
             }
 
+            //read a new message
             StateObject newstate = new StateObject();
             newstate.workSocket = handler;
             handler.BeginReceive(newstate.buffer, 0, StateObject.BUFSIZE, 0, new AsyncCallback(readCallback), newstate);
@@ -282,7 +317,7 @@ namespace MathPanelExt
             {
                 try
                 {
-                    StreamWriter sw = new StreamWriter(sLogFile, true, Encoding.GetEncoding(1251));
+                    StreamWriter sw = new StreamWriter(sLogFile, true, Encoding.UTF8);
                     sw.WriteLine(string.Format("{0:yyyy-MM-dd HH:mm:ss} {1}", DateTime.Now, s));
                     sw.Close();
                 }
@@ -408,6 +443,7 @@ namespace MathPanelExt
             }
             return bytesToSend;
         }
+        /*
         static void Main2(string[] args)
         {
             SocketServer.Log("SocketServer started", 3);
@@ -516,5 +552,6 @@ namespace MathPanelExt
                 Console.ReadLine();
             }
         }
+        */
     }
 }

@@ -290,6 +290,17 @@ if (typeof GRAPHIX == "undefined") {
             return dpa;
         },
 
+        //отобразить json-array //AB 2021-06-05
+        drawJsonArr: function (canvas, sArr) {
+            //var sArr = JSON.parse(w);//eval(w);
+            var dpa = new Date().getTime();
+            for (var i = 0; i < sArr.length; i++) {
+                if (i > 0) sArr[i]["options"]["second"] = true;
+                this.drawJsonObj(canvas, sArr[i]);
+            }
+            return dpa;
+        },
+
         //отобразить json-object
         drawJsonObj: function (canvas, s) {
             var cnv = document.getElementById(canvas);
