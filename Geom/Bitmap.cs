@@ -651,8 +651,8 @@ namespace MathPanel
         /// <summary>
         /// серый
         /// </summary>
-        public void Gray()
-        {
+        public void Gray(bool bAver = true)
+        {   //2021-07-13
             int alpha, red, green, blue;
             int k = 0;
             for (int y = 0; y < height; y++)
@@ -663,13 +663,126 @@ namespace MathPanel
                     var cc = System.Drawing.Color.FromArgb(argb);
                     alpha = cc.A;
                     //Converting the image to grayscale. Find the average value for the channels 
-                    red = (cc.R + cc.G + cc.B) / 3;
+                    if( bAver )red = (cc.R + cc.G + cc.B) / 3;
+                    else
+                    {
+                        red = cc.R;
+                        if (red < cc.G) red = cc.G;
+                        if (red < cc.B) red = cc.B;
+                    }
                     green = red;
                     blue = red;
                     map[k++] = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
                 }
             }
         }
+
+        /// <summary>
+        /// серый со сжатием
+        /// </summary>
+        public void GrayAdaptive(int col, int row, bool bAver = true)
+        {   //2021-07-13
+            int alpha, red, green, blue;
+            int k = 0, i, j, x, y, x_0, y_0, x_1, y_1, n;
+            //размеры клетки для усреднения
+            double wi = (double)width / col;  //шаг по горизонтали
+            double he = (double)height / row; //шаг по вертикали
+            //if (wi < 1 || he < 1) return;
+            
+            int[] map_2 = new int[col * row];
+            int m = 0;
+            for (j = 0; j < row; j++)
+            {
+                for (i = 0; i < col; i++)
+                {
+                    x_0 = (int)Math.Round(i * wi);
+                    y_0 = (int)Math.Round(j * he);
+                    x_1 = (int)Math.Round((i + 1) * wi);
+                    y_1 = (int)Math.Round((j + 1) * he);
+                    if (x_1 > width) x_1 = width;
+                    if (y_1 > height) y_1 = height;
+                    n = 0;
+                    alpha = 0;
+                    red = 0;
+                    for (y = y_0; y < y_1; y++)
+                    {
+                        for (x = x_0; x < x_1; x++)
+                        {
+                            k = y * width + x;
+                            int argb = map[k];
+                            var cc = System.Drawing.Color.FromArgb(argb);
+                            alpha += cc.A;
+                            //Converting the image to grayscale. Find the average value for the channels 
+                            if (bAver) red += (cc.R + cc.G + cc.B) / 3;
+                            else
+                            {
+                                int redMax = cc.R;
+                                if (redMax < cc.G) redMax = cc.G;
+                                if (redMax < cc.B) redMax = cc.B;
+                                red += redMax;
+                            }
+                            n++;
+                        }
+                    }
+                    if (n > 0)
+                    {
+                        alpha = alpha / n;
+                        red = red / n;
+                    }
+                    else
+                    {
+                        alpha = 255;
+                        red = 127;
+                    }
+                    green = red;
+                    blue = red;
+                    map_2[m++] = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
+                }
+            }
+
+            width = col;
+            height = row;
+            map = map_2;
+        }
+
+        /// <summary>
+        /// зеркалка
+        /// </summary>
+        public void Flip(bool bHorizontal = true)
+        {   //2021-07-16
+            int k, m;
+            if (bHorizontal)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width / 2; x++)
+                    {
+                        k = y * width + x;
+                        m = y * width + (width - 1 - x);
+                        int argb1 = map[k];
+                        int argb2 = map[m];
+                        map[k] = argb2;
+                        map[m] = argb1;
+                    }
+                }
+            }
+            else
+            {
+                for (int y = 0; y < height /2; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        k = y * width + x;
+                        m = (height - 1 - y) * width + x;
+                        int argb1 = map[k];
+                        int argb2 = map[m];
+                        map[k] = argb2;
+                        map[m] = argb1;
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// черно-белый
