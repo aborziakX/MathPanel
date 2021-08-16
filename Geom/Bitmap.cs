@@ -699,6 +699,8 @@ namespace MathPanel
                     y_0 = (int)Math.Round(j * he);
                     x_1 = (int)Math.Round((i + 1) * wi);
                     y_1 = (int)Math.Round((j + 1) * he);
+                    if (x_1 == x_0) x_1++;//2021-08-14
+                    if (y_1 == y_0) y_1++;
                     if (x_1 > width) x_1 = width;
                     if (y_1 > height) y_1 = height;
                     n = 0;
@@ -1243,6 +1245,78 @@ namespace MathPanel
             return s.ToString();
         }
 
-
+        /// <summary>
+        /// изменить альфу, где белый по краям
+        /// </summary>
+        public void Transparent( bool bRadius = false, int border = 20, int tresh = 225)
+        {
+            int k, red, green, blue;
+            if (!bRadius)
+            {
+                //2 horizontal strips
+                for (int y = 0; y < height; y++)
+                {
+                    if (y < border || y + border > height)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            k = y * width + x;
+                            var cc = System.Drawing.Color.FromArgb(map[k]);
+                            red = cc.R;
+                            green = cc.G;
+                            blue = cc.B;
+                            if (red + green + blue > tresh * 3)
+                            {
+                                var cc2 = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
+                                map[k] = cc2;
+                            }
+                        }
+                    }
+                }
+                //2 vertical strips
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (x < border || x + border > width)
+                        {
+                            k = y * width + x;
+                            var cc = System.Drawing.Color.FromArgb(map[k]);
+                            red = cc.R;
+                            green = cc.G;
+                            blue = cc.B;
+                            if (red + green + blue > tresh * 3)
+                            {
+                                var cc2 = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
+                                map[k] = cc2;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                int xCenter = width / 2;
+                int yCenter = height / 2;
+                int rad2 = border * border;
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        if( (x - xCenter) * (x - xCenter) + (y - yCenter) * (y - yCenter) < rad2) continue;
+                        k = y * width + x;
+                        var cc = System.Drawing.Color.FromArgb(map[k]);
+                        red = cc.R;
+                        green = cc.G;
+                        blue = cc.B;
+                        if (red + green + blue > tresh * 3)
+                        {
+                            var cc2 = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
+                            map[k] = cc2;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
