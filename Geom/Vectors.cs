@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+//TODO добавить вращение вокруг оси - from test59_moscow_habana
 namespace MathPanel
 {
 
@@ -118,6 +119,13 @@ namespace MathPanel
             res.Copy(p1.x + t * v1.x, p1.y + t * v1.y, p1.z + t * v1.z);
             return true;
         }
+        public void Scale(double p)
+        {
+            x *= p;
+            y *= p;
+            z *= p;
+        }
+
     }
 
     /// <summary>
@@ -137,6 +145,12 @@ namespace MathPanel
             a.Copy(mat.a);
             b.Copy(mat.b);
             c.Copy(mat.c);
+        }
+        public void Scale(double p1, double p2, double p3 )
+        {
+            a.Scale(p1);
+            b.Scale(p2);
+            c.Scale(p3);
         }
         public void Add(Mat3 mat)
         {
