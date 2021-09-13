@@ -1,10 +1,9 @@
 ﻿//test37_bitmap1
 using MathPanel;
-//using MathPanelExt;
 using System.Net.Sockets;
 using System;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -14,10 +13,10 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test37_bitmap1");
-            //the path to the images folder 
-            string sDir = @"c:\temp\";
+            //путь к папке 
+            string sDir = @"C:\c_devel\images\";
 
-            //Here we define an array of several colors, 
+            //массив цветов 
             System.Drawing.Color[] colors = { 
                 System.Drawing.Color.Red,
                 System.Drawing.Color.Orange,
@@ -30,12 +29,12 @@ namespace DynamoCode
                 System.Drawing.Color.Green,
             };
             
-            //create our BitmapSimple object
+            //создать объект BitmapSimple
             var bm = new BitmapSimple(40, 40, colors);
             var fn = sDir +"test37_bitmap1.png";
-            //save it to a file
+            //сохранить в файл
             bm.Save(fn);
-            //and pass the file to our Image component
+            //загрузить файл в компонент Image
             Dynamo.SetBitmapImage(fn);
         }
     }

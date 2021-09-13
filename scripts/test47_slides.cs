@@ -1,11 +1,9 @@
 ﻿//test47_slides
 using MathPanel;
-//using MathPanelExt;
-using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -15,20 +13,20 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test47_slides");
-            //the path to the files folder 
-            string sDir = @"c:\temp\";
-            //the array of filenames
+            //путь к папке 
+            string sDir = @"C:\c_devel\images\";
+            //массив файлов-изображений
             string[] fnames = { "pat1_rot.png", "pat2_rot.png", "pat3_rot.png", "pat4_rot.png", "pat5_rot.png",
                 "pat6_rot.png", "pat7_rot.png", "pat8_rot.png", "pat9_rot.png", "pat10_rot.png",
                 "pat11_rot.png", "pat12_rot.png"
             };
-            //loop through all files
+            //по всем файлам
             for (int i = 0; i < fnames.Length; i++)
             {
                 var fn = fnames[i];
-                //load a file into Image component
+                //загрузить файл в компонент Image
                 Dynamo.SetBitmapImage(sDir + fn);
-                //sleep for 500 ms
+                //заснуть на 500 мсек
                 System.Threading.Thread.Sleep(500);
             }
         }

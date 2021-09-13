@@ -12,7 +12,7 @@ namespace DynamoCode
 	{  
 		public void Execute()
         {
-            Dynamo.Console("Script started!");
+            Dynamo.Console("Скрипт стартовал!");
             //добавьте свой код ниже
         }  
     }  

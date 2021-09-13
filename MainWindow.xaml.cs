@@ -1,4 +1,7 @@
 ﻿//2020, Andrei Borziak
+//MathPanel (математическая панель) для работы со скриптами, написанными на C#.
+//Область применения – моделирование процессов и визуализация.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +10,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Globalization;
-using System.Xml;
 using System.Configuration;
-//for fibo dll
-using System.Runtime.InteropServices;
-//for get, post
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 //for dynamo
 using System.CodeDom.Compiler;
 using Microsoft.CSharp;
@@ -23,8 +20,6 @@ using System.Reflection;
 using Microsoft.Win32;
 using System.Windows.Input;
 using System.Web.Script.Serialization;
-using System.Windows.Shapes;
-using System.Drawing;
 
 //была "Неизвестная ошибка сборки, Не удалось загрузить файл или сборку либо одну из их зависимостей. 
 //Процесс не может получить доступ к файлу, так как этот файл занят другим процессом. (Исключение из HRESULT: 0x80070020)"	MathPanel"
@@ -37,31 +32,33 @@ namespace MathPanel
     /// </summary>
     public partial class Dynamo : Window
     {   
-        readonly static string version = " v1.0";
+        //область статических переменных
+        readonly static string version = " v1.0"; //версия
+        //путь к используемому фреймворку
         static string frmPath = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\";
-        readonly static string sLogFile = "mathpanel.log";
-        readonly static Dictionary<int, Phob> dicPhob = new Dictionary<int, Phob>();
-        static TextBox txtConsole, txtCommand;
-        static WebBrowser webConsole;
-        static System.Windows.Controls.Image imgStatic;
+        readonly static string sLogFile = "mathpanel.log"; //файл логирования
+        readonly static Dictionary<int, Phob> dicPhob = new Dictionary<int, Phob>(); //словарь физических объектов
+        static TextBox txtConsole, txtCommand; //окна сообщений и комманд
+        static WebBrowser webConsole; //окно веб-браузера
+        static System.Windows.Controls.Image imgStatic; //компонент с картинкой
         static System.Windows.Threading.Dispatcher dispObj; //диспетчер UI-потока, через него обращения к элементам UI из других потоков
         //test init
         readonly static string test1 = @"var hz = Math.Sqrt(3);
 Dynamo.Console(hz.ToString());
 ";
-        static bool bReady = false;
-        static string keyConsole = "";
-        static object dynClassInstance = null;
-        static System.Threading.Thread my_thread = null;
-        readonly static List<System.Threading.Thread> lstThr = new List<Thread>();
+        static bool bReady = false; //признак успешной инициализации
+        static string keyConsole = "";//ввод с клавиатуры
+        static object dynClassInstance = null; //объект типа скрипт    
+        static System.Threading.Thread my_thread = null; //текущий поток со скриптом   
+        readonly static List<System.Threading.Thread> lstThr = new List<Thread>(); //список всех потоков со скриптами
         static double z_cam = 100;  //z-позиция камеры
-        static double x_cam_angle = 1.5;  //угол камеры
-        static double y_cam_angle = 1.5;  //угол камеры
-        //размеры изображения в 0,0,0
-        static double physWidth = z_cam * Math.Tan(x_cam_angle);// * Math.PI / 360.0);
-        static double physHeight = z_cam * Math.Tan(y_cam_angle);// * Math.PI / 360.0);
+        static double x_cam_angle = 1.5;  //угол камеры по горизонтали
+        static double y_cam_angle = 1.5;  //угол камеры по вертикали
+        //размеры экрана изображения в точке 0,0,0
+        static double physWidth = z_cam * Math.Tan(x_cam_angle);
+        static double physHeight = z_cam * Math.Tan(y_cam_angle);
         //проектируется на экран html-canvas (в пикселях)
-        static int iCanvasWidth = 800;// (int)((600 * physWidth) / physHeight);
+        static int iCanvasWidth = 800;
         static int iCanvasHeight = 600;
         //ящик - система координат, в которой размещены объекты
         static Box box = null;  //границы ящика для рисования
@@ -70,21 +67,25 @@ Dynamo.Console(hz.ToString());
         static double xRotor = -0; //вращение ящика вокруг оси X
         static double yRotor = 0; //вращение ящика вокруг оси Y
         static double zRotor = 0; //вращение ящика вокруг оси Z
-        static Mat3 matRotor = new Mat3();
+        static Mat3 matRotor = new Mat3(); //матрица для вращения
         static int DrawCount = 0; //счетчик рисований
-        static bool bAxes = true;
+        static bool bAxes = true; //признак построения осей
         static string clrNormal = "#ff0000";    //цвет нормалей
         static string clrStroke = "#999999";    //цвет ребер
-        static int widNormal = 3;
-        static string screenJson = "";
-        static string user = "", pass = "", server = "", scid = "0";
-        static object locker = new object();
-        static int loglevel = 0;
-        static string canvasBg = "#000000";
-        static string ext_params = "";
+        static int widNormal = 3; //ширина нормалей
+        static string screenJson = ""; //текст для канваса веб-браузера
+        static string user = "", pass = "", server = "", scid = "0"; //логин, пароль, сервер, код сцены для внешнего сайта
+        static object locker = new object(); //для синхронизации доступа
+        static int loglevel = 0; //уровень логирования
+        static string canvasBg = "#000000"; //фон канваса
+        static string ext_params = ""; //дополнительный параметр
+
+        //конструктор
         public Dynamo()
         {
             InitializeComponent();
+
+            //чтение конфигурации
             string s = ConfigurationManager.AppSettings["netframworkpath"];
             if (!string.IsNullOrEmpty(s))
                 frmPath = s;
@@ -133,8 +134,9 @@ Dynamo.Console(hz.ToString());
                 Log(ex.ToString());
             }*/
 
-
+            //добавляем номер версии в заголовок
             this.Title += version;
+            //добавляем обработчики для кнопок
             button1.Click += Button1_Click;
             button2.Click += Button2_Click;
             button3.Click += Button3_Click;
@@ -142,26 +144,33 @@ Dynamo.Console(hz.ToString());
             button5.Click += Button5_Click;
             button6.Click += Button6_Click;
             button7.Click += Button7_Click;
+            //скрыть веб-браузер и компонент картинки
             web1.Visibility = Visibility.Hidden;
             img1.Visibility = Visibility.Hidden;
 
+            //текущая директория
             string sDir = AppDomain.CurrentDomain.BaseDirectory;
-            //web1.Document.
+            //загружаем страницу в веб-браузер
             if (string.IsNullOrEmpty(ConfigurationManager.AppSettings["visual_page"]))
                 web1.Navigate("file:///" + sDir + "test_graph.htm");
             else web1.Navigate(ConfigurationManager.AppSettings["visual_page"]);
+
+            //сохраняем объекты окна в статических переменных
             txtCommand = textBlock1;
             txtConsole = textBlock2;
             textBlock1.Text = test1;
             webConsole = web1;
             imgStatic = img1;
             dispObj = Dispatcher;
+
+            //программа успешно стартовала
             bReady = true;
-            this.Closing += OnBeforeClosing;
-            SceneClear();
+            this.Closing += OnBeforeClosing; //обработчик для остановки потоков
+            SceneClear(); //очистить сцену
             boxShape.iFill = 2; //ребра
             CameraZ = 100;
 
+            //выполняем стартовый скрипт, если задан
             s = ConfigurationManager.AppSettings["startup"];
             if (!string.IsNullOrEmpty(s))
             {
@@ -177,6 +186,7 @@ Dynamo.Console(hz.ToString());
                 }
             }
 
+            //здесь были тесты для упрощения синтаксического анализа скриптов
             //DbTest();
             //JavaScriptSerializer jj = new JavaScriptSerializer();
             //var q = jj.Serialize("aa\r\nbb;");
@@ -208,6 +218,7 @@ Dynamo.Console(hz.ToString());
         void OnBeforeClosing(object sender, EventArgs e)
         {
             bReady = false;
+            //остановка потоков со скриптами
             foreach (var thr in lstThr)
             {
                 if (thr.IsAlive) thr.Abort();
@@ -219,19 +230,15 @@ Dynamo.Console(hz.ToString());
         {
             if (!bReady)
             {
-                MessageBox.Show("Not ready");
+                MessageBox.Show("Не готово!");
                 return;
             }
             Process(textBlock1.Text);
         }
-        //hide/show controls
+
+        //скрыть/показать элементы интерфейса
         private void Button2_Click(object sender, RoutedEventArgs e)
         {
-            /*int height = (int)sv1.Height;
-            int height1 = (int)textBlock1.Height;
-            MessageBox.Show("h=" + height + "," + height1);
-            sv1.Height += 20;
-            textBlock1.Height += 20;*/
             if( img1.IsVisible )
             {
                 img1.Visibility = Visibility.Hidden;
@@ -249,7 +256,8 @@ Dynamo.Console(hz.ToString());
             web1.Visibility = web1.IsVisible ? Visibility.Hidden : Visibility.Visible;
             button2.Content = Label1.IsVisible ? "График" : "Команды";
         }
-        //load script
+
+        //загрузить скрипт из файла
         private void Button3_Click(object sender, RoutedEventArgs e)
         {
             string data;
@@ -260,7 +268,8 @@ Dynamo.Console(hz.ToString());
                 textBlock1.Text = data;
             }
         }
-        //save script
+
+        //сохранить скрипт в файле
         private void Button4_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -272,7 +281,8 @@ Dynamo.Console(hz.ToString());
                 File.WriteAllText(openFileDialog.FileName, textBlock1.Text, Encoding.UTF8);
             }
         }
-        //обработчик кнопки "Compile"
+
+        //обработчик кнопки "Компилировать"
         private void Button5_Click(object sender, RoutedEventArgs e)
         {
             //MessageBox.Show("Not ready");
@@ -294,21 +304,21 @@ Dynamo.Console(hz.ToString());
             try
             {
                 CSharpCodeProvider provider = new CSharpCodeProvider();
-                //build dll
+                //признак build dll
                 CompilerParameters compilerParams2 = new CompilerParameters
                 { OutputAssembly = outputAssembly, GenerateExecutable = false };
                 //to allow LINQ
                 compilerParams2.ReferencedAssemblies.Add("System.Core.Dll");
 
-                // Компиляция dll
+                //Компиляция dll
                 results = provider.CompileAssemblyFromSource(compilerParams2, sourceDll);
-                // Выводим информацию об ошибках
+                //Выводим информацию об ошибках
                 Console(string.Format("Number of Errors DLL: {0}", results.Errors.Count));
                 foreach (CompilerError err in results.Errors)
                 {
                     Console(string.Format("ERROR {0}", err.ErrorText));
                 }
-                /*
+                /* //тест
                 Console(string.Format("Try Assembly:"));
                 Assembly assembly = Assembly.LoadFile(outputAssembly);
                 Type type = assembly.GetType("MathPanelExt.QuadroEqu");
@@ -333,11 +343,14 @@ Dynamo.Console(hz.ToString());
             return;
         }
 
+        //обработчик кнопки "Новый скрипт"
         private void Button6_Click(object sender, RoutedEventArgs e)
         {
             string data = File.ReadAllText("template.cs", Encoding.UTF8);
             textBlock1.Text = data;
         }
+
+        //обработчик кнопки "Картинка"
         private void Button7_Click(object sender, RoutedEventArgs e)
         {
             Label1.Visibility = Visibility.Hidden;
@@ -348,8 +361,7 @@ Dynamo.Console(hz.ToString());
             img1.Visibility = Visibility.Visible;
             button2.Content = "Команды";
 
-            //string sDir = AppDomain.CurrentDomain.BaseDirectory;
-            string path;//= sDir + "blue_red_drop2_800.png";
+            string path;
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
@@ -359,7 +371,7 @@ Dynamo.Console(hz.ToString());
             }
         }
 
-        //load image file into control
+        //Загрузить файл с изображением в компонент
         public static void SetBitmapImage(string path)
         {
             if (!bReady || dispObj.HasShutdownStarted) return;
@@ -370,6 +382,7 @@ Dynamo.Console(hz.ToString());
             });
         }
 
+        //обработчик нажатия клавиатуры
         private void MyPreviewKeyDown(object sender, KeyEventArgs e)
         {
             //if (e.KeyboardDevice.Modifiers == ModifierKeys.Shift && e.Key == Key.F1)
@@ -420,9 +433,10 @@ Dynamo.Console(hz.ToString());
             keyConsole = key;
         }
 
-        //compile and execute commands
+        //компилировать и выполнить скрипт из окна "комманд"
         public static void Process(string s)
         {
+            //сборки
             string[] includeAssemblies = { "MathPanel.exe",
                 frmPath + "System.dll",
                 frmPath + "System.Xaml.dll",
@@ -433,10 +447,11 @@ Dynamo.Console(hz.ToString());
                 , frmPath + "System.Net.dll"
                 , frmPath + "System.Net.Http.dll"
             };
+            //пространства имен
             string[] includeNamespaces = { "MathPanel", "MathPanelExt", "System.Net.Sockets" };
             keyConsole = "";
             CompileDynamo(s, null, includeNamespaces, includeAssemblies);
-            //eval in a new thread
+            //создаем новый поток
             try
             {
                 if (dynClassInstance != null)
@@ -447,7 +462,7 @@ Dynamo.Console(hz.ToString());
                         try
                         {
                             methodInfo.Invoke(dynClassInstance, null);
-                            Dynamo.Console("Done");
+                            Dynamo.Console("Скрипт выполнен.");
                         }
                         catch (Exception yyy) { Dynamo.Console(yyy.ToString()); }
                         //my_thread = null;
@@ -458,6 +473,8 @@ Dynamo.Console(hz.ToString());
             }
             catch (Exception xxx) { Dynamo.Console(xxx.ToString()); }
         }
+
+        //метод для тестирования
         static object Eval(string code, Type outType = null, string[] includeNamespaces = null, string[] includeAssemblies = null)
         {
             object methodResult = null;
@@ -471,6 +488,7 @@ Dynamo.Console(hz.ToString());
             return methodResult;
         }
 
+        //создать объект типа скрипт
         static object CompileDynamo(string code, Type outType = null, string[] includeNamespaces = null, string[] includeAssemblies = null)
         {
             StringBuilder namespaces = null;
@@ -551,6 +569,11 @@ Dynamo.Console(hz.ToString());
             return methodResult;
         }
 
+        //API
+        /// <summary>
+        /// преобразовать вещественное число в строку с точностью 4 знака после запятой
+        /// </summary>
+        /// <param name="d">число</param>
         public static string D2S(double d)
         {   //F4
             string s = d.ToString("G4", CultureInfo.InvariantCulture.NumberFormat);
@@ -560,11 +583,10 @@ Dynamo.Console(hz.ToString());
             }
             return s;
         }
-        //API
         /// <summary>
-        /// popup alert
+        /// всплывающее окно
         /// </summary>
-        /// <param name="s">popup text</param>
+        /// <param name="s">текст сообщения</param>
         public static void Alert(string s)
         {
             //s = Eval("1+3", typeof(int)).ToString();
@@ -575,9 +597,9 @@ Dynamo.Console(hz.ToString());
         //чтобы обновлять интерфейс пользователя, используем запуск кода в UI потоке как орисано по ссылке ниже
         //https://ru.stackoverflow.com/questions/615113/%D0%9F%D0%BE%D1%87%D0%B5%D0%BC%D1%83-thread-sleep-%D0%B2%D0%B5%D0%B4%D1%91%D1%82-%D1%81%D0%B5%D0%B1%D1%8F-%D0%BD%D0%B5%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D1%8C%D0%BD%D0%BE-%D0%9A%D0%B0%D0%BA-%D0%BC%D0%BD%D0%B5-%D1%81%D0%B4%D0%B5%D0%BB%D0%B0%D1%82%D1%8C-%D0%B7%D0%B0%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D1%83-%D0%B8%D0%BB%D0%B8-%D0%B4%D0%BB%D0%B8%D0%BD%D0%BD%D1%8B%D0%B5
         /// <summary>
-        /// add text to console window
+        /// добавить текст в окно сообщений
         /// </summary>
-        /// <param name="s">text</param>
+        /// <param name="s">текст</param>
         public static void Console(string s, bool bNewLine = true)
         {
             //txtConsole.Text += (s + "\r\n");
@@ -590,7 +612,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// clear console window
+        /// очистить текст в окне сообщений
         /// </summary>
         public static void ConsoleClear()
         {
@@ -1476,7 +1498,7 @@ Dynamo.Console(hz.ToString());
 
         /// <summary>
         /// prepare data for visualization in canvas
-        /// <param name="bCons">вывод на консоль состояния</param>
+        /// <param name="bCons">вывод в окно сообщений</param>
         /// <return>attribute value</return>
         /// </summary>
         public static void SceneDraw(bool bCons = false)
@@ -1594,7 +1616,7 @@ Dynamo.Console(hz.ToString());
         /// <summary>
         /// prepare data for visualization in canvas using shapes
         /// <param name="bBx">рисовать оси</param>
-        /// <param name="bCons">вывод на консоль состояния</param>
+        /// <param name="bCons">вывод в окно сообщений</param>
         /// <return>attribute value</return>
         /// </summary>
         public static void SceneDrawShape(bool bBx = true, bool bCons = false)
@@ -2191,8 +2213,5 @@ Dynamo.Console(hz.ToString());
             return ext_params;
         }
 
-
-
     }
-
 }

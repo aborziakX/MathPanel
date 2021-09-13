@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -15,8 +13,8 @@ namespace MathPanel
     /// </summary>
     public class BitmapSimple
     {
-        public int width, height;
-        public int[] map;
+        public int width, height;//ширина, высота изображения
+        public int[] map;//массив значений точек изображения
         /// <summary>
         /// 2-х мерное изображение
         /// </summary>
@@ -25,13 +23,13 @@ namespace MathPanel
         /// <param name="colors">цвета повторяющиеся</param>
         public BitmapSimple(int w, int h, System.Drawing.Color[] colors)
         {
-            /* The Color Structure represents colors in terms of alpha, red, green, and blue (ARGB) channels. 
-            The color of each pixel is represented as a 32-bit number: 8 bits each for the alpha, red, green, and blue channels (ARGB). 
-            Each of the four components is a number from 0 to 255, where 0 means no intensity and 255 represents full intensity. 
-            The alpha component sets the color transparency: 0 is fully transparent, and 255 is fully opaque. 
-            To define the alpha, red, green, or blue component of a color, use the A, R, G, or B property, respectively. 
-            You can create a custom color using one of the FromArgb() methods.
-            The ToArgb() method returns the 32-bit ARGB value of this Color structure.
+            /* Цветовая структура представляет цвета в терминах альфа, красного, зеленого и синего каналов (RGB).
+Цвет каждого пикселя представлен в виде 32-разрядного числа: по 8 бит для альфа, красного, зеленого и синего каналов (RGB).
+Каждый из четырех компонентов представляет собой число от 0 до 255, где 0 означает отсутствие интенсивности, а 255 представляет полную интенсивность.
+Альфа-компонент задает прозрачность цвета: 0 полностью прозрачен, а 255 полностью непрозрачен.
+Чтобы определить альфа, красный, зеленый или синий компонент цвета, используйте свойство A, R, G или B соответственно.
+Вы можете создать собственный цвет, используя один из методов FromArgb ().
+Метод ToArgb() возвращает 32-разрядное значение ARGB этой цветовой структуры.
             */
             width = w;
             height = h;
@@ -335,37 +333,34 @@ namespace MathPanel
         /// <param name="fname">файл</param>
         public void Save(string fname)
         {
-            /*
-            Creating an object of the Bitmap type, which is used for working with images defined by pixel data. 
-            Encapsulates a GDI + bitmap consisting of pixel data from the graphic image and drawing attributes. 
-            Creating a Graphics object that encapsulates the GDI+ drawing surface.
-            The GDI+ interface is a General-purpose drawing model for .NET applications. 
-            In the .NET environment the GDI+ interface is used in several places, including when sending documents 
-            to a printer, displaying graphics in Windows applications, and rendering graphic elements on a web page.
-            
+            /* 
+            Создаем объект типа Bitmap, который используется для работы с изображениями, определяемыми данными пикселей. 
+            Инкапсулирует точечный рисунок GDI+, состоящий из данных пикселей графического изображения и атрибутов рисунка.
+            Создаем объект Graphics , который инкапсулирует поверхность рисования GDI+.
+            Интерфейс GDI+ - это модель рисования общего назначения для приложений .NET. 
+            В среде .NET интерфейс GDI+ используется в нескольких местах, в том числе при отправке документов на принтер, 
+            отображения графики в Windows-приложениях и визуализации графических элементов на веб-странице.
             */
             Bitmap image = new Bitmap(width, height);
             Graphics g = Graphics.FromImage(image);
 
-            /*
-            image.LockBits locks the Bitmap object in system memory so that pixels can be changed.
-            Getting a pointer to the allocated memory block
-            */
+            //image.LockBits блокирует объект Bitmap в системной памяти, чтобы пиксели можно было изменять.
             BitmapData bmData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             int offset = 0;
             int stride = bmData.Stride;
+            //Получаем указатель на выделенный блок памяти
             IntPtr Scan0 = bmData.Scan0;
 
             int nOffset = stride - image.Width * 4;
             int k = 0;
-            //Next, in a double loop, we move through our map array, extracting from each element of the structure Color
+            //Далее в двойном цикле двигаемся по нашему массиву map, извлекаем из каждого элемента структуру Color
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
                 {
                     int argb = map[k];
                     var cc = System.Drawing.Color.FromArgb(argb);
-                    //Writing colors to memory, increasing the offset
+                    //Пишем цвета в память, увеличиваем смещение
                     Marshal.WriteByte(Scan0, offset, (byte)cc.B);
                     Marshal.WriteByte(Scan0, offset + 1, (byte)cc.G);
                     Marshal.WriteByte(Scan0, offset + 2, (byte)cc.R);
@@ -375,11 +370,12 @@ namespace MathPanel
                 }
                 offset += nOffset;
             }
-            //then we unlock the memory, save it to a PNG file, and free up resources
+            //затем разблокируем память, сохраняем в файл в фрпмате PNG, освобождаем ресурсы.
             image.UnlockBits(bmData);
 
             g.Flush();
             if (File.Exists(fname)) File.Delete(fname);
+            //сохраняем как PNG или JPEG
             image.Save(fname, fname.IndexOf(".png") > 0 ? System.Drawing.Imaging.ImageFormat.Png :
                  System.Drawing.Imaging.ImageFormat.Jpeg);
             image.Dispose();

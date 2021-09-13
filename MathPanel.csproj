@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MathExt\DB.cs" />
+    <Compile Include="MathExt\DSP.cs" />
     <Compile Include="MathExt\quadroequ.cs" />
     <Compile Include="MathExt\Rest.cs" />
     <Compile Include="MathExt\Similarica.cs" />
