@@ -4,7 +4,7 @@ using MathPanelExt;
 using System.Net.Sockets;
 using System;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -14,16 +14,16 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test37_bitmap2");
-            //the path to the images folder 
-            string sDir = @"c:\temp\";
+            //путь к папке 
+            string sDir = @"C:\c_devel\images\";
 
             var fn = sDir + "test37_bitmap1.png";
-            //create an object of BitmapSimple from file 
+            //создать объект BitmapSimple из файла 
             var bm = new BitmapSimple(fn);
-            //put black rectangle on it
+            //нанести черный прямоугольник на него
             bm.Pixel(15, 15, 255, 0, 0, 0, 10, 10);
             var fn_2 = sDir + "test37_bitmap2.png";
-            //save it
+            //сохранить
             bm.Save(fn_2);
             Dynamo.SetBitmapImage(fn_2);
         }

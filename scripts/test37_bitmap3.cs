@@ -1,10 +1,9 @@
 ﻿//test37_bitmap3
 using MathPanel;
-//using MathPanelExt;
 using System.Net.Sockets;
 using System;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -14,10 +13,10 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test37_bitmap3");
-            //the path to the images folder 
-            string sDir = @"c:\temp\";
+            //путь к папке 
+            string sDir = @"C:\c_devel\images\";
 
-            //Create 4 bitmaps with a gradient from white to blue and load them in turn into the Image1 component.
+            //Создаем 4 битмапа с градиентом от белого к голубому и по очереди загружаем в компонент Image
             string[] fns = { "test37_bitmap3_a.png", "test37_bitmap3_b.png", "test37_bitmap3_c.png", "test37_bitmap3_d.png" };
             var bm = new BitmapSimple(200, 200, System.Drawing.Color.White, System.Drawing.Color.Blue, false);
             bm.Save(sDir + fns[0]);

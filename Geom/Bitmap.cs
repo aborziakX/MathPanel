@@ -81,7 +81,6 @@ namespace MathPanel
         /// <param name="col1">цвет сверху (слева)</param>
         /// <param name="col2">цвет снизу (справа)</param>
         /// <param name="bVert">true сверху (col1) вниз (col2), else слева направо</param>
-        //gradient, bVert ? vertical : horizontal
         public BitmapSimple(int w, int h, System.Drawing.Color col1, System.Drawing.Color col2, bool bVert = true)
         {
             width = w;
@@ -98,8 +97,8 @@ namespace MathPanel
             byte b2 = col2.B;
             if (bVert)
             {
-                //If the gradient is vertical, then everything is simple. 
-                //For each line of the image, we calculate the ARGB pixel values as a linear relationship
+                //Если градиент вертикальный, то все просто.
+                //Для каждой линии изображения вычисляем значения ARGB пикселя как линейную зависимость
                 for (int j = 0; j < height; j++)
                 {
                     alpha = a1 + ((a2 - a1) * j) / height;
@@ -109,15 +108,17 @@ namespace MathPanel
                     int argb = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
                     for (int i = 0; i < width; i++)
                     {
-                        //Write to the map array
+                        //записать цвет в массив
                         map[k++] = argb;
                     }
                 }
             }
             else
             {
-                //If the gradient is horizontal, it is slightly more difficult. 
-                //For each column of the image, we calculate the ARGB pixel values. 
+                //Если градиент горизонтальный, то чуть сложнее.
+                //Для каждого столбца изображения вычисляем значения ARGB пикселя.
+                //Образуем цикл по элементам столбца, вычисляем индекс элемента i * width + j
+                //и присваиваем ему значения ARGB
                 for (int j = 0; j < width; j++)
                 {
                     alpha = a1 + ((a2 - a1) * j) / width;
@@ -231,7 +232,6 @@ namespace MathPanel
         /// 2-х мерное изображение из файла
         /// </summary>
         /// <param name="fname">файл изображения</param>
-        //from file
         public BitmapSimple(string fname)
         {
             FromFile(fname);
@@ -241,34 +241,34 @@ namespace MathPanel
         /// 2-х мерное изображение из файла
         /// </summary>
         /// <param name="fname">файл изображения</param>
-        //from file
         public void FromFile(string fname)
         {
-            /*Creating an imageOrig object of the Image type (an abstract class that outputs Bitmap and Metafile) 
-            directly from the file name (there is a necessary method in the class).
-            Create an image object of the Bitmap type from this object and release the resource
+            /*
+            Создаем объект imageOrig типа Image (абстрактный класс, из которого выводятся Bitmap и Metafile) прямо 
+            из имени файла (есть нужный метод в классе).
+            Из этого объекта создаем объект image типа Bitmap и освобождаем ресурс.
             */
             Image imageOrig = new Bitmap(fname);
             Bitmap image = new Bitmap(imageOrig);
             imageOrig.Dispose();
 
-            //Find the image size and allocate the required memory
+            //Находим размеры изображения, выделяем требуемую память
             width = image.Width;
             height = image.Height;
             map = new int[width * height];
 
-            // GDI+ still lies to us - the return format is BGR, NOT RGB.
+            //GDI+ не достоверен - формат BGR, а НЕ RGB.
             BitmapData bmData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             int offset = 0;
             int stride = bmData.Stride;
-            //image.LockBits locks the Bitmap object in system memory so that pixels can be read/modified.
-            //Getting a refference to the allocated memory block
+            //image.LockBits блокирует объект Bitmap в системной памяти, чтобы пиксели можно было читать/изменять.
+            //Получаем указатель на выделенный блок памяти
             IntPtr Scan0 = bmData.Scan0;
 
             int bBl, bGr, bRd, bAl;
             int nOffset = stride - image.Width * 4;
             int k = 0;
-            //Then in a double loop we read the pixel data from the image and copy it to our array map
+            //Затем в двойном цикле читаем данные пикселей из изображения и копируем в наш массив map
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
@@ -282,7 +282,7 @@ namespace MathPanel
                 }
                 offset += nOffset;
             }
-            //unlock the memory block to free up resources
+            //В финале разблокируем блок памяти для освобождения ресурсов
             image.UnlockBits(bmData);
         }
 
@@ -969,9 +969,10 @@ namespace MathPanel
         /// </summary>
         public void Pixel(int x0, int y0, int alpha, int red, int green, int blue, int size_x = 1, int size_y = 1)
         {
-            /*Changing the pixel at position x0, y0. To do this, use the parameters alpha, red, green, blue to form the color cc. 
-            Find an element of the map array and assign it. 
-            Not only one pixel can be changed, but also its neighbors in a rectangle with the size size_x, size_y (by default, they are equal to 1).
+            /*
+            Изменяем пиксель в позиции x0, y0. Для этого из параметров alpha, red, green, blue формируем цвет cc. 
+            Находим элемент массива map и присваиваем его. Подвергнуться изменению может не только один пиксель, 
+            но и его соседи в прямоугольнике с размером size_x, size_y (по умолчанию они равны 1).
             */
             var cc = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
             int k;
