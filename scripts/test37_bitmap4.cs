@@ -4,7 +4,7 @@ using MathPanel;
 using System.Net.Sockets;
 using System;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -14,24 +14,24 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test37_bitmap4");
-            //the path to the images folder 
-            string sDir = @"c:\temp\";
+            //путь к папке  
+            string sDir = @"C:\c_devel\images\";
 
             string [] fns = { "test37_bitmap4_a.png", "test37_bitmap4_b.jpg" };
 
-            //sky with 3 light gray drops
+            //сине-красное небо с 3-мя светло-серыми облаками
             var bm = new BitmapSimple(800, 600, System.Drawing.Color.Blue, System.Drawing.Color.Red, true);
             var cc = System.Drawing.Color.LightGray;
-            bm.Drop(cc, 100, 100, 80, 80, 0.9, false);
-            bm.Drop(cc, 300, 100, 100, 50, 0.9, true);
+            bm.Drop(cc, 100, 100, 80, 80, 0.9, false);//резкое затухание капли
+            bm.Drop(cc, 300, 100, 100, 50, 0.9, true);//линейное затухание капли
             bm.Drop(cc, 500, 150, 50, 100, 0.9, false);
             bm.Save(sDir + fns[0]);
 
-            //sky with 3 gray drops
+            //темносине-красное небо с 3-мя серыми облаками
             var bm2 = new BitmapSimple(800, 600, System.Drawing.Color.DarkBlue, System.Drawing.Color.Red, true);
             cc = System.Drawing.Color.Gray;
-            bm2.Drop(cc, 100, 100, 80, 80, 0.9, false);
-            bm2.Drop(cc, 300, 100, 100, 50, 0.9, true);
+            bm2.Drop(cc, 100, 100, 80, 80, 0.9, false);//резкое затухание капли
+            bm2.Drop(cc, 300, 100, 100, 50, 0.9, true);//линейное затухание капли
             bm2.Drop(cc, 500, 150, 50, 100, 0.9, false);
             bm2.Save(sDir + fns[1]);
 
@@ -40,9 +40,9 @@ namespace DynamoCode
                 Dynamo.SetBitmapImage(sDir + fns[i % 2]);
                 System.Threading.Thread.Sleep(1000);
             }
-            /*The first one is saved in png format, the second in jpeg format. 
-            We see that the 2nd file turned out to be 3 times smaller 
-            (jpeg uses compression with a slight loss of quality, invisible to the eye).
+            /*
+            Первый вариант сохраняем в формате png, второй в формате jpeg. 
+            Видим, что 2-й файл получился в 3 раза меньше (jpeg использует сжатие с небольшой потерей качества, на глаз незаметно).
             */
         }
     }

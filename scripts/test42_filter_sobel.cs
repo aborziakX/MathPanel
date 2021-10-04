@@ -1,11 +1,10 @@
 ﻿//test42_filter_sobel
 using MathPanel;
-//using MathPanelExt;
 using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -15,12 +14,12 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test42_filter_sobel");
-            //the path to the images folder 
-            string sDir = @"c:\temp\";
-            //file names
+            //путь к папке  
+            string sDir = @"C:\c_devel\images\";
+            //имена файлов
             string[] fnames = { "black_rects", "white_rects", "cubes", "white_lines" };
 
-            //it applies the filter to 4 images
+            //применяет фильтр к 4-м картинкам
             for (int i = 0; i < fnames.Length; i++)
             {
                 var fn = fnames[i];
@@ -31,7 +30,7 @@ namespace DynamoCode
                 bm.Save(sDir + fn_2);
             }
 
-            //do a slide show
+            //слайд-шоу
             for (int i = 0; i < 100; i++)
             {
                 Dynamo.SetBitmapImage(sDir + fnames[i % fnames.Length] + "_horz.png");

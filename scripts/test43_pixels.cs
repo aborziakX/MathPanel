@@ -1,15 +1,14 @@
 ﻿//test43_pixels
-/* Create a green bitmap, draw a red square on it, and save it. 
- * Creating a black bitmap, setting alpha=200 (almost opaque) in the first half, and 100 (semi – transparent) in the second half. 
- * We put the 2nd bitmap on the first one and save it. 
+/* Создаем битмап зеленого цвета, рисуем на ней красный квадрат, сохраняем. 
+  Создаем битмап черного цвета, в первой половине устанавливаем alpha=200 (почти непрозрачно), 
+  во второй половине – 100 (полупрозрачно). Накладываем 2-ую битмап на первую, сохраняем. 
 */
 using MathPanel;
-//using MathPanelExt;
 using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -19,8 +18,8 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test43_pixels");
-            //the path to the images folder  
-            string sDir = @"c:\temp\";
+            //путь к папке  
+            string sDir = @"C:\c_devel\images\";
 
             string[] fnames = { "red" };
             System.Drawing.Color[] col_green = { System.Drawing.Color.Green };
@@ -29,13 +28,13 @@ namespace DynamoCode
             for (int i = 0; i < fnames.Length; i++)
             {
                 var fn = fnames[i];
-                //Create a green bitmap
+                //Создаем битмап зеленого цвета
                 var bm = new BitmapSimple(800, 600, col_green);
-                //draw a red square on it
+                //рисуем на ней красный квадрат
                 DateTime dt1 = DateTime.Now;
                 bm.Pixel(300, 200, 255, 255, 0, 0, 200, 200);
                 var fn_2 = sDir + fn + "_pix.png";
-                //and save it
+                //сохраняем
                 bm.Save(fn_2);
                 Dynamo.SetBitmapImage(fn_2);
                 DateTime dt2 = DateTime.Now;
@@ -44,15 +43,16 @@ namespace DynamoCode
                 //display time span
                 Dynamo.Console("ms=" + ms);
 
-                //Creating a black bitmap
+                //Создаем битмап черного цвета
                 var bm2 = new BitmapSimple(800, 600, col_black);
-                //setting alpha=200 (almost opaque) in the first half
+                //в первой половине устанавливаем alpha=200 (почти непрозрачно), 
+                
                 bm2.Alpha(0, 0, 200, 400, 600);
-                //and 100 (semi – transparent) in the second half
+                //во второй половине – 100(полупрозрачно)
                 bm2.Alpha(400, 0, 100, 400, 600);
-                //We put the 2nd bitmap on the first one
+                //Накладываем 2-ую битмап на первую
                 bm.Put(bm2);
-                //and save it
+                //сохраняем
                 fn_2 = sDir + fn + "_pix_alfa.png";
                 bm.Save(fn_2);
 

@@ -210,20 +210,20 @@ namespace MathPanel
         {
             if (nNoise <= 0 || iNoiceStrenth < 1) return;
             int k, alpha, red, green, blue, i;
-            //generate noise Using the random number generator
+            //создать объект типа "генератор случайных чисел"
             Random rnd = new Random();
             for (i = 0; i < nNoise; i++)
-            {
-                //in the loop, we find a random element in the array by the number of variations 
+            {   //в цикле по числу отклонений
+                //выбрать случайный элемент в массиве пикселей 
                 k = rnd.Next(0, width * height);
                 int argb = map[k];
                 var clr = System.Drawing.Color.FromArgb(argb);
-                //Then we slightly change the values in the channels
+                //слегка изменить значения в каналах
                 alpha = clr.A;
                 red = SafeColor(clr.R + rnd.Next(0, iNoiceStrenth) - iNoiceStrenth / 2);
                 green = SafeColor(clr.G + rnd.Next(0, iNoiceStrenth) - iNoiceStrenth / 2);
                 blue = SafeColor(clr.B + rnd.Next(0, iNoiceStrenth) - iNoiceStrenth / 2);
-                //and save pixels
+                //сохранить пиксель
                 map[k] = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
             }
         }
@@ -584,26 +584,30 @@ namespace MathPanel
         /// <param name="dInitForce">начальная сила капли</param>
         public void Drop(System.Drawing.Color clr, int x_0, int y_0, int wi, int he, double dInitForce, bool bLinear = true)
         {
-            //it simulates a drop of paint
+            //имитирует каплю краски
             if (wi <= 0 || he <= 0 || x_0 < 0 || x_0 >= width || y_0 < 0 || y_0 >= height) return;
             if (dInitForce <= 0 || dInitForce > 1) dInitForce = 1;
             int k, i, j, x, y;
+            //вытянутость по ширине
             double dEllipse = (wi * 1.0) / he;
+            //максимальный радиус капли
             double dRadiusMax = Math.Sqrt(wi * wi + he * he * dEllipse * dEllipse) / 2;
             for (i = 0; i < wi; i++)
-            {
+            {   //слева направо
                 for (j = 0; j < he; j++)
-                {
+                {   //сверху вниз
                     x = x_0 - wi / 2 + i;
                     y = y_0 - he / 2 + j;
                     if (x < 0 || x >= width || y < 0 || y >= height) { }
                     else
                     {
                         double dRadius = Math.Sqrt((x - x_0) * (x - x_0) + (y - y_0) * (y - y_0) * dEllipse * dEllipse);
+                        //не превышать максимальный радиус
                         if (dRadiusMax <= dRadius) continue;
                         k = y * width + x;
                         int argb = map[k];
                         var clr_orig = System.Drawing.Color.FromArgb(argb);
+                        //сила капли постепенно убывает
                         int argb_new = Merge(clr_orig, clr, dInitForce * Math.Pow((dRadiusMax - dRadius) / dRadiusMax, bLinear ? 1 : 2));
                         map[k] = argb_new;
                         //string s = string.Format("x={0}, y={1}, k={2}, i={3}, j={4}, argb={5}, new={6}", x, y, k, i, j, argb, argb_new);
@@ -619,7 +623,7 @@ namespace MathPanel
         /// <param name="cc">цвет</param>
         public static int SafeColor(int cc)
         {
-            //Don't allow the value to go out of range 0-255
+            //не давать выходить за 0-255
             if (cc < 0) return 0;
             if (cc > 255) return 255;
             return cc;
@@ -633,8 +637,8 @@ namespace MathPanel
         /// <param name="dInitForce">начальная сила капли</param>
         public static int Merge(System.Drawing.Color clr_orig, System.Drawing.Color clr, double dInitForce)
         {
-            //We sum up two values – the new color with the dInitForce weight and the original color 
-            //with the weight(1 - dInitForce).And so on all channels
+            //Суммируем 2 значения – новый цвет с весом dInitForce и исходный цвет 
+            //с весом (1 - dInitForce). И так по всем каналам
             int alpha, red, green, blue;
             alpha = clr_orig.A;
             red = SafeColor((int)(dInitForce * clr.R + clr_orig.R * (1 - dInitForce)));
@@ -643,10 +647,11 @@ namespace MathPanel
             return System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
         }
 
-        //transformations
+        //трансформации
         /// <summary>
-        /// серый
+        /// из цветного в серый
         /// </summary>
+        /// <param name="bAver">true - брать среднее, иначе максимальное</param>
         public void Gray(bool bAver = true)
         {   //2021-07-13
             int alpha, red, green, blue;
@@ -658,10 +663,10 @@ namespace MathPanel
                     int argb = map[k];
                     var cc = System.Drawing.Color.FromArgb(argb);
                     alpha = cc.A;
-                    //Converting the image to grayscale. Find the average value for the channels 
-                    if( bAver )red = (cc.R + cc.G + cc.B) / 3;
+                    //Преобразуем изображение в оттенки серого. Находим среднее значение по каналам  
+                    if ( bAver )red = (cc.R + cc.G + cc.B) / 3;
                     else
-                    {
+                    {   //находим максимальный уровень
                         red = cc.R;
                         if (red < cc.G) red = cc.G;
                         if (red < cc.B) red = cc.B;
@@ -710,10 +715,10 @@ namespace MathPanel
                             int argb = map[k];
                             var cc = System.Drawing.Color.FromArgb(argb);
                             alpha += cc.A;
-                            //Converting the image to grayscale. Find the average value for the channels 
+                            //Преобразуем изображение в оттенки серого. Находим среднее значение по каналам 
                             if (bAver) red += (cc.R + cc.G + cc.B) / 3;
                             else
-                            {
+                            {   //находим максимальный уровень
                                 int redMax = cc.R;
                                 if (redMax < cc.G) redMax = cc.G;
                                 if (redMax < cc.B) redMax = cc.B;
@@ -746,6 +751,7 @@ namespace MathPanel
         /// <summary>
         /// зеркалка
         /// </summary>
+        /// <param name="bHorizontal">true - зеркалить по горизонтали, иначе по вертикали</param>
         public void Flip(bool bHorizontal = true)
         {   //2021-07-16
             int k, m;
@@ -781,10 +787,10 @@ namespace MathPanel
             }
         }
 
-
         /// <summary>
-        /// черно-белый
+        /// в черно-белый
         /// </summary>
+        /// <param name="threshold">порог</param>
         public void BlackWhite(int threshold = 127)
         {
             int alpha, red, green, blue;
@@ -796,8 +802,7 @@ namespace MathPanel
                     int argb = map[k];
                     var cc = System.Drawing.Color.FromArgb(argb);
                     alpha = cc.A;
-                    //Converting the image to black and white. Find the average value for the channels 
-                    //and compare it with the threshold
+                    //Преобразуем изображение в черно-белое. Находим среднее значение по каналам и сравниваем с порогом.
                     red = (cc.R + cc.G + cc.B) / 3;
                     red = red > threshold ? 255 : 0;
                     green = red;
@@ -810,9 +815,11 @@ namespace MathPanel
         /// <summary>
         /// сделать расплавчатым
         /// </summary>
+        /// <param name="num">число итераций</param>
+        /// <param name="step">область соседей +-</param>
         public void Smooth(int num = 1, int step = 1)
         {
-            //Reducing the image contrast. Allocating memory for a temporary array
+            //Уменьшаем контрастность изображения. Выделяем память под временный массив
             int[] map_2 = new int[width * height];
             int alpha, red, green, blue;
             int k, m, n, x_2, y_2;
@@ -830,7 +837,7 @@ namespace MathPanel
                         green = 0;
                         blue = 0;
                         n = 0;
-                        //Find the neighbors of the current point , accumulate values by channels
+                        //Находим соседей текущей точки , накапливаем значения по каналам
                         for (int i = -step; i <= step; i++)
                         {
                             y_2 = y + i;
@@ -849,23 +856,26 @@ namespace MathPanel
                                 blue += cc.B;
                             }
                         }
-                        //n – number of neighbors found
+                        //n – число найденных соседей
                         if (n > 0)
                         {   
                             map_2[k] = System.Drawing.Color.FromArgb(alpha / n, red / n, green / n, blue / n).ToArgb();
                         }
                     }
                 }
-                //Finally, we copy from the temporary array to the main one
+                //В заключении копируем из временного массива в основной
                 for (int y = 0; y < height * width; y++) map[y] = map_2[y];
             }
         }
 
         /// <summary>
-        /// фильтровать
+        /// фильтровать с помощью правил
         /// </summary>
+        /// <param name="fil">список правил вида (x, y, value)</param>
+        /// <param name="num">число итераций</param>
         public void Filter(List<Tuple<int, int, double>> fil, int num = 1)
         {
+            //Выделяем память под временный массив
             int[] map_2 = new int[width * height];
             int alpha, red, green, blue;
             int k, m, n, x_2, y_2;
@@ -883,9 +893,9 @@ namespace MathPanel
                         green = 0;
                         blue = 0;
                         n = 0;
-
+                        
                         foreach (var tup in fil)
-                        {
+                        {   //для каждого правила находим соседей текущей точки
                             y_2 = y + tup.Item2;
                             if (y_2 < 0 || y_2 >= height) continue;
                             x_2 = x + tup.Item1;
@@ -899,15 +909,16 @@ namespace MathPanel
                             green += (int)(cc.G * tup.Item3);
                             blue += (int)(cc.B * tup.Item3);
                         }
+                        //n – число найденных соседей
                         if (n > 0)
-                        {   //??negative
+                        {
                             map_2[k] = System.Drawing.Color.FromArgb(SafeColor(alpha),
                                 SafeColor(red), SafeColor(green), SafeColor(blue)).ToArgb();
                         }
 
                     }
                 }
-
+                //В заключении копируем из временного массива в основной
                 for (int y = 0; y < height * width; y++) map[y] = map_2[y];
             }
         }
@@ -989,6 +1000,11 @@ namespace MathPanel
         /// <summary>
         /// изменить альфу
         /// </summary>
+        /// <param name="x0">горизонтальная позиция</param>
+        /// <param name="y0">вертикальная позиция</param>
+        /// <param name="alpha">новое значение alpha</param>
+        /// <param name="size_x">горизонтальный размер</param>
+        /// <param name="size_y">вертикальный размер</param>
         public void Alpha(int x0, int y0, int alpha, int size_x = 1, int size_y = 1)
         {
             int k, red, green, blue;
@@ -1010,6 +1026,7 @@ namespace MathPanel
         /// <summary>
         /// наложить битмап с учетом альфы
         /// </summary>
+        /// <param name="bm">накладываемый BitmapSimple</param>
         public void Put(BitmapSimple bm)
         {
             if (width != bm.width || height != bm.height) return;
