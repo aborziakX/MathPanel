@@ -2180,9 +2180,9 @@ Dynamo.Console(hz.ToString());
 
 
         /// <summary>
-        /// set html into control
+        /// передать html код в веб-компонент
         /// </summary>
-        /// <param name="data">html string</param>
+        /// <param name="data">html код</param>
         public static void SetHtml(string data)
         {
             if (!bReady || dispObj.HasShutdownStarted) return;

@@ -284,7 +284,9 @@ if (typeof GRAPHIX == "undefined") {
         
         //отобразить json-string
         drawJson: function (canvas, w) {
-            var s = JSON.parse(w);//eval(w);
+            if ("" + JSON != "undefined") s = JSON.parse(w);
+            else if ("" + jQuery != "undefined") s = jQuery.parseJSON(w);
+            else s = eval(w);
             var dpa = new Date().getTime();
             this.drawJsonObj(canvas, s);
             return dpa;

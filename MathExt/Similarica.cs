@@ -4,10 +4,10 @@ using System.Text;
 
 namespace MathPanelExt
 {
-	//simple class to align strings and objects, estimate the similarity
+	//простой класс для выравнивания строк и объектов, вычисления похожести
 	public class Similarica
 	{
-		//delegate template to calculate the difference between objects
+		//шаблон делегата для вычисления разности между объектами
 		public delegate double CalcDifference(object x, object y);
 		//members
 		int m_width, m_height;	//dimensions

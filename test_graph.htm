@@ -146,16 +146,16 @@ function show() {
     $("#result").html("totlen=" + arr1.length + ", scale=" + iScale + ", len=" + len + ", x0=" + x0 + ", x1=" + x1 + ", y0=" + y0 + ", y1=" + y1 + ",extra=" + extra);
 
     //prepare canvas
-    var cnv = document.getElementById("canvas1");
-    if( 2*len > 1100)
-        cnv.width = 2*len + 1;
+    var cnv = document.getElementById("canvas2");
+    if (2 * len > 1100)
+        cnv.width = 2 * len + 1;
     GRAPHIX.AX_CL = "#ffff00";
     GRAPHIX.PADDING = 2;
-    GRAPHIX.drawAxes('canvas1');
+    GRAPHIX.drawAxes('canvas2');
 
     //draw our data
-    var opt2 = {"x0": x0, "x1": x1, "y0": y0, "y1": y1, "color": "#ff0000", "style": "circle", "size":10 };
-    GRAPHIX.drawData('canvas1', dd, opt2);
+    var opt2 = { "x0": x0, "x1": x1, "y0": y0, "y1": y1, "clr": "#ff0000", "sty": "circle", "size": 10 };
+    GRAPHIX.drawData('canvas2', dd, opt2);
 
     return false;
 }
