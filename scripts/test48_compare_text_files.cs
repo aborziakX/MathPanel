@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -15,25 +15,24 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test48_compare_text_files");
-            //the path to the files folder 
-            string sDir = @"c:\temp\";
-            //the array of filenames
+            //путь к папке с файлами 
+            string sDir = @"C:\c_devel\data\";
+            //файлы для сравнения
             string[] fnames = { "test.htm", "test2.htm" };
 
-            //create an instance of Similarica class
+            //создать объект класса Similarica
             var solv = new Similarica();
 
-            //read data from 1 file
+            //чтение строк из 1-го файла
             var dat0 = System.IO.File.ReadAllLines(sDir + fnames[0], System.Text.Encoding.UTF8);
-            //read data from 2 file
+            //чтение строк из 2-го файла
             var dat1 = System.IO.File.ReadAllLines(sDir + fnames[1], System.Text.Encoding.UTF8);
 
-            //get the score and weights
+            //найти веса и наилучший путь
             double dScore = solv.Calc(dat0, dat1);
             Dynamo.Console("Score=" + dScore);
 
-            //display alignments
-            System.Threading.Thread.Sleep(200);
+            //генерировать цветное выравнивание в html
             var sRs = solv.PrintStrings("font-size:14pt;");
             Dynamo.SetHtml(sRs);
         }

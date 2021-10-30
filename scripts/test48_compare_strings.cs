@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
 
-///assemblies to use
+///сборки
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
@@ -15,25 +15,25 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test48_compare_strings");
-            //strings to compare
+            //строки для сравнения
             string[] fnames = { "optimal construction", "optimization const" };
             //string[] fnames = { "ANDREI", "ALEXEI" };
 
-            //create an instance of Similarica class
+            //создать объект класса Similarica
             var solv = new Similarica();
-            //get the score and weights
+            //найти веса и наилучший путь
             double dScore = solv.Calc(fnames[0], fnames[1]);
             Dynamo.Console("Score=" + dScore);
-            //generate the table of weights
+            //генерировать html-таблицу с весами и наилучшим путем
             var sWg = solv.Printweights("font-size:14pt;");
-            //generate alignments
+            //генерировать цветное выравнивание в html
             var sRs = solv.PrintStrings("font-size:14pt;");
 
             for (int i = 0; i < 10; i++)
             {
-                //display results
+                //вывести результат
                 Dynamo.SetHtml(i % 2 == 0 ? sWg : sRs);
-                //sleep
+                //спать
                 System.Threading.Thread.Sleep(2000);
             }
             

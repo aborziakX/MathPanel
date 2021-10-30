@@ -1174,36 +1174,34 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// generate the hash of BitmapSimple - A hash function is any function 
-        /// that can be used to map data of arbitrary size to fixed-size values. 
-        /// The values returned by a hash function are called hash values, hash codes, digests, or simply hashes.
+        /// генерировать хэш (hash) для объекта BitmapSimple. Хэш функция - некоторая функция, 
+        /// которая может быть использована для соотнесения данных произвольной длины к некоторому фиксированному размеру.
         /// </summary>
-        /// <param name="nx">divide by 'nx' horizontally</param>
-        /// <param name="ny">divide by 'nx' vertically</param>
-        /// <param name="palette">array of colors to match</param>
-        /// <param name="paletteCode">string to codify our palette colors</param>
-        /// <param name="bUpdate">if true, modify itself</param>
+        /// <param name="nx">делить на 'nx' по горизонтали</param>
+        /// <param name="ny">делить на 'ny' по вертикали</param>
+        /// <param name="palette">массив цветов для выбора ближайшего</param>
+        /// <param name="paletteCode">строка для кодировки цветов</param>
+        /// <param name="bUpdate">если true, преобразовать себя</param>
         public string Hash(int nx, int ny, Color[] palette, string paletteCode, bool bUpdate = false)
         {
             StringBuilder s = new StringBuilder();
             int k, n, alpha, red, green, blue, iMin, index;
-            //division parameters
-            int d_x = width / nx;   //rectangle width
-            int d_y = height / ny;  //rectangle height
-            //divide all area into small rectangles
-            //loop through our map
+            int d_x = width / nx;   //ширина ячейки
+            int d_y = height / ny;  //высота ячейки
+            //разделить объект на маленькие ячейки
+            //проход по карте
             for (int i = 0; i < nx; i++)
             {
                 for (int j = 0; j < ny; j++)
                 {
-                    //find an average color in the small rectangle
-                    //init counters
+                    //найти средний цвет в каждой ячейке
+                    //сбросить счетчики
                     alpha = 0;
                     red = 0;
                     green = 0;
                     blue = 0;
                     n = 0;
-                    //go through rectangle pixels, accumulate in channels
+                    //пройти по пикселям ячейки
                     for (int y = j * d_y; y < (j + 1) * d_y; y++)
                     {
                         for (int x = i * d_x; x < (i + 1) * d_x; x++)
@@ -1217,13 +1215,13 @@ namespace MathPanel
                             n++;
                         }
                     }
-                    //get average
+                    //найти средний
                     alpha /= n;
                     red /= n;
                     green /= n;
                     blue /= n;
 
-                    //find a nearest color in the palette
+                    //найти ближайший цвет в palette
                     iMin = int.MaxValue;
                     index = 0;
                     for (int m = 0; m < palette.Length; m++)
@@ -1238,11 +1236,11 @@ namespace MathPanel
                         }
                     }
 
-                    //add to hash a letter with found index
+                    //добавить к хэшу букву, кодирующую цвет
                     s.Append(paletteCode.Substring(index, 1));
 
                     if (bUpdate)
-                    {   //set pixels inside the small rectangle to a new selected color
+                    {   //заполнить ячейки новым ближайшим цветом
                         var best = palette[index].ToArgb();
                         for (int y = j * d_y; y < (j + 1) * d_y; y++)
                         {
