@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>MathPanelCore</title>
+    <style type="text/css">
+        body { background-color:#fff; }
+        #file1 {
+            width: 95%;
+            height: 420px;
+            margin-right: 10px;
+            border: 1px solid #999;
+            margin-top: 10px;
+        }
+        #result  { 
+            width: 95%; 
+            height: 320px; 
+            border:1px solid #999;
+        }
+        #canvas1 { border:0px solid #fff; }
+        #canvas2 { border:0px solid #fff; }
+        #controls { display:block; margin-bottom:10px; border-bottom:1px solid #999; padding-bottom:4px; }
+        #divGraph, #divImage, #divX, #divInfo {
+            display: none;
+        }
+
+        #cont1 {overflow:hidden; width:1px; height:1px;}
+        #logg {width:95%; height:400px; overflow:auto;}
+        .red { background-color:#fcc; }
+        .green { background-color:#cfc; }
+        #scoretable td { width:24px; }
+
+        .tab {
+            background-color: #00e39b;
+            color: #000;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            -webkit-border-radius: 4px;
+            border: 0;
+            text-decoration: none;
+        }
+        .tabact {
+            background-color: #ff6a00;
+        }
+        #btnRun {
+            background-color: #009be3;
+            color: #fff;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            -webkit-border-radius: 4px;
+            border: 0;
+            text-decoration: none;
+        }
+    </style>
+    <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+</head>
+<body onload="my_onload()">
+    <div id="controls">
+        <a href="#" class="tab tabact" id="btnScript" onclick="return clickBtn(0);">Скрипт</a>&nbsp;&nbsp;&nbsp;
+        <a href="#" class="tab" id="btnGraph" onclick="return clickBtn(1);">Графика</a>&nbsp;&nbsp;&nbsp;
+        <a href="#" class="tab" id="btnImage" onclick="return clickBtn(2);">Картинка</a>&nbsp;&nbsp;&nbsp;
+        <a href="#" class="tab" id="btnX" onclick="return clickBtn(3);">Html</a>&nbsp;&nbsp;&nbsp;
+        <a href="#" class="tab" id="btnLog" onclick="return clickBtn(4);">Журнал</a>&nbsp;&nbsp;&nbsp;
+    </div>
+
+    <div id="divScript">
+        Введите скрипт в окно, нажмите
+        <a href="#" id="btnRun" onclick="return test_server46();">Выполнить</a>&nbsp;&nbsp;&nbsp;
+        <!--a href="#" onclick="return ext_copy();">Copy</a-->
+        <!--a href="#" onclick="return test_server45();">test_server45</a>&nbsp;&nbsp;&nbsp;
+        <a href="#" onclick="return ext_json($('#file1').val());">Eval</a-->
+
+        <textarea id="file1">string s1 = MathPanelExt.QuadroEqu.DrawLine(0, 0, 10, 10);
+string s2 = "{\"options\":{\"x0\": -3, \"x1\": 13, \"y0\": -3, \"y1\": 13, \"clr\": \"#ff0000\", \"sty\": \"line\", \"size\":10, \"lnw\": 3, \"wid\": 800, \"hei\": 600 }";
+string data = s2 + ", \"data\":[" + s1 + "]}";
+Dynamo.Console(data);
+Dynamo.SceneJson(data);
+    </textarea>
+        Сообщения:
+        <textarea id="result"></textarea>
+    </div>
+
+    <div id="divGraph">
+        <div>
+            Для перемещения камеры используйте клавиши z-(Плюс), w-(Минус), l-(Влево), r-(Вправо), u-(Вверх), d-(Вниз). <br />
+            Для вращения дополнительно нажмите Shift.
+        </div>
+        <div id="cont1">
+            <canvas id="canvas1" width="800" height="600"></canvas>
+        </div>
+        <canvas id="canvas2" width="800" height="600"></canvas>
+        <div id="comment"></div>
+    </div>
+
+    <div id="divImage">
+        <img id="img1" scr="" />
+    </div>
+
+    <div id="divX">divX</div>
+
+    <div id="divLog">
+        Журнал:
+        <textarea id="logg"></textarea>
+    </div>
+
+    <script type="text/javascript" src="graphix.js"></script>
+    <script type="text/javascript">
+        function clickBtn(n) {
+            $("#controls").children().removeClass("tabact");
+            $("#divScript").hide();
+            $("#divGraph").hide();
+            $("#divImage").hide();
+            $("#divX").hide();
+            $("#divLog").hide();
+
+            if (n == 0) {
+                $("#divScript").show();
+                $("#btnScript").addClass("tabact");
+            }
+            else if (n == 1) {
+                $("#divGraph").show();
+                $("#btnGraph").addClass("tabact");
+            }
+            else if (n == 2) {
+                $("#divImage").show();
+                $("#btnImage").addClass("tabact");
+            }
+            else if (n == 3) {
+                $("#divX").show();
+                $("#btnX").addClass("tabact");
+            }
+            else if (n == 4) {
+                $("#divLog").show();
+                $("#btnLog").addClass("tabact");
+            }
+            return false;
+        }
+        function getWidth() {
+            return Math.max(
+                document.body.scrollWidth,
+                document.documentElement.scrollWidth,
+                document.body.offsetWidth,
+                document.documentElement.offsetWidth,
+                document.documentElement.clientWidth
+            );
+        }
+
+        function getHeight() {
+            return Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.offsetHeight,
+                document.documentElement.clientHeight
+            );
+        }
+        var width_x, height_x;
+        function my_onload() {
+            width_x = Math.floor(getWidth()) - 40;
+            height_x = Math.floor(getHeight()) - 60;
+            $("#comment").text(width_x + "," + height_x);
+            width_x = height_x;//debug
+
+            var cnv = document.getElementById("canvas1");
+            cnv.width = width_x;
+            cnv.height = height_x;
+
+            cnv = document.getElementById("canvas2");
+            cnv.width = width_x;
+            cnv.height = height_x;
+
+            $("#canvas2")
+                .mouseup(function () {
+                    $("#comment").append("<span style='color:#f00;'>Mouse up.</span>");
+                })
+                .mousedown(function (event) {
+                    var msg = "Mouse down at " + event.pageX + ", " + event.pageY;
+                    $("#comment").append("<span style='color:#00f;'>" + msg + "</span>");
+                });
+
+            jQuery.support.cors = true;//to allow cross-domain!
+
+            $(document).keypress(myKeypress);
+
+            var d = new Date();
+            logg("now=" + d.getTime());
+            return false;
+        }
+        function logg(w) {
+            $("#logg").text($("#logg").text() + "\n" + w);
+        }
+
+        var keyPressed = "";
+        function myKeypress(e) {
+            var code = e.keyCode || e.which;
+            //alert(code);
+            if (code != null) {
+                keyPressed = String.fromCharCode(code * 1);
+                logg(keyPressed);
+            }
+        }
+        function ext_load(w) {
+            //alert(w);
+            $("#file1").val(w);
+        }
+        function ext_alert(w) {
+            //alert(w);
+            $("#result").html(w);
+        }
+        function ext_json(w) {
+            //draw our data
+            var d1 = new Date().getTime();
+            var dpa = GRAPHIX.drawJson("canvas2", w);
+            var d2 = new Date().getTime();
+            logg("draw ms=" + (d2 - d1) + ", parse=" + (dpa - d1));
+            //to avoid flashing
+            //ext_copy();
+            return false;
+        }
+        function ext_jsonArr(w) {
+            //draw our data
+            var d1 = new Date().getTime();
+            var dpa = GRAPHIX.drawJsonArr("canvas2", w);
+            var d2 = new Date().getTime();
+            logg("draw ms=" + (d2 - d1) + ", parse=" + (dpa - d1));
+            //to avoid flashing
+            //ext_copy();
+            return false;
+        }
+
+        function ext_copy() {
+            var cnv = document.getElementById("canvas1");
+            var ctx = cnv.getContext('2d');
+            var imgData = ctx.getImageData(0, 0, width_x, height_x);
+
+            var cnv2 = document.getElementById("canvas2");
+            var ctx2 = cnv2.getContext('2d');
+            ctx2.putImageData(imgData, 0, 0);
+            return false;
+        }
+
+        function ext_SaveScripresult(user, pass, server, scid, data) {
+            //alert("grab");
+            var uu = server + "?box=save_scripresult&r=" + Math.random();
+            //var uu = "https://www.pvobr.ru/jsonp_model.aspx?box=test&param1=1" + Math.random();
+            //alert(uu + "," + user + "," + pass);
+            $.ajax({
+                url: uu,
+                type: "POST",
+                crossDomain: true,
+                data: {
+                    param1: user,
+                    param2: pass,
+                    param3: 0,
+                    param4: scid,
+                    param5: data
+                },
+                dataType: "json",
+                success: function (result) {
+                    //alert("result.data=" + result.data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error: " + textStatus + "||" + errorThrown);
+                }
+            });
+        }
+
+        //draw our text data
+        function ext_div(w) {
+            //$("#canvas2").hide();
+            //$("#divX").show();
+            $("#divX").html(w);
+            return false;
+        }
+        //prepare to draw our graph data
+        function ext_graph() {
+            //$("#divX").hide();
+            //$("#canvas2").show();
+            return false;
+        }
+        //test button
+        var extra_params = "";
+        function ext_params() {
+            var s = extra_params;
+            extra_params = "";
+            return s;
+        }
+        var SPEED = 50;
+        function test_server45() {
+            //alert("function");
+            var uu = "http://127.0.0.1:3345";
+            //alert(uu + "," + user + "," + pass);
+            $.ajax({
+                url: uu,
+                type: "GET",
+                crossDomain: true,
+                data: {
+                },
+                dataType: "text",
+                success: function (result) {
+                    //alert("result=" + result);
+                    result = (result + "").replace("<html>", "").replace("</html>", "").replace("<body>", "").replace("</body>", "");
+                    //alert("result=" + result);
+                    $("#result").val(result);
+                    /*show();
+                    ext_copy();*/
+                    ext_json(result);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error: " + textStatus + "||" + errorThrown);
+                }
+            });
+            return false;
+        }
+        //launch c# script
+        function test_server46() {
+            //alert($("#file1").val());
+            var uu = "http://127.0.0.1:3346";
+            //alert(uu + "," + user + "," + pass);
+            $.ajax({
+                url: uu,
+                type: "POST",
+                crossDomain: true,
+                data: {
+                    script: $("#file1").val()
+                },
+                dataType: "text",
+                success: function (result) {
+                    //alert("result=" + result);
+                    result = (result + "").replace("<html>", "").replace("</html>", "").replace("<body>", "").replace("</body>", "");
+                    //$("#result").val($("#result").val() + "\n" + result);
+                    var json = JSON.parse(result);
+
+                    var cons = json["console"];
+                    if (cons != null && cons != "") {
+                        var old = $("#result").val();
+                        if (old != "") old += "\n";
+                        $("#result").val(old + cons);
+                    }
+                    ext_jsonArr(json["scene"]);
+                    var fin = json["finished"];
+                    if (fin != null && !fin) window.setTimeout("next()", SPEED);
+                    var alr = json["alert"];
+                    if (alr != null && alr != "") alert(alr);
+                    var html = json["html"];
+                    if (html != null && html != "") ext_div(html);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error: " + textStatus + "||" + errorThrown);
+                }
+            });
+            return false;
+        }
+        //get results from c# script
+        function next() {
+            //alert("next");
+            var uu = "http://127.0.0.1:3346";
+            //alert(uu + "," + user + "," + pass);
+            $.ajax({
+                url: uu,
+                type: "POST",
+                crossDomain: true,
+                data: {
+                    script: "scene",
+                    key: keyPressed
+                },
+                dataType: "text",
+                success: function (result) {
+                    //alert("result=" + result);
+                    result = (result + "").replace("<html>", "").replace("</html>", "").replace("<body>", "").replace("</body>", "");
+                    //$("#result").val($("#result").val() + "\n" + result);
+                    var json = JSON.parse(result);
+
+                    var cons = json["console"];
+                    if (cons != null && cons != "") {
+                        var old = $("#result").val();
+                        if (old != "") old += "\n";
+                        $("#result").val(old + cons);
+                    }
+                    ext_jsonArr(json["scene"]);
+                    var fin = json["finished"];
+                    if (fin != null && !fin) window.setTimeout("next()", SPEED);
+                    var alr = json["alert"];
+                    if (alr != null && alr != "") alert(alr);
+                    var html = json["html"];
+                    if (html != null && html != "") ext_div(html);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error: " + textStatus + "||" + errorThrown);
+                }
+            });
+            keyPressed = "";
+            return false;
+        }
+
+    </script>
+</body>
+</html>

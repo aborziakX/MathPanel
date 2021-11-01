@@ -2213,5 +2213,18 @@ Dynamo.Console(hz.ToString());
             return ext_params;
         }
 
+        /// <summary>
+        /// метод для вызова тестов
+        /// </summary>
+        public static void GraphExample(string id)
+        {
+            if (!bReady || dispObj.HasShutdownStarted) return;
+            //launch in UI thread
+            dispObj.Invoke(delegate
+            {
+                webConsole.InvokeScript("ext_example" + id);
+            });
+        }
+
     }
 }

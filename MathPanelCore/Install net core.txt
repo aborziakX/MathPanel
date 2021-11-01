@@ -1,0 +1,209 @@
+VS Code
+Installation (amd64 only)
+
+sudo apt update
+sudo apt install code
+
+in VS install C#
+
+https://docs.microsoft.com/ru-ru/dotnet/core/install/linux-debian
+Debian 10 ✔️
+
+Для установки версии с помощью APT потребуется выполнить несколько команд. Перед установкой .NET выполните приведенные ниже команды, чтобы добавить ключ подписывания пакета Майкрософт в список доверенных ключей и добавить репозиторий пакетов.
+
+Откройте терминал и выполните следующие команды:
+Bash
+
+wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+
+sudo dpkg -i packages-microsoft-prod.deb
+
+Установка пакета SDK
+
+Пакет SDK для .NET позволяет разрабатывать приложения с помощью .NET. При установке пакета SDK для .NET не нужно устанавливать соответствующую среду выполнения. Чтобы установить пакет SDK для .NET, выполните приведенные ниже команды.
+
+sudo apt-get update; \
+  sudo apt-get install -y apt-transport-https && \
+  sudo apt-get update && \
+  sudo apt-get install -y dotnet-sdk-3.1
+
+create console app
+$ dotnet new console 
+
+=========
+
+2021-04-06 To display detailed information of TCP and UDP endpoints run
+
+netstat -pnltu
+
+kill process 7239
+
+cd /home/andei/Documents/MyProjects/MathPanelCore/bin/Debug/netcoreapp3.1
+./MathPanelCore
+
+cd /home/andei/Documents/MyProjects/DotNetSocketClientDemo/bin/Debug/netcoreapp3.1
+./DotNetSocketClientDemo
+
+
+*8, cmd=127.0.0.1:3345
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+
+8, cmd=127.0.0.1:3345
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0
+Accept: image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+
+*8, cmd=127.0.0.1:3345
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Pragma: no-cache
+Cache-Control: no-cache
+
+6, cmd=127.0.0.1:3345
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0
+Accept: image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+DNT: 1
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+
+***9, cmd=127.0.0.1:3345
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+
+== 2021-04-16
+dotnet tool install -g dotnet-script
+
+===
+Usage: dotnet [sdk-options] [command] [command-options] [arguments]
+Execute a .NET Core SDK command.
+sdk-options:
+  -d|--diagnostics  Enable diagnostic output.
+  -h|--help         Show command line help.
+  --info            Display .NET Core information.
+  --list-runtimes   Display the installed runtimes.
+  --list-sdks       Display the installed SDKs.
+  --version         Display .NET Core SDK version in use.
+SDK commands:
+  add               Add a package or reference to a .NET project.
+  build             Build a .NET project.
+  build-server      Interact with servers started by a build.
+  clean             Clean build outputs of a .NET project.
+  help              Show command line help.
+  list              List project references of a .NET project.
+  msbuild           Run Microsoft Build Engine (MSBuild) commands.
+  new               Create a new .NET project or file.
+  nuget             Provides additional NuGet commands.
+  pack              Create a NuGet package.
+  publish           Publish a .NET project for deployment.
+  remove            Remove a package or reference from a .NET project.
+  restore           Restore dependencies specified in a .NET project.
+  run               Build and run a .NET project output.
+  sln               Modify Visual Studio solution files.
+  store             Store the specified assemblies in the runtime package store.
+  test              Run unit tests using the test runner specified in a .NET project.
+  tool              Install or manage tools that extend the .NET experience.
+  vstest            Run Microsoft Test Engine (VSTest) commands.
+Additional commands from bundled tools:
+  dev-certs         Create and manage development certificates.
+  fsi               Start F# Interactive / execute F# scripts.
+  sql-cache         SQL Server cache command-line tools.
+  user-secrets      Manage development user secrets.
+  watch             Start a file watcher that runs a command when files change.
+Run 'dotnet [command] --help' for more information on a command.
+===
+like
+dotnet list CSharpScr.csproj package
+dotnet list CSharpScr.csproj reference
+
+dotnet add CSharpScr.csproj package_or_ref
+dotnet add CSharpScr.csproj reference /usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/mscorlib.dll #bad
+dotnet add CSharpScr.csproj reference /usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/mscorlib.dll #bad
+
+dotnet add CSharpScr.csproj package mscorlib #bad
+
+dotnet add CSharpScr.csproj package NewtonSoft.Json #good
+
+dotnet add CSharpScr.csproj package Microsoft.CodeAnalysis.CSharp.Scripting
+
+==2021-05-08 add Microsoft.CodeAnalysis.CSharp.Scripting
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.9.0" />
+    <PackageReference Include="NewtonSoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+</Project>
+
+launch file:///home/andei/Documents/MyProjects/GitMathPanel/bin/Debug/test_server.htm
+
+open QTerminal from Linux menu/System tools
+cd /home/andei/Documents/MyProjects/DotNetConsole1/bin/Debug/netcoreapp3.1
+./DotNetConsole1
+
+
+click "test server" in "test_server.htm"
+
+
+file:///home/andei/Documents/MyProjects/GitMathPanel/bin/Debug/test_server.htm
+
+mone to 
+file:///home/andei/Documents/MyProjects/test_server.htm
+ 
+ 
+ 12.6.2021
+ test37_bitmap_gradient
+System.AggregateException: One or more errors occurred. (The type initializer for 'Gdip' threw an exception.)
+ ---> System.TypeInitializationException: The type initializer for 'Gdip' threw an exception.
+ ---> System.DllNotFoundException: Unable to load shared library 'libgdiplus' or one of its dependencies. In order to help diagnose loading problems, consider setting the LD_DEBUG environment variable: liblibgdiplus: cannot open shared object file: No such file or directory
+   at System.Drawing.SafeNativeMethods.Gdip.GdiplusStartup(IntPtr& token, StartupInput& input, StartupOutput& output)
+   at System.Drawing.SafeNativeMethods.Gdip..cctor()
+   --- End of inner exception stack trace ---
+   at System.Drawing.SafeNativeMethods.Gdip.GdipCreateBitmapFromScan0(Int32 width, Int32 height, Int32 stride, Int32 format, IntPtr scan0, IntPtr& bitmap)
+   at System.Drawing.Bitmap..ctor(Int32 width, Int32 height, PixelFormat format)
+   at System.Drawing.Bitmap..ctor(Int32 width, Int32 height)
+   at MathPanel.BitmapSimple.Save(String fname) in /home/andei/Documents/MyProjects/MathPanelCore/Geom/Bitmap.cs:line 347
+   at Submission#0.<<Initialize>>d__0.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.CodeAnalysis.Scripting.ScriptExecutionState.RunSubmissionsAsync[TResult](ImmutableArray`1 precedingExecutors, Func`2 currentExecutor, StrongBox`1 exceptionHolderOpt, Func`2 catchExceptionOpt, CancellationToken cancellationToken)
+   at Microsoft.CodeAnalysis.Scripting.Script`1.RunSubmissionsAsync(ScriptExecutionState executionState, ImmutableArray`1 precedingExecutors, Func`2 currentExecutor, Func`2 catchExceptionOpt, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Threading.Tasks.Task`1.GetResultCore(Boolean waitCompletionNotification)
+   at System.Threading.Tasks.Task`1.get_Result()
+   at MathPanel.Dynamo.<>c__DisplayClass51_0.<ProcessMy2>b__0() in /home/andei/Documents/MyProjects/MathPanelCore/Program.cs:line 193
+
+
+dotnet list MathPanelCore.csproj package
+dotnet add MathPanelCore.csproj package System.Drawing.Common
+
+su #super user
+sudo apt-get update && apt-get install -y libgdiplus #works
+
+cd /home/andei/Documents/MyProjects/MathPanelCore/bin/Debug/netcoreapp3.1
+./MathPanelCore
+
+

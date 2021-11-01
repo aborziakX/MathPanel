@@ -236,6 +236,33 @@ function ext_params() {
     return s;
 }
 
+//рисовать линию
+function ext_example1(w) {
+var c = document.getElementById("canvas2");
+var ctx = c.getContext("2d");
+ctx.moveTo(0, 0);
+ctx.lineTo(1100, 600);
+ctx.stroke();
+}
+
+//рисовать круг
+function ext_example2(w) {
+var c = document.getElementById("canvas2");
+var ctx = c.getContext("2d");
+ctx.beginPath();
+ctx.arc(95, 50, 40, 0, 2 * Math.PI);
+ctx.stroke();
+}
+
+//рисовать текст
+function ext_example3(w) {
+var c = document.getElementById("canvas2");
+var ctx = c.getContext("2d");
+ctx.font = "30px Arial";
+ctx.fillText("Hello World", 10, 50);
+}
+
+
     </script>
 </body>
 </html>
