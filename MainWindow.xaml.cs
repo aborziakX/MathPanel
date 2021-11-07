@@ -2054,7 +2054,7 @@ Dynamo.Console(hz.ToString());
                     scid = s2.Substring(0, pos);
             }
             Console("post=" + s);
-        }
+        }       
 
         /// <summary>
         /// Load Scriplet result from server
