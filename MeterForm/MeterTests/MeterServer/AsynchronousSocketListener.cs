@@ -67,7 +67,9 @@ namespace MeterForm.MeterTests.MeterServer
                 listener.Bind(localEndPoint);
                 listener.Listen(100);
 
+                _meterSererState = "Meter Server started";
                 MeterWindow.Console("Meter Server started");
+                MeterWindow.SetMeterState("Meter Server started");
 
                 while (true)
                 {

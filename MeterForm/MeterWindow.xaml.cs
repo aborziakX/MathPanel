@@ -34,6 +34,7 @@ namespace MeterForm
         static System.Windows.Threading.Dispatcher dispObj; //диспетчер UI-потока, через него обращения к элементам UI из других потоков
         static TextBox txtConsole, txtCommand; //окна сообщений и комманд
         static TextBox _txtActivePower, _txtReactivePower, _txtApparentPower, _txtDateTime;
+        static Label _txtMeterServerState;
 
         static int _tcpipPort = 11000;
         public MeterWindow()
@@ -45,6 +46,7 @@ namespace MeterForm
             _txtReactivePower = txtReactivePower;
             _txtApparentPower = txtApparentPower;
             _txtDateTime = txtDateTime;
+            _txtMeterServerState = lblMeterServerState;
 
             dispObj = Dispatcher;
             //программа успешно стартовала
@@ -99,6 +101,9 @@ namespace MeterForm
             //}
 
             //остановка потока tcp сервера прибора учета
+            if (_tMeterTcpServer == null)
+                return;
+
             if (_tMeterTcpServer.IsAlive)
             {
                 //_startMeterServer.listener.Shutdown(SocketShutdown.Both);//.StopServer();
@@ -190,6 +195,15 @@ namespace MeterForm
             dispObj.Invoke(delegate
             {
                 if (bReady) _txtDateTime.Text += s;// (s + (bNewLine ? "\r\n" : ""));
+            });
+        }
+        public static void SetMeterState(string s, bool bNewLine = true)
+        {
+            if (!bReady || dispObj.HasShutdownStarted) return;
+            //мы запускаем код в UI потоке
+            dispObj.Invoke(delegate
+            {
+                if (bReady) _txtMeterServerState.Content = s;// (s + (bNewLine ? "\r\n" : ""));
             });
         }
     }

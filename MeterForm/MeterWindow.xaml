@@ -5,21 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MeterForm"
         mc:Ignorable="d"
-        Title="MeterWindow" Height="450" Width="800">
-    <Grid Background="Beige">
-        <Button x:Name="btnStartMeterServer" Content="Start Meter Server" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top" Width="115" Height="36" Click="btnStartMeterServer_Click"/>
-        <Label x:Name="lblMeterServerState" Content="Sever State" HorizontalAlignment="Left" Margin="146,87,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtData" HorizontalAlignment="Left" Height="151" Margin="10,259,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="774" RenderTransformOrigin="0.61,4.548"/>
-        <TextBox x:Name="txtMeterServerPort" HorizontalAlignment="Left" Height="23" Margin="10,45,0,0" TextWrapping="Wrap" Text="11000" VerticalAlignment="Top" Width="115"/>
-        <Label Content="TCP/IP Port" HorizontalAlignment="Left" Margin="146,45,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="btnHesRequest" Content="Hes Request" HorizontalAlignment="Left" Margin="10,136,0,0" VerticalAlignment="Top" Width="115" Height="36" Click="btnHesRequest_Click"/>
-        <Label x:Name="lblHesClientState" Content="Hes Client State" HorizontalAlignment="Left" Margin="146,142,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtActivePower" HorizontalAlignment="Left" Height="23" Margin="363,142,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
-        <Label Content="Active power" HorizontalAlignment="Left" Margin="502,142,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtReactivePower" HorizontalAlignment="Left" Height="23" Margin="363,173,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
-        <Label Content="Reactive power" HorizontalAlignment="Left" Margin="502,173,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtApparentPower" HorizontalAlignment="Left" Height="23" Margin="363,204,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
-        <Label Content="Apparent power" HorizontalAlignment="Left" Margin="502,204,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtDateTime" HorizontalAlignment="Left" Height="23" Margin="363,117,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
+        Title="MeterWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid Background="Beige" Margin="0,0,-0.4,-134">
+        <Button x:Name="btnStartMeterServer" Content="Start Meter Server" HorizontalAlignment="Left" Margin="28,59,0,0" VerticalAlignment="Top" Width="115" Height="36" Click="btnStartMeterServer_Click"/>
+        <Label x:Name="lblMeterServerState" Content="Sever State" HorizontalAlignment="Left" Margin="164,69,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtData" HorizontalAlignment="Left" Height="230" Margin="10,309,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="774" RenderTransformOrigin="0.61,4.548" VerticalScrollBarVisibility="Auto"/>
+        <TextBox x:Name="txtMeterServerPort" HorizontalAlignment="Left" Height="23" Margin="28,31,0,0" TextWrapping="Wrap" Text="11000" VerticalAlignment="Top" Width="115"/>
+        <Label Content="TCP/IP Port" HorizontalAlignment="Left" Margin="164,31,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btnHesRequest" Content="Hes Request" HorizontalAlignment="Left" Margin="32,237,0,0" VerticalAlignment="Top" Width="115" Height="36" Click="btnHesRequest_Click"/>
+        <Label x:Name="lblHesClientState" Content="Hes Client State" HorizontalAlignment="Left" Margin="168,243,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtActivePower" HorizontalAlignment="Left" Height="23" Margin="384,193,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
+        <Label Content="Active power" HorizontalAlignment="Left" Margin="523,193,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtReactivePower" HorizontalAlignment="Left" Height="23" Margin="384,224,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
+        <Label Content="Reactive power" HorizontalAlignment="Left" Margin="523,224,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtApparentPower" HorizontalAlignment="Left" Height="23" Margin="384,255,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
+        <Label Content="Apparent power" HorizontalAlignment="Left" Margin="523,255,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtDateTime" HorizontalAlignment="Left" Height="23" Margin="384,168,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
+        <Label Content="Date and time values" HorizontalAlignment="Left" Margin="523,168,0,0" VerticalAlignment="Top"/>
+        <GroupBox Header="Values from meter" HorizontalAlignment="Left" Height="143" Margin="359,138,0,0" VerticalAlignment="Top" Width="310"/>
+        <GroupBox Header="Meter Server" HorizontalAlignment="Left" Height="100" Margin="18,10,0,0" VerticalAlignment="Top" Width="242"/>
+        <GroupBox Header="HES" HorizontalAlignment="Left" Height="176" Margin="18,115,0,0" VerticalAlignment="Top" Width="766"/>
     </Grid>
 </Window>
