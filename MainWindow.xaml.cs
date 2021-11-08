@@ -1483,7 +1483,7 @@ Dynamo.Console(hz.ToString());
         }
         
         /// <summary>
-        /// send JSON data for visualization in canvas
+        /// передать JSON данные для визуализации в canvas
         /// </summary>
         public static void SceneJson(string s_json, bool bSecond = false)
         {
@@ -2054,7 +2054,7 @@ Dynamo.Console(hz.ToString());
                     scid = s2.Substring(0, pos);
             }
             Console("post=" + s);
-        }       
+        }
 
         /// <summary>
         /// Load Scriplet result from server

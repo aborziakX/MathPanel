@@ -24,11 +24,13 @@
     <script type="text/javascript" src="graphix.js"></script>
     <script type="text/javascript">
 function my_onload() {
+    //задаем желтые оси, небольшой отступ
     GRAPHIX.AX_CL = "#ffff00";
     GRAPHIX.PADDING = 5;
     GRAPHIX.borders = 15;
     GRAPHIX.drawAxes('canvas1');
- 
+
+    //первый график - тонкие синие гистограммы
     var data = [
      [20, 100],
      [100, 160],
@@ -39,8 +41,8 @@ function my_onload() {
     var opt = { "x0": 0, "x1": 400, "y0": 0, "y1": 400, "clr": "#0000ff", "sty": "hist", "size":"3" };
     GRAPHIX.drawData('canvas1', data, opt);
  
-    //quadratic
-    var opt2 = { "x0": 0, "x1": 1, "y0": 0, "y1": 1.5, "clr": "#ff0000", "sty": "dots" };
+    //quadratic - второй график - квадратичная зависимость
+    var opt2 = { "x0": 0, "x1": 1, "y0": 0, "y1": 1.5, "clr": "#00ffff", "sty": "dots", "size": "3" };
     var data2 = new Array();
     for (var j = 0; j < 100; j++) {
         var t = j * 0.01;
@@ -49,7 +51,7 @@ function my_onload() {
     }
     GRAPHIX.drawData('canvas1', data2, opt2);
  
-    //cubic
+    //cubic - третий график - кривая 3-го порядка
     var opt3 = { "x0": 0, "x1": 1, "y0": 0, "y1": 1.5, "clr": "#ff00ff", "sty": "line" };
     var data3 = new Array();
     for (var j = 0; j < 100; j++) {
@@ -59,7 +61,7 @@ function my_onload() {
     }
     GRAPHIX.drawData('canvas1', data3, opt3);
  
-    //elastic
+    //elastic - четвертый график - кривая 4-го порядка
     var opt4 = { "x0": 0, "x1": 1, "y0": 0, "y1": 1.5, "clr": "#ffffff", "sty": "line" };
     var data4 = new Array();
     for (var j = 0; j < 100; j++) {
@@ -69,12 +71,14 @@ function my_onload() {
     }
     GRAPHIX.drawData('canvas1', data4, opt4);
  
-    //draw text and image
-    GRAPHIX.drawText('canvas1', "elastic", 40, 40, "#ffffff", 20);
-    GRAPHIX.drawText('canvas1', "random linear", 40, 60, "#00ff00", 20);
+    //выводим текст и картинку
+    GRAPHIX.drawText('canvas1', "quadratic", 40, 40, "#00ffff", 20);
+    GRAPHIX.drawText('canvas1', "cubic", 40, 60, "#ff00ff", 20);
+    GRAPHIX.drawText('canvas1', "elastic", 40, 80, "#ffffff", 20);
+    GRAPHIX.drawText('canvas1', "random linear", 40, 100, "#00ff00", 20);
     GRAPHIX.drawImage('canvas1', "wiz", 716, 6);
 
-    //random linear
+    //random linear - случайная линия
     var opt5 = { "x0": 0, "x1": 1, "y0": 0, "y1": 2, "csk": "#00ff00", "clr": "#ff0000", "sty": "circle", "size":"4" };
     var data5 = new Array();
     for (var j = 0; j <= 20; j++) {
@@ -91,19 +95,19 @@ function my_onload() {
     }
     GRAPHIX.drawData('canvas1', data5, opt5);
 
-//canvas2
+//canvas2 - гистограмма с населением стран
     GRAPHIX.drawAxes('canvas2');
     GRAPHIX.drawImage('canvas2', "map", 0, 0);
 
     var data3d = [
-     [20, 300, null, null, null, 10, "10 млн."],//fin
-     [50, 180, null, null, null, 10, "9.5 млн."],//bel
-     [105, 125, null, null, null, 44, "44 млн."],//ukr
-     [275, 115, null, null, null, 35, "35 млн."],//kaz
-     [540, 90, null, null, null, 5, "5 млн."],//mong
-     [520, 285, null, null, null, 145, "146 млн."],//rus
+     [20, 300, null, null, null, 10, "10 млн."],//Финляндия
+     [50, 180, null, null, null, 10, "9.5 млн."],//Беларусь
+     [105, 125, null, null, null, 44, "44 млн."],//Украина
+     [275, 115, null, null, null, 35, "35 млн."],//Казахстан
+     [540, 90, null, null, null, 5, "5 млн."],//Монголия
+     [520, 285, null, null, null, 145, "146 млн."],//Россия
     ];
-    var opt3d = { "x0": 0, "x1": 1200, "y0": 0, "y1": 640, "clr": "#0099cc", "sty": "hist3d", "lnw":"10" };
+    var opt3d = { "x0": 0, "x1": 1200, "y0": 0, "y1": 640, "clr": "#0099cc", "sty": "histmap", "lnw":"10" };
     GRAPHIX.drawData('canvas2', data3d, opt3d);
 
     return false;

@@ -222,13 +222,15 @@ function ext_div(w) {
     $("#divX").html(w);
     return false;
 }
+
 //prepare to draw our graph data
 function ext_graph() {
     $("#divX").hide();
     $("#canvas2").show();
     return false;
 }
-//test button
+
+//get extra parameters
 var extra_params = "";
 function ext_params() {
     var s = extra_params;
@@ -245,7 +247,7 @@ ctx.lineTo(1100, 600);
 ctx.stroke();
 }
 
-//рисовать круг
+//рисовать окружность
 function ext_example2(w) {
 var c = document.getElementById("canvas2");
 var ctx = c.getContext("2d");

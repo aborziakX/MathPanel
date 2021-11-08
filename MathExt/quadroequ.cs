@@ -5,7 +5,7 @@ using MathPanel;
 namespace MathPanelExt
 {
 	/// <summary>
-	/// класс для решения квадратного уравнения и рисования примитивов (на основе подготовки данных в вывода через JSON в GRAPHIX
+	/// класс для решения квадратного уравнения и рисования примитивов (на основе подготовки данных для вывода через JSON в GRAPHIX)
 	/// </summary>
 
 	public class QuadroEqu
@@ -141,14 +141,14 @@ namespace MathPanelExt
 		}
 
 		/// <summary>
-		/// вычилить точку Bezier 1-го уровня для заданного шага
+		/// вычиcлить точку Bezier 1-го уровня для заданного шага
 		/// </summary>
 		static double Bezier1(double x0, double x1, double step)
 		{
 			return x0 + (x1 - x0) * step;
 		}
 		/// <summary>
-		/// вычилить точку Bezier 2-го уровня для заданного шага
+		/// вычиcлить точку Bezier 2-го уровня для заданного шага
 		/// </summary>
 		static double Bezier2(double x0, double x1, double x2, double step)
 		{
@@ -157,7 +157,7 @@ namespace MathPanelExt
 			return Bezier1(p0, p1, step);
 		}
 		/// <summary>
-		/// вычилить точку Bezier 3-го уровня для заданного шага
+		/// вычиcлить точку Bezier 3-го уровня для заданного шага
 		/// </summary>
 		static double Bezier3(double x0, double x1, double x2, double x3, double step)
 		{
