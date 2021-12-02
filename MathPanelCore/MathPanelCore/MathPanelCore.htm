@@ -107,6 +107,7 @@ Dynamo.SceneJson(data);
 
     <script type="text/javascript" src="graphix.js"></script>
     <script type="text/javascript">
+        var bDebug = true;
         function clickBtn(n) {
             $("#controls").children().removeClass("tabact");
             $("#divScript").hide();
@@ -316,20 +317,21 @@ Dynamo.SceneJson(data);
         }
         //launch c# script
         function test_server46() {
-            //alert($("#file1").val());
+            var scr = $("#file1").val();
             var uu = "http://127.0.0.1:3346";
             //alert(uu + "," + user + "," + pass);
+            if (bDebug) logg("sent len=" + scr.length);
             $.ajax({
                 url: uu,
                 type: "POST",
                 crossDomain: true,
                 data: {
-                    script: $("#file1").val()
+                    script: scr
                 },
                 dataType: "text",
                 success: function (result) {
-                    //alert("result=" + result);
-                    result = (result + "").replace("<html>", "").replace("</html>", "").replace("<body>", "").replace("</body>", "");
+                    if (bDebug) logg("result=" + result);
+                    result = (result + "").replace("<html><body>{", "{").replace("}</body></html>", "}");
                     //$("#result").val($("#result").val() + "\n" + result);
                     var json = JSON.parse(result);
 
@@ -355,7 +357,7 @@ Dynamo.SceneJson(data);
         }
         //get results from c# script
         function next() {
-            //alert("next");
+            if (bDebug) logg("sent scene " + keyPressed);
             var uu = "http://127.0.0.1:3346";
             //alert(uu + "," + user + "," + pass);
             $.ajax({
@@ -368,8 +370,8 @@ Dynamo.SceneJson(data);
                 },
                 dataType: "text",
                 success: function (result) {
-                    //alert("result=" + result);
-                    result = (result + "").replace("<html>", "").replace("</html>", "").replace("<body>", "").replace("</body>", "");
+                    if( bDebug ) logg("resultN=" + result);
+                    result = (result + "").replace("<html><body>{", "{").replace("}</body></html>", "}");
                     //$("#result").val($("#result").val() + "\n" + result);
                     var json = JSON.parse(result);
 
@@ -388,7 +390,7 @@ Dynamo.SceneJson(data);
                     if (html != null && html != "") ext_div(html);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    alert("Error: " + textStatus + "||" + errorThrown);
+                    alert("ErrorN: " + textStatus + "||" + errorThrown);
                 }
             });
             keyPressed = "";

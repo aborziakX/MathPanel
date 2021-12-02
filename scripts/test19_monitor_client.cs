@@ -1,5 +1,5 @@
 ﻿//test19_monitor_client
-Dynamo.Scriplet("test19_monitor_client", "Визуализация нагрузки сервера");
+//Dynamo.Scriplet("test19_monitor_client", "Визуализация нагрузки сервера");
 System.Drawing.Color[] clrs = new System.Drawing.Color[300];
 
 SocketClient tn = new SocketClient("Monitor", "127.0.0.1", 3346);
@@ -37,7 +37,7 @@ while (true)
     string s2 = "{\"options\":{\"x0\": -0.5, \"x1\": 20, \"y0\": -0.5, \"y1\": 15, \"clr\": \"#ff0000\", \"sty\": \"dots\", \"size\":40, \"lnw\": 3, \"wid\": 800, \"hei\": 600, \"second\":1 }";
 s2 += ", \"data\":[" + s1 + "]}";
     Dynamo.SceneJson(s2);
-    Dynamo.SaveScripresult();
+    //Dynamo.SaveScripresult();
 
     //if (step % 3== 0)
         //Dynamo.Console("*", false);

@@ -15,7 +15,7 @@ namespace DynamoCode
         {
             Dynamo.ConsoleClear();
             Dynamo.Console("test24_cube2db: print 's' to save in DB");
-            Dynamo.Scriplet("test24_cube", "Желтый куб вращается");
+            //Dynamo.Scriplet("test24_cube", "Желтый куб вращается");
             Dynamo.SceneClear();
 
             int id = Dynamo.PhobNew(0, 0, 0);
@@ -39,7 +39,7 @@ namespace DynamoCode
                 Dynamo.SceneDrawShape(true);
                 //if (Dynamo.KeyConsole == "S")
                 { 
-                    Dynamo.SaveScripresult();
+                    //Dynamo.SaveScripresult();
                 }
                 System.Threading.Thread.Sleep(250);
             }

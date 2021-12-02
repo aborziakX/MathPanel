@@ -739,11 +739,11 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// create Phob
+        /// создать Phob с добавлением в словарь физических объектов
         /// </summary>
-        /// <param name="x">value for x-property</param>
-        /// <param name="y">value for y-property</param>
-        /// <param name="z">value for z-property</param>
+        /// <param name="x">x координата</param>
+        /// <param name="y">y координата</param>
+        /// <param name="z">z координата</param>
         public static int PhobNew(double x, double y, double z = 0)
         {
             Phob pt = new Phob(x, y, z);
@@ -752,7 +752,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// get count of Phob's
+        /// количество физических объектов Phob в словаре
         /// </summary>
         public static int PhobCount()
         {
@@ -760,7 +760,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// set Phob properties
+        /// задать новые координаты Phob объекту
         /// </summary>
         /// <param name="id">Phob id</param>
         public static void PhobSet(int id, double x, double y, double z = 0)
@@ -775,7 +775,7 @@ Dynamo.Console(hz.ToString());
 
         //!!если возвращать Phob, то была ошибка создания exe
         /// <summary>
-        /// get Phob by id
+        /// получить Phob объект по его id
         /// </summary>
         /// <param name="id">Phob id</param>
         public static Phob PhobGet(int id)
@@ -788,7 +788,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// delete Phob by id
+        /// удалить Phob объект по его id
         /// </summary>
         /// <param name="id">Phob id</param>
         public static void PhobDel(int id)
@@ -799,11 +799,11 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// set Phob attribute
+        /// задать атрибут Phob объекту
         /// </summary>
         /// <param name="id">Phob id</param>
-        /// <param name="key">attribute key</param>
-        /// <param name="value">attribute value</param>
+        /// <param name="key">ключ атрибута</param>
+        /// <param name="value">значение атрибута</param>
         public static void PhobAttrSet(int id, string key, string value)
         {
             if (!dicPhob.ContainsKey(id)) return;
@@ -813,11 +813,11 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// get Phob attribute
+        /// получить атрибут Phob объекта
         /// </summary>
         /// <param name="id">Phob id</param>
-        /// <param name="key">attribute key</param>
-        /// <return>attribute value</return>
+        /// <param name="key">ключ атрибута</param>
+        /// <return>значение атрибута</return>
         public static string PhobAttrGet(int id, string key)
         {
             if (!dicPhob.ContainsKey(id)) return null;
@@ -827,9 +827,9 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// returns last pressed key
+        /// получить последнее нажатие на клавиатуре
         /// </summary>
-        /// <return>last key</return>
+        /// <return>последнее нажатие</return>
         public static string KeyConsole
         {
             get
@@ -841,7 +841,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// get/set box for visualization in canvas
+        /// взять/задать box (ящик) для визуализации
         /// </summary>
         public static Box SceneBox
         {
@@ -930,8 +930,9 @@ Dynamo.Console(hz.ToString());
                 matRotor.Build(xRotor, yRotor, zRotor);
             }
         }
+
         /// <summary>
-        /// get or set z-position of camera in camera coordinates
+        /// получить/задать z-координату камеры в координатах камеры
         /// </summary>
         public static double CameraZ
         {
@@ -953,8 +954,9 @@ Dynamo.Console(hz.ToString());
                 }
             }
         }
+
         /// <summary>
-        /// get or set bAxes parameter to draw coordinates
+        /// получить/задать bAxes для рисования координат
         /// </summary>
         public static bool BAxes
         {
@@ -969,7 +971,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// get string passed to graphic canvas
+        /// получить Json строку, переданную для канваса
         /// </summary>
         public static string ScreenJson
         {
@@ -978,6 +980,11 @@ Dynamo.Console(hz.ToString());
                 return screenJson;
             }
         }
+
+        /// <summary>
+        /// сохранить Json строку в файл
+        /// </summary>
+        /// <param name="fname">путь к файлу</param>
         public static void ScreenJsonSave(string fname)
         {
             try
@@ -989,6 +996,11 @@ Dynamo.Console(hz.ToString());
                 Console(ex.ToString());
             }
         }
+
+        /// <summary>
+        /// считать Json строку из файла
+        /// </summary>
+        /// <param name="fname">путь к файлу</param>
         public static string ScreenJsonLoad(string fname)
         {
             string s;
@@ -1072,12 +1084,17 @@ Dynamo.Console(hz.ToString());
         }*/
 
         /// <summary>
-        /// translate box coordinates to camera coordinates
+        /// преобразовать координаты в системе ящика в координаты в системе камеры (старый метод)
         /// </summary>
-        public static void Traslate2Camera(ref double x, ref double y, ref double z, ref double radius, bool bScreen = false)
+        /// <param name="x">x координата</param>
+        /// <param name="y">y координата</param>
+        /// <param name="z">z координата</param>
+        /// <param name="radius">радиус объекта</param>
+        /// <param name="bScreen">проецировать координаты на экран</param>
+        public static void Traslate2CameraOld(ref double x, ref double y, ref double z, ref double radius, bool bScreen = false)
         {
-            /*double x_n, y_n, z_n;
-            //rotate Z
+            double x_n, y_n, z_n;
+            //вращать вокруг Z
             if (zRotor != 0)
             {
                 x_n = x * Math.Cos(zRotor) - y * Math.Sin(zRotor);
@@ -1086,7 +1103,7 @@ Dynamo.Console(hz.ToString());
                 y = y_n;
             }
 
-            //rotate X
+            //вращать вокруг X
             if (xRotor != 0)
             {
                 y_n = y * Math.Cos(xRotor) - z * Math.Sin(xRotor);
@@ -1095,7 +1112,7 @@ Dynamo.Console(hz.ToString());
                 z = z_n;
             }
 
-            //rotate Y
+            //вращать вокруг Y
             if (yRotor != 0)
             {
                 z_n = z * Math.Cos(yRotor) - x * Math.Sin(yRotor);
@@ -1103,12 +1120,32 @@ Dynamo.Console(hz.ToString());
                 z = z_n;
                 x = x_n;
             }
-            */
+
+            //сдвинуть
+            x += xBoXTrans;
+            y += yBoXTrans;
+            z += zBoXTrans;
+
+            if (bScreen)
+                Traslate2Screen(ref x, ref y, ref z, ref radius);
+        }
+
+        /// <summary>
+        /// преобразовать координаты в системе ящика в координаты в системе камеры
+        /// </summary>
+        /// <param name="x">x координата</param>
+        /// <param name="y">y координата</param>
+        /// <param name="z">z координата</param>
+        /// <param name="radius">радиус объекта</param>
+        /// <param name="bScreen">проецировать координаты на экран</param>
+        public static void Traslate2Camera(ref double x, ref double y, ref double z, ref double radius, bool bScreen = false)
+        {
             Vec3 v = new Vec3(x, y, z);
             Vec3 v_new = new Vec3();
+            //вращать
             matRotor.Mult(v, ref v_new);
 
-            //translate
+            //сдвинуть
             x = v_new.x + xBoXTrans;
             y = v_new.y + yBoXTrans;
             z = v_new.z + zBoXTrans;
@@ -1118,8 +1155,12 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// translate camera coordinates to x,y,size on 2d-screen
+        /// транслировать координаты объекта в системе камеры и размер в координаты на экране
         /// </summary>
+        /// <param name="x">x координата</param>
+        /// <param name="y">y координата</param>
+        /// <param name="z">z координата</param>
+        /// <param name="radius">радиус (размер) объекта</param>
         public static void Traslate2Screen(ref double x, ref double y, ref double z, ref double radius)
         {
             double d_squeeze = (z_cam) / (z_cam - z);
@@ -1128,13 +1169,16 @@ Dynamo.Console(hz.ToString());
             radius *= d_squeeze;
         }
 
-        static string BoxEdges()
-        {           
+        /// <summary>
+        /// данные для рисования ребер ящика (старый метод)
+        /// </summary>
+        static string BoxEdgesOld()
+        {
             double x, y, z, radius = 1, x_fr, y_fr, z_fr;
             double rad = Math.Abs(1.0 / ((box.x1 - box.x0) * iCanvasWidth));
-            /*
+
             string data = "";
-            //back side
+            //задняя сторона
             for (int j = 0; j < 5; j++)
             {
                 if (j == 0)
@@ -1164,17 +1208,18 @@ Dynamo.Console(hz.ToString());
                 }
                 z = box.z0;
 
-                //adjust using camera position
+                //привязать к экрану
                 Traslate2Camera(ref x, ref y, ref z, ref radius, true);
                 if (z >= z_cam) continue;
-                if (data != "") data += ",";
 
+                if (data != "") data += ",";
+                //параметры рисования: размеры, цвет, стиль
                 data += string.Format("{{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    x.ToString(CultureInfo.InvariantCulture.NumberFormat), y.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                    j == 4 ? "line_end" : "line", rad.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                    D2S(x), D2S(y),
+                    j == 4 ? "line_end" : "line", D2S(rad));
             }
-            
-            //fore side
+
+            //передняя сторона
             for (int j = 0; j < 5; j++)
             {
                 if (j == 0)
@@ -1204,17 +1249,18 @@ Dynamo.Console(hz.ToString());
                 }
                 z = box.z1;
 
-                //adjust using camera position
+                //привязать к экрану
                 Traslate2Camera(ref x, ref y, ref z, ref radius, true);
                 if (z >= z_cam) continue;
-                if (data != "") data += ",";
 
+                if (data != "") data += ",";
+                //параметры рисования: размеры, цвет, стиль
                 data += string.Format("{{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    x.ToString(CultureInfo.InvariantCulture.NumberFormat), y.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                    j == 4 ? "line_end" : "line", rad.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                    D2S(x), D2S(y),
+                    j == 4 ? "line_end" : "line", D2S(rad));
             }
 
-            //links
+            //боковины
             for (int j = 0; j < 4; j++)
             {
                 if (j == 0)
@@ -1248,22 +1294,33 @@ Dynamo.Console(hz.ToString());
                 z = box.z0;
                 z_fr = box.z1;
 
-                //adjust using camera position
+                //привязать к экрану
                 Traslate2Camera(ref x, ref y, ref z, ref radius, true);
-                //adjust using camera position
+                //привязать к экрану
                 Traslate2Camera(ref x_fr, ref y_fr, ref z_fr, ref radius, true);
                 if (z >= z_cam || z_fr >= z_cam) continue;
 
                 if (data != "") data += ",";
                 data += string.Format("{{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    x.ToString(CultureInfo.InvariantCulture.NumberFormat), y.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                    "line", rad.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                    D2S(x), D2S(y),
+                    "line", D2S(rad));
 
                 data += string.Format(", {{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    x_fr.ToString(CultureInfo.InvariantCulture.NumberFormat), y_fr.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                    "line_end", rad.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                    D2S(x_fr), D2S(y_fr),
+                    "line_end", D2S(rad));
             }
-            */
+
+            return data.ToString();
+        }
+
+        /// <summary>
+        /// данные для рисования ребер ящика 
+        /// </summary>
+        static string BoxEdges()
+        {           
+            double x, y, z, radius = 1, x_fr, y_fr, z_fr;
+            double rad = Math.Abs(1.0 / ((box.x1 - box.x0) * iCanvasWidth));
+            
             string text;
             var data = new StringBuilder();
             string ss = DrawShape(boxShape, null);
@@ -1497,29 +1554,30 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// prepare data for visualization in canvas
+        /// подготовить данные для визуализации на канвасе
         /// <param name="bCons">вывод в окно сообщений</param>
-        /// <return>attribute value</return>
         /// </summary>
         public static void SceneDraw(bool bCons = false)
         {
-            DrawCount++;
-            var data = new  StringBuilder();
+            DrawCount++;//номер итерации вывода
+            var data = new StringBuilder();//для ускорения работы со строками
             int i = 0;
+            //размеры физической области
             double dX0 = 0, dX1 = 1, dY0 = 0, dY1 = 1;
 
-            //add box edges
+            //добавить границы ящика
             if (box != null) data.Append(BoxEdges());
 
-            //sort by z-position
+            //по всей коллекции физических объектов
             List<Phob> lst = dicPhob.Values.ToList();
             foreach (Phob ph in lst)
             {
-                //adjust using camera position
+                //сохранить координаты
                 ph.SaveCoord();
+                //спроецировать координаты на экран
                 Traslate2Camera(ref ph.x, ref ph.y, ref ph.z, ref ph.radius, true);
                 if (box == null)
-                {
+                {   //расширяем размеры физической области
                     if (i == 0)
                     {
                         dX0 = ph.x;
@@ -1537,15 +1595,17 @@ Dynamo.Console(hz.ToString());
                 }
                 i++;
             }
+            //сортировать по удаленности от камеры
             lst.Sort(delegate (Phob x, Phob y)
             {
                 return x.z >= y.z ? 1 : -1;
             });
 
+            //добавляем изображение каждого объекта в Json для рисования
             foreach (Phob ph in lst)
             {
                 if (ph.z < z_cam)
-                {
+                {   //камера видит объект
                     if (data.Length > 0) data.Append(",");
                     if(ph.bDrawAsLine == false)
                         data.Append(ph.ToJson());
@@ -1559,24 +1619,28 @@ Dynamo.Console(hz.ToString());
                         var yyy = ph.AttrGet("lnw");
                         var txt1 = ph.AttrGet("txt1");
                         var txt2 = ph.AttrGet("txt2");
+                        var fontsize = ph.AttrGet("fontsize");
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                            px.ToString(CultureInfo.InvariantCulture.NumberFormat), py.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            "line", radius.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1, string.IsNullOrEmpty(yyy) ? "3" : yyy);
+                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
+                            D2S(px), D2S(py), "line", D2S(radius),
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1, 
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+                        
                         px = ph.p2.x;
                         py = ph.p2.y;
                         pz = ph.p2.z;
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                            px.ToString(CultureInfo.InvariantCulture.NumberFormat), py.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            "line_end", radius.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2, string.IsNullOrEmpty(yyy) ? "3" : yyy);
+                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
+                            D2S(px), D2S(py), "line_end", D2S(radius),
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2, 
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
                     }
                 }
+                //восстановить координаты
                 ph.RestoreCoord();
             }
 
+            //уточняем размеры физической области
             if (box == null)
             {
                 var extra = (dX1 - dX0) * 0.01;
@@ -1597,7 +1661,7 @@ Dynamo.Console(hz.ToString());
                 dY1 = physHeight;
                 dY0 = -dY1;
             }
-
+            //параметры рисования: размеры, цвет, стиль
             string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\" }}",
                 D2S(dX0), D2S(dX1),
                 D2S(dY0), D2S(dY1),
@@ -1614,7 +1678,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// prepare data for visualization in canvas using shapes
+        /// подготовить данные для визуализации на канвасе используя формы
         /// <param name="bBx">рисовать оси</param>
         /// <param name="bCons">вывод в окно сообщений</param>
         /// <return>attribute value</return>
@@ -1679,20 +1743,21 @@ Dynamo.Console(hz.ToString());
                         var yyy = ph.AttrGet("lnw");
                         var txt1 = ph.AttrGet("txt1");
                         var txt2 = ph.AttrGet("txt2");
+                        var fontsize = ph.AttrGet("fontsize");
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                            px.ToString(CultureInfo.InvariantCulture.NumberFormat), py.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            "line", radius.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1, string.IsNullOrEmpty(yyy) ? "3" : yyy);
+                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
+                            D2S(px), D2S(py), "line", D2S(radius),
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1, 
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
 
                         px = ph.p2.x;
                         py = ph.p2.y;
                         pz = ph.p2.z;
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                            px.ToString(CultureInfo.InvariantCulture.NumberFormat), py.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            "line_end", radius.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2, string.IsNullOrEmpty(yyy) ? "3" : yyy);
+                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
+                            D2S(px), D2S(py), "line_end", D2S(radius),
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2, 
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
                     }
                 }
                 ph.RestoreCoord();
@@ -1753,7 +1818,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// remove all Phob's
+        /// удалить все Phob объекты со сцены
         /// </summary>
         public static void SceneClear()
         {
@@ -1774,8 +1839,9 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// save all Phob's to file
+        /// сохранить все Phob объекты в файл
         /// </summary>
+        /// <param name="fname">путь к файлу</param>
         public static void SceneSave(string fname)
         {
             try
@@ -1822,8 +1888,9 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// restore all Phob's from file
+        /// восстановить все Phob объекты из файла
         /// </summary>
+        /// <param name="fname">путь к файлу</param>
         public static void SceneLoad(string fname)
         {
             string s = File.ReadAllText(fname, Encoding.UTF8);
@@ -1855,7 +1922,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// get all Phob Ids from scene
+        /// массив идентификаторов объектов сцены
         /// </summary>
         public static int [] SceneIds()
         {
@@ -1863,7 +1930,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// Scene Energy
+        /// кинетическая энергия объектов сцены
         /// </summary>
         public static double SceneEnergy()
         {
@@ -1876,7 +1943,7 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// Scene Impulse
+        /// импульс объектов сцены
         /// </summary>
         public static void SceneImpulse(out double ix, out double iy, out double iz)
         {
@@ -2029,7 +2096,6 @@ Dynamo.Console(hz.ToString());
             Console("post=" + s);
         }
 
-
         /// <summary>
         /// Save Scriplet on server
         /// </summary>
@@ -2129,6 +2195,7 @@ Dynamo.Console(hz.ToString());
         /// <summary>
         /// Save Scriplet image on server
         /// </summary>
+        /// <param name="fname">путь к файлу</param>
         public static string SaveScripImage(string fpath, string content)
         {
             if (!bReady) return "";
@@ -2152,8 +2219,9 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// Localize interface
+        /// Загрузить локализованный интерфейс из файла
         /// </summary>
+        /// <param name="fname">путь к файлу</param>
         void DoLocal(string fname)
         {
             string[] lines = File.ReadAllLines(fname, Encoding.UTF8);
@@ -2178,7 +2246,6 @@ Dynamo.Console(hz.ToString());
 
         }
 
-
         /// <summary>
         /// передать html код в веб-компонент
         /// </summary>
@@ -2192,6 +2259,7 @@ Dynamo.Console(hz.ToString());
                 webConsole.InvokeScript("ext_div", data);
             });
         }
+        
         /// <summary>
         /// set html into control
         /// </summary>

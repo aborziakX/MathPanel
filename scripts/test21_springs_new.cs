@@ -77,7 +77,7 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("Script started!");
-            Dynamo.Scriplet("test21_springs", "Шары на пружинах");
+            //Dynamo.Scriplet("test21_springs", "Шары на пружинах");
 
             Dynamo.SceneClear();
             //создаем сцену
@@ -201,7 +201,7 @@ namespace DynamoCode
                 Dynamo.SceneDraw();
                 if (i % 5 == 0 && iTotalRes < 100)
                 {
-                    Dynamo.SaveScripresult();
+                    //Dynamo.SaveScripresult();
                     iTotalRes++;
                 }
 

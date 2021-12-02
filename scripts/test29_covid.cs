@@ -15,7 +15,7 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test29_covid");
-            Dynamo.Scriplet("test29_covid", "Страшная ковидла 19");
+            //Dynamo.Scriplet("test29_covid", "Страшная ковидла 19");
             Dynamo.SceneClear();
 
             double radius = 10;

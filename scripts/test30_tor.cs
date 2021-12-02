@@ -14,7 +14,7 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.Console("test30_tor");
-            Dynamo.Scriplet("test30_tor", "Просто бублик");
+            //Dynamo.Scriplet("test30_tor", "Просто бублик");
             Dynamo.SceneClear();
 
             int id = Dynamo.PhobNew(-0, 0, 0);
@@ -40,7 +40,7 @@ namespace DynamoCode
                 }
                 if (i == 0 || Dynamo.KeyConsole == "S")
                 {
-                    Dynamo.SaveScripresult();
+                    //Dynamo.SaveScripresult();
                 }
                 System.Threading.Thread.Sleep(ms < 50 ? 50 - ms : 1);
             }

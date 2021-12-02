@@ -18,7 +18,7 @@ namespace DynamoCode
             Dynamo.ConsoleClear();
             Dynamo.Console("test25_falling_ball");
             //регистрация на сервере
-            Dynamo.Scriplet("test25_falling_ball", "Падающий мяч");
+            //Dynamo.Scriplet("test25_falling_ball", "Падающий мяч");
             Dynamo.SceneClear();
             //мяч
             int id = Dynamo.PhobNew(20, 20, 40);
@@ -54,7 +54,7 @@ namespace DynamoCode
                 Dynamo.SceneDrawShape(true);
                 if (i % 5 == 0 && iTotalRes < 100)
                 {   //сохранить изображение на сервере
-                    Dynamo.SaveScripresult();
+                    //Dynamo.SaveScripresult();
                     iTotalRes++;
                 }
                 System.Threading.Thread.Sleep(50);

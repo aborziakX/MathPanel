@@ -19,11 +19,11 @@ namespace MathPanel
     public class Dynamo
     {
         static int mmm = 0;
-        static string sStart = "Host: ", sEnd = "\r\n\r\n";
+        readonly static string sStart = "Host: ", sEnd = "\r\n\r\n";
         //multithreading dictionary
-        static Dictionary<string, string> myDic = new Dictionary<string, string>();
-        static StringBuilder sb2 = new StringBuilder();
-        static object locker = new object();
+        readonly static Dictionary<string, string> myDic = new Dictionary<string, string>();
+        readonly static StringBuilder sb2 = new StringBuilder();
+        readonly static object locker = new object();
 
         readonly static string version = " v1.0";
         readonly static string sLogFile = "MathPanelCore.log";
@@ -34,7 +34,7 @@ namespace MathPanel
         static string sAlert = "";
         static string sHtml = "";
         static string screenJson = "";
-        static List<string> lstJson = new List<string>();
+        readonly static List<string> lstJson = new List<string>();
         static string txtCommand = "";
         
         static System.Threading.Thread my_thread = null;
@@ -128,107 +128,110 @@ namespace MathPanel
         }
         static byte[] ProcessMy2(StateObject state)
         {
-            byte[] bytesToSend = null;
-            if (state.sb.ToString().Contains(sEnd))
+            lock (locker)
             {
-                string toSend = "";
-                //string cmd = SocketServer.Between(state.sb.ToString(), sStart, sEnd);
-                string code = state.sb.ToString();
+                byte[] bytesToSend = null;
+                if (state.sb.ToString().Contains(sEnd))
+                {
+                    string toSend = "";
+                    //string cmd = SocketServer.Between(state.sb.ToString(), sStart, sEnd);
+                    string code = state.sb.ToString();
 
-                int pos = code.IndexOf("script=");
-                if (pos > 0) code = code.Substring(pos + 7);
-                //SocketServer.Log("ProcessMy2, thread " + Thread.CurrentThread.ManagedThreadId + ", codeLen=" + code.Length, 3);
-                code = code.Replace("+", " ");
-                code = Rest.DecodeString(code);
-                //SocketServer.Log("ProcessMy2, thread " + Thread.CurrentThread.ManagedThreadId + ", code=" + code, 3);
+                    int pos = code.IndexOf("script=");
+                    if (pos > 0) code = code.Substring(pos + 7);
+                    SocketServer.Log("ProcessMy2, thread " + Thread.CurrentThread.ManagedThreadId + ", codeLen=" + code.Length);
+                    code = code.Replace("+", " ");
+                    code = Rest.DecodeString(code);
+                    SocketServer.Log("ProcessMy2, thread " + Thread.CurrentThread.ManagedThreadId + ", code=" + code);
 
-                /*string includeNamespaces = @"using MathPanel;
-using MathPanelExt;";
-                if (code.IndexOf("namespace DynamoCode") < 0)
-                    code = string.Format(
-                        @"{1}  
-using System;  
-namespace DynamoCode{{  
-    public class Script{{  
-        public {2} Execute(){{  
-            {3} {0};  
+                    /*string includeNamespaces = @"using MathPanel;
+    using MathPanelExt;";
+                    if (code.IndexOf("namespace DynamoCode") < 0)
+                        code = string.Format(
+                            @"{1}  
+    using System;  
+    namespace DynamoCode{{  
+        public class Script{{  
+            public {2} Execute(){{  
+                {3} {0};  
+            }}  
         }}  
-    }}  
-}}",
-                        code,
-                        includeNamespaces,
-                        "void",
-                        string.Empty
-                        );*/
-                if (code == "scene")
-                {   //just do it
-                }
-                else if(code.IndexOf("scene&key=") == 0 )
-                {
-                    if (code.Length > "scene&key=".Length)
-                    {
-                        string key = code.Substring("scene&key=".Length, 1);
-                        MyPreviewKeyDown(key);
+    }}",
+                            code,
+                            includeNamespaces,
+                            "void",
+                            string.Empty
+                            );*/
+                    if (code == "scene")
+                    {   //just do it
                     }
-                }
-                else
-                {   //start script
-                    //??Abort not supported?
-                    if (my_thread != null && my_thread.IsAlive)
+                    else if (code.IndexOf("scene&key=") == 0)
                     {
-                        my_thread.Interrupt();//.Abort();
-                        Thread.Sleep(1000);
-                    }
-                    my_thread = null;
-                    SceneClear();
-                    txtCommand = code;
-
-                    var script = CSharpScript.Create(code, scriptOptions, null, loader);
-                    try
-                    {
-                        my_thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>
+                        if (code.Length > "scene&key=".Length)
                         {
-                            try
-                            {
-                                var scrState = script.RunAsync().Result;
-                                var rc = scrState.ReturnValue != null ? scrState.ReturnValue.ToString() : "null";
-                                Console("Done");
-                                scriptDone = true;
-                            }
-                            catch (Exception xxx) { Console(xxx.ToString()); scriptDone = true; }
-                        }));
-                        my_thread.Start();
-                        lstThr.Add(my_thread);                        
+                            string key = code.Substring("scene&key=".Length, 1);
+                            MyPreviewKeyDown(key);
+                        }
                     }
-                    catch (Exception xxx) { Console(xxx.ToString()); scriptDone = true; }
+                    else
+                    {   //start script
+                        //??Abort not supported?
+                        if (my_thread != null && my_thread.IsAlive)
+                        {
+                            my_thread.Interrupt();//.Abort();
+                            Thread.Sleep(1000);
+                        }
+                        my_thread = null;
+                        SceneClear();
+                        txtCommand = code;
+
+                        var script = CSharpScript.Create(code, scriptOptions, null, loader);
+                        try
+                        {
+                            my_thread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>
+                            {
+                                try
+                                {
+                                    var scrState = script.RunAsync().Result;
+                                    var rc = scrState.ReturnValue != null ? scrState.ReturnValue.ToString() : "null";
+                                    Console("Done");
+                                    scriptDone = true;
+                                }
+                                catch (Exception xxx) { Console("Q:" + xxx.ToString()); scriptDone = true; }
+                            }));
+                            my_thread.Start();
+                            lstThr.Add(my_thread);
+                        }
+                        catch (Exception xxx) { Console("W:" + xxx.ToString()); scriptDone = true; }
+                    }
+
+                    string scene = "";
+                    string json = "[";
+                    for (int i = 0; i < lstJson.Count; i++)
+                    {
+                        if (i > 0) json += ",";
+                        json += lstJson[i];
+                    }
+                    json += "]";
+                    sConsole = sConsole.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
+                    sAlert = sAlert.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
+                    sHtml = sHtml.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
+                    scene = string.Format("{{\"finished\":{0}, \"console\":\"{1}\", \"alert\":\"{2}\", \"html\":\"{3}\", \"scene\":{4}}}",
+                        (scriptDone ? "true" : "false"), sConsole, sAlert, sHtml, json);
+                    sConsole = "";
+                    sAlert = "";
+                    sHtml = "";
+
+                    toSend = "HTTP/1.1 200 OK\r\nDate: Mon, 08 May 2021 21:12:40 GMT\r\nServer: Apache/2\r\nAccess-Control-Allow-Origin: *\r\nContent-Type: text/html\r\n\r\n" +
+                                "<html><body>" + scene + "</body></html>\r\n\r\n";
+
+                    //SocketServer.Log("ProcessMy2, thread " + Thread.CurrentThread.ManagedThreadId + ", toSend=" + toSend, 3);
+                    mmm++;
+                    bytesToSend = Encoding.UTF8.GetBytes(toSend);
+                    lstJson.Clear();
                 }
-
-                string scene = "";
-                string json = "[";
-                for (int i = 0; i < lstJson.Count; i++)
-                {
-                    if( i > 0 ) json += ",";
-                    json += lstJson[i];
-                }
-                json += "]";
-                sConsole = sConsole.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
-                sAlert = sAlert.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
-                sHtml = sHtml.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
-                scene = string.Format("{{\"finished\":{0}, \"console\":\"{1}\", \"alert\":\"{2}\", \"html\":\"{3}\", \"scene\":{4}}}", 
-                    (scriptDone ? "true" : "false"), sConsole, sAlert, sHtml, json);
-                sConsole = "";
-                sAlert = "";
-                sHtml = "";
-
-                toSend = "HTTP/1.1 200 OK\r\nDate: Mon, 08 May 2021 21:12:40 GMT\r\nServer: Apache/2\r\nAccess-Control-Allow-Origin: *\r\nContent-Type: text/html\r\n\r\n" +
-                            "<html><body>" + scene + "</body></html>\r\n\r\n";
-
-                //SocketServer.Log("ProcessMy2, thread " + Thread.CurrentThread.ManagedThreadId + ", toSend=" + toSend, 3);
-                mmm++;
-                bytesToSend = Encoding.UTF8.GetBytes(toSend);
-
+                return bytesToSend;
             }
-            return bytesToSend;
         }
 
         //API
@@ -263,15 +266,18 @@ namespace DynamoCode{{
         /// </summary>
         public static void Log(string s)
         {
-            try
+            lock (locker)
             {
-                StreamWriter sw = new StreamWriter(sLogFile, true, Encoding.UTF8);
-                sw.WriteLine(string.Format("{0:yyyy-MM-dd HH:mm:ss} {1}", DateTime.Now, s));
-                sw.Close();
-            }
-            catch (Exception se)
-            {
-                Console(se.Message);
+                try
+                {
+                    StreamWriter sw = new StreamWriter(sLogFile, true, Encoding.UTF8);
+                    sw.WriteLine(string.Format("{0:yyyy-MM-dd HH:mm:ss} {1}", DateTime.Now, s));
+                    sw.Close();
+                }
+                catch (Exception se)
+                {
+                    Console(se.Message);
+                }
             }
         }
         /// <summary>
@@ -647,9 +653,12 @@ namespace DynamoCode{{
         /// </summary>
         public static void SceneJson(string s_json, bool bSecond = false)
         {
-            if (!bSecond) lstJson.Clear();
-            screenJson = s_json;
-            lstJson.Add(screenJson);
+            lock (locker)
+            {
+                if (!bSecond) lstJson.Clear();
+                screenJson = s_json;
+                lstJson.Add(screenJson);
+            }
         }
         /// <summary>
         /// translate box coordinates to camera coordinates
@@ -1150,25 +1159,28 @@ namespace DynamoCode{{
         /// </summary>
         public static void SceneClear()
         {
-            foreach (var thr in lstThr)
+            lock (locker)
             {
-                if (thr != my_thread && thr.IsAlive) thr.Interrupt();//.Abort();
+                foreach (var thr in lstThr)
+                {
+                    if (thr != my_thread && thr.IsAlive) thr.Interrupt();//.Abort();
+                }
+                dicPhob.Clear();
+                //смещение ящика в системе камеры
+                xBoXTrans = 0;
+                yBoXTrans = 0;
+                zBoXTrans = -100;
+                xRotor = -1.50899693899575;// -75 * Math.PI / 180.0; //вращение ящика вокруг оси X
+                yRotor = -0.0853981633974484;// - 45 * Math.PI / 180.0; //вращение ящика вокруг оси Y
+                zRotor = 0.1;//0; //вращение ящика вокруг оси Z
+                matRotor.Build(XRotor, YRotor, ZRotor);
+                screenJson = "";
+                lstJson.Clear();
+                scriptDone = false;
+                sConsole = "";
+                sAlert = "";
+                sHtml = "";
             }
-            dicPhob.Clear();
-            //смещение ящика в системе камеры
-            xBoXTrans = 0;
-            yBoXTrans = 0;
-            zBoXTrans = -100;
-            xRotor = -1.50899693899575;// -75 * Math.PI / 180.0; //вращение ящика вокруг оси X
-            yRotor = -0.0853981633974484;// - 45 * Math.PI / 180.0; //вращение ящика вокруг оси Y
-            zRotor = 0.1;//0; //вращение ящика вокруг оси Z
-            matRotor.Build(XRotor, YRotor, ZRotor);
-            screenJson = "";
-            lstJson.Clear();
-            scriptDone = false;
-            sConsole = "";
-            sAlert = "";
-            sHtml = "";
         }
 
         /// <summary>
@@ -1533,7 +1545,10 @@ namespace DynamoCode{{
                 s = inireader.AppSettings("loglevel");
                 Console("loglevel=" + s, false);
                 if (!string.IsNullOrEmpty(s))
-                    SocketServer.loglevel = int.Parse(s);
+                {
+                    loglevel = int.Parse(s);
+                    SocketServer.loglevel = loglevel;
+                }
 
                 s = inireader.AppSettings("name");
                 if (!string.IsNullOrEmpty(s))

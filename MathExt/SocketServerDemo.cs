@@ -25,7 +25,9 @@ namespace MathPanelExt
     //for async
     public class StateObject
     {
+        static int id_counter = 0;
         public static int BUFSIZE = 4096;
+        public int Id { get; }
         public Socket workSocket = null;
         public byte[] buffer = new byte[BUFSIZE];
         public StringBuilder sb = new StringBuilder();
@@ -33,13 +35,17 @@ namespace MathPanelExt
         //AB 2021-06-07 for big data continue reading/sending
         public byte[] bytesToSend = null;
         public int offset = 0;
+        public StateObject()
+        {
+            Id = id_counter++;
+        }
     }
     public delegate byte[] PerformCalculation(StateObject state);
     public class SocketServer
     {
         static object locker = new object();
         static int POLL_MS_CONN = 1000;
-        static string sLogFile = "SocketServer_demo.log";
+        static public string sLogFile = "SocketServer_demo.log";
         public static int loglevel = 0;
         public bool bKeep = true;
         ManualResetEvent allDone = new ManualResetEvent(false);
@@ -210,13 +216,41 @@ namespace MathPanelExt
             }
 
             int read = handler.EndReceive(ar);
+            if(loglevel > 0)
+                Log(string.Format("Id={0}, read={1}, dlen={2} data={3}", 
+                    state.Id, read, state.sb.Length, state.sb.ToString()));
 
             // Data was read from the client socket.
             if (read > 0)
             {   //AB 2021-06-07 for big data continue reading
                 state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, read));
+                string dd = state.sb.ToString();
+                int ipos = dd.IndexOf("Content-Length:");
+                if (ipos > 0)
+                {   //asume html-protocol
+                    int ipos2 = dd.IndexOf("\r\n\r\n");
+                    if( ipos2 > ipos )
+                    {
+                        //extract Content-Length
+                        int ipos3 = dd.IndexOf("\r\n", ipos);
+                        if( ipos3 > 0 )
+                        {
+                            int iClen = 0;
+                            string cl = dd.Substring(ipos + 15, ipos3 - ipos - 15).Trim();
+                            if (int.TryParse(cl, out iClen))
+                            {
+                                if( dd.Length - ipos3 - 2 < iClen )
+                                {   //не все, пробуем продолжить читать
+                                    handler.BeginReceive(state.buffer, 0, StateObject.BUFSIZE, 0, new AsyncCallback(readCallback), state);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (read == StateObject.BUFSIZE)
-                {
+                {   //полный буфер, пробуем продолжить читать
                     handler.BeginReceive(state.buffer, 0, StateObject.BUFSIZE, 0, new AsyncCallback(readCallback), state);
                     return;
                 }
@@ -224,7 +258,7 @@ namespace MathPanelExt
 
             byte[] bytesToSend = pc_hand != null ? pc_hand(state) : Process(state);
             if (bytesToSend != null)
-            {
+            {   //ответ
                 state.bytesToSend = bytesToSend;
                 state.offset = 0;
                 int len = bytesToSend.Length;
@@ -233,7 +267,7 @@ namespace MathPanelExt
                     new AsyncCallback(sendCallback), state);
             }
             else
-            {
+            {   //нечего вернуть - просто закрыть
                 //if (!bKeep)
                     handler.Close();
             }
