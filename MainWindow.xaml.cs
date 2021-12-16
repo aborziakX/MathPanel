@@ -1,4 +1,6 @@
-﻿//2020, Andrei Borziak
+﻿//#define OLDCODE
+//раскомментируйте OLDCODE , чтобы использовать первоначальный код методов из книги
+//2020-2021, Andrei Borziak
 //MathPanel (математическая панель) для работы со скриптами, написанными на C#.
 //Область применения – моделирование процессов и визуализация.
 
@@ -24,6 +26,7 @@ using System.Web.Script.Serialization;
 //была "Неизвестная ошибка сборки, Не удалось загрузить файл или сборку либо одну из их зависимостей. 
 //Процесс не может получить доступ к файлу, так как этот файл занят другим процессом. (Исключение из HRESULT: 0x80070020)"	MathPanel"
 //исправил путем задания x86 сборки
+
 
 namespace MathPanel
 {
@@ -69,6 +72,7 @@ Dynamo.Console(hz.ToString());
         static double zRotor = 0; //вращение ящика вокруг оси Z
         static Mat3 matRotor = new Mat3(); //матрица для вращения
         static int DrawCount = 0; //счетчик рисований
+        static bool bDrawBox = true; //признак рисования ящика
         static bool bAxes = true; //признак построения осей
         static string clrNormal = "#ff0000";    //цвет нормалей
         static string clrStroke = "#999999";    //цвет ребер
@@ -79,6 +83,19 @@ Dynamo.Console(hz.ToString());
         static int loglevel = 0; //уровень логирования
         static string canvasBg = "#000000"; //фон канваса
         static string ext_params = ""; //дополнительный параметр
+
+        static bool bOldCode = false;//if true - incorrect order of rotations
+        public static bool BOldCode
+        {
+            get
+            {
+                return bOldCode;
+            }
+            set
+            {
+                bOldCode = value;
+            }
+        }
 
         //конструктор
         public Dynamo()
@@ -630,15 +647,18 @@ Dynamo.Console(hz.ToString());
         /// </summary>
         public static void Log(string s)
         {
-            try
+            lock (locker)
             {
-                StreamWriter sw = new StreamWriter(sLogFile, true, Encoding.UTF8);
-                sw.WriteLine(string.Format("{0:yyyy-MM-dd HH:mm:ss} {1}", DateTime.Now, s));
-                sw.Close();
-            }
-            catch (Exception se)
-            {
-                Console(se.Message);
+                try
+                {
+                    StreamWriter sw = new StreamWriter(sLogFile, true, Encoding.UTF8);
+                    sw.WriteLine(string.Format("{0:yyyy-MM-dd HH:mm:ss} {1}", DateTime.Now, s));
+                    sw.Close();
+                }
+                catch (Exception se)
+                {
+                    Console(se.Message);
+                }
             }
         }
 
@@ -852,10 +872,13 @@ Dynamo.Console(hz.ToString());
             set
             {
                 box = value;
-                boxShape.Reshape(box.x0, box.x1, box.y0, box.y1, box.z0, box.z1);
-                xBoXTrans = -(box.x0 + box.x1) / 2;
-                yBoXTrans = -(box.y0 + box.y1) / 2;
-                zBoXTrans = -box.z1 - z_cam * 0.1;
+                if (box != null)
+                {
+                    boxShape.Reshape(box.x0, box.x1, box.y0, box.y1, box.z0, box.z1);
+                    xBoXTrans = -(box.x0 + box.x1) / 2;
+                    yBoXTrans = -(box.y0 + box.y1) / 2;
+                    zBoXTrans = -box.z1 - z_cam * 0.1;
+                }
                 //optimize camera angle
                 CameraZ = z_cam;
             }
@@ -967,6 +990,21 @@ Dynamo.Console(hz.ToString());
             set
             {
                 bAxes = value;
+            }
+        }
+
+        /// <summary>
+        /// получить/задать bDrawBox для рисования ящика
+        /// </summary>
+        public static bool BDrawBox
+        {
+            get
+            {
+                return bDrawBox;
+            }
+            set
+            {
+                bDrawBox = value;
             }
         }
 
@@ -1083,6 +1121,7 @@ Dynamo.Console(hz.ToString());
             return null;
         }*/
 
+#if OLDCODE
         /// <summary>
         /// преобразовать координаты в системе ящика в координаты в системе камеры (старый метод)
         /// </summary>
@@ -1091,34 +1130,66 @@ Dynamo.Console(hz.ToString());
         /// <param name="z">z координата</param>
         /// <param name="radius">радиус объекта</param>
         /// <param name="bScreen">проецировать координаты на экран</param>
-        public static void Traslate2CameraOld(ref double x, ref double y, ref double z, ref double radius, bool bScreen = false)
+        public static void Traslate2Camera(ref double x, ref double y, ref double z, ref double radius, bool bScreen = false)
         {
             double x_n, y_n, z_n;
-            //вращать вокруг Z
-            if (zRotor != 0)
-            {
-                x_n = x * Math.Cos(zRotor) - y * Math.Sin(zRotor);
-                y_n = x * Math.Sin(zRotor) + y * Math.Cos(zRotor);
-                x = x_n;
-                y = y_n;
-            }
+            if (bOldCode)
+            {//old
+                //вращать вокруг Z
+                if (zRotor != 0)
+                {
+                    x_n = x * Math.Cos(zRotor) - y * Math.Sin(zRotor);
+                    y_n = x * Math.Sin(zRotor) + y * Math.Cos(zRotor);
+                    x = x_n;
+                    y = y_n;
+                }
 
-            //вращать вокруг X
-            if (xRotor != 0)
-            {
-                y_n = y * Math.Cos(xRotor) - z * Math.Sin(xRotor);
-                z_n = y * Math.Sin(xRotor) + z * Math.Cos(xRotor);
-                y = y_n;
-                z = z_n;
-            }
+                //вращать вокруг X
+                if (xRotor != 0)
+                {
+                    y_n = y * Math.Cos(xRotor) - z * Math.Sin(xRotor);
+                    z_n = y * Math.Sin(xRotor) + z * Math.Cos(xRotor);
+                    y = y_n;
+                    z = z_n;
+                }
 
-            //вращать вокруг Y
-            if (yRotor != 0)
-            {
-                z_n = z * Math.Cos(yRotor) - x * Math.Sin(yRotor);
-                x_n = z * Math.Sin(yRotor) + x * Math.Cos(yRotor);
-                z = z_n;
-                x = x_n;
+                //вращать вокруг Y
+                if (yRotor != 0)
+                {
+                    z_n = z * Math.Cos(yRotor) - x * Math.Sin(yRotor);
+                    x_n = z * Math.Sin(yRotor) + x * Math.Cos(yRotor);
+                    z = z_n;
+                    x = x_n;
+                }
+            }
+            else
+            {   //new version
+                //вращать вокруг Y
+                if (yRotor != 0)
+                {
+                    z_n = z * Math.Cos(yRotor) - x * Math.Sin(yRotor);
+                    x_n = z * Math.Sin(yRotor) + x * Math.Cos(yRotor);
+                    z = z_n;
+                    x = x_n;
+                }
+
+                //вращать вокруг X
+                if (xRotor != 0)
+                {
+                    y_n = y * Math.Cos(xRotor) - z * Math.Sin(xRotor);
+                    z_n = y * Math.Sin(xRotor) + z * Math.Cos(xRotor);
+                    y = y_n;
+                    z = z_n;
+                }
+
+                //вращать вокруг Z
+                if (zRotor != 0)
+                {
+                    x_n = x * Math.Cos(zRotor) - y * Math.Sin(zRotor);
+                    y_n = x * Math.Sin(zRotor) + y * Math.Cos(zRotor);
+                    x = x_n;
+                    y = y_n;
+                }
             }
 
             //сдвинуть
@@ -1129,7 +1200,7 @@ Dynamo.Console(hz.ToString());
             if (bScreen)
                 Traslate2Screen(ref x, ref y, ref z, ref radius);
         }
-
+#else
         /// <summary>
         /// преобразовать координаты в системе ящика в координаты в системе камеры
         /// </summary>
@@ -1153,6 +1224,7 @@ Dynamo.Console(hz.ToString());
             if (bScreen)
                 Traslate2Screen(ref x, ref y, ref z, ref radius);
         }
+#endif
 
         /// <summary>
         /// транслировать координаты объекта в системе камеры и размер в координаты на экране
@@ -1169,10 +1241,11 @@ Dynamo.Console(hz.ToString());
             radius *= d_squeeze;
         }
 
+#if OLDCODE
         /// <summary>
         /// данные для рисования ребер ящика (старый метод)
         /// </summary>
-        static string BoxEdgesOld()
+        static string BoxEdges()
         {
             double x, y, z, radius = 1, x_fr, y_fr, z_fr;
             double rad = Math.Abs(1.0 / ((box.x1 - box.x0) * iCanvasWidth));
@@ -1312,7 +1385,7 @@ Dynamo.Console(hz.ToString());
 
             return data.ToString();
         }
-
+#else
         /// <summary>
         /// данные для рисования ребер ящика 
         /// </summary>
@@ -1323,10 +1396,13 @@ Dynamo.Console(hz.ToString());
             
             string text;
             var data = new StringBuilder();
-            string ss = DrawShape(boxShape, null);
-            if (ss != "")
+            if (bDrawBox)
             {
-                data.Append(ss);
+                string ss = DrawShape(boxShape, null);
+                if (ss != "")
+                {
+                    data.Append(ss);
+                }
             }
 
             if (bAxes)
@@ -1380,6 +1456,12 @@ Dynamo.Console(hz.ToString());
 
             return data.ToString();
         }
+#endif
+        /// <summary>
+        /// подготовить данные формы для визуализации в canvas
+        /// </summary>
+        /// <param name="shape">форма объекта</param>
+        /// <param name="ph">сам объект</param>
         static string DrawShape(GeOb shape, Phob ph)
         {
             if (shape == null) return "";
@@ -1414,11 +1496,11 @@ Dynamo.Console(hz.ToString());
                         vref = fac.v4_cam;
                     }
 
-                    //scale
+                    //масштабировать
                     if (shape.scaleX != 1) vref.x *= shape.scaleX;
                     if (shape.scaleY != 1) vref.y *= shape.scaleY;
                     if (shape.scaleZ != 1) vref.z *= shape.scaleZ;
-                    //rotate                    
+                    //вращать                    
                     if (shape.XRotor != 0 || shape.YRotor != 0 || shape.ZRotor != 0)
                     {
                         /*double x_n, y_n, z_n;
@@ -1434,19 +1516,19 @@ Dynamo.Console(hz.ToString());
                         vref.y = v_new.y;
                         vref.z = v_new.z;
                     }
-                    //translate
+                    //транслировать
                     vref.Add(shape.vShift);
 
-                    //adjust with PhOb
+                    //добавить координаты объекта
                     if( ph != null )
                         vref.Add(ph.x, ph.y, ph.z);
 
-                    //adjust using camera position
+                    //перейти в СКК
                     Traslate2Camera(ref vref.x, ref vref.y, ref vref.z, ref radius, false);
                 }
             }
 
-            //sort
+            //сортировать по удалению от камеры
             List<Facet3> lst = shape.lstFac;
             try
             {   //can fail while scene is reloaded
@@ -1460,16 +1542,16 @@ Dynamo.Console(hz.ToString());
             }
             catch (Exception) { };
 
-            //prepare to screen
+            //данные на экран для каждой грани
             foreach (var fac in lst)
             {
-                //light aproximation
+                //игра света
                 fac.CalcNormal(true);
                 //fac.dark = fac.normal_cam.z <= 0.0 ? 0.1 : (fac.normal_cam.z + 0.5) / 1.5;
                 //if (DrawCount % 100 == 1)
                 //Console(fac.name + ",dark=" + dark);
                 fac.Center(out double x, out double y, out double z, true);
-                vTemp.Copy(-x, -y, z_cam - z); //vector to camera
+                vTemp.Copy(-x, -y, z_cam - z); //вектор к камере
                 double dLen = vTemp.Length();
                 if (dLen == 0) continue;
                 double cosfi = vTemp.ScalarProduct(fac.normal_cam) / dLen;  //косинус угла между вектором на камеру и нормалью
@@ -1521,7 +1603,7 @@ Dynamo.Console(hz.ToString());
 
                 if (shape.bDrawNorm)
                 {
-                    //normals
+                    //нормали
                     if (data.Length != 0) data.Append(",");
                     Traslate2Screen(ref x, ref y, ref z, ref radius);
                     data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
@@ -1555,8 +1637,8 @@ Dynamo.Console(hz.ToString());
 
         /// <summary>
         /// подготовить данные для визуализации на канвасе
-        /// <param name="bCons">вывод в окно сообщений</param>
         /// </summary>
+        /// <param name="bCons">вывод в окно сообщений</param>
         public static void SceneDraw(bool bCons = false)
         {
             DrawCount++;//номер итерации вывода
@@ -1693,13 +1775,13 @@ Dynamo.Console(hz.ToString());
             string starter = "{{\"data\":[";
             data.AppendFormat(starter);
 
-            //add box edges
+            //показать границы ящика
             if (box != null && bBx) data.Append(BoxEdges());
 
-            //sort by z-position
+            //для каждого объекта сцены
             List<Phob> lst = dicPhob.Values.ToList();
             foreach (Phob ph in lst)
-            {   //adjust using camera position
+            {   //перейти в СКК
                 ph.SaveCoord();
                 Traslate2Camera(ref ph.x, ref ph.y, ref ph.z, ref ph.radius, true);
                 if (box == null)
@@ -1721,6 +1803,7 @@ Dynamo.Console(hz.ToString());
                 }
                 i++;
             }
+            //сортировать по удаленности от камеры
             lst.Sort(delegate (Phob x, Phob y)
             {
                 return x.z >= y.z ? 1 : -1;
@@ -1734,7 +1817,7 @@ Dynamo.Console(hz.ToString());
                     if (ph.bDrawAsLine == false)
                         data.Append(ph.ToJson());
                     else
-                    {
+                    {   //рисовать как линию
                         double radius = 0.001;
                         double px = ph.p1.x;
                         double py = ph.p1.y;
@@ -1760,6 +1843,7 @@ Dynamo.Console(hz.ToString());
                             string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
                     }
                 }
+                //воостановить координаты
                 ph.RestoreCoord();
 
                 if (ph.Shape != null)
@@ -1793,7 +1877,7 @@ Dynamo.Console(hz.ToString());
                 dY1 = physHeight;
                 dY0 = -dY1;
             }
-
+            //параметры рисования: размеры, цвет, стиль
             string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\" }}",
                 D2S(dX0), D2S(dX1),
                 D2S(dY0), D2S(dY1),

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //TODO добавить вращение вокруг оси - from test59_moscow_habana
 namespace MathPanel
@@ -13,75 +9,86 @@ namespace MathPanel
     /// </summary>
     public class Vec3
     {
-        public double x, y, z;
+        public double x, y, z;  //координаты вектора
+        //конструктор без параметров
         public Vec3()
         {
             x = 0;
             y = 0;
             z = 0;
         }
+        //конструктор с параметрами для инициализации вектора
         public Vec3(double x0 = 0, double y0 = 0, double z0 = 0)
         {
             x = x0;
             y = y0;
             z = z0;
         }
+        //копирование данных
         public void Copy(double x0, double y0, double z0)
         {
             x = x0;
             y = y0;
             z = z0;
         }
+        //копирование данных из другого вектора
         public void Copy(Vec3 v)
         {
             x = v.x;
             y = v.y;
             z = v.z;
         }
+        //прибавление вектора, параметры - его компоненты
         public void Add(double x0, double y0, double z0)
         {
             x += x0;
             y += y0;
             z += z0;
         }
+        //прибавление вектора
         public void Add(Vec3 v)
         {
             x += v.x;
             y += v.y;
             z += v.z;
         }
+        //сложение 2-х векторов, результат записывается в res
         public void Sum(Vec3 v, ref Vec3 res)
         {
             res.x = x + v.x;
             res.y = y + v.y;
             res.z = z + v.z;
         }
+        //векторное произведение, результат в новом векторе
         public static Vec3 Product(Vec3 v1, Vec3 v2)
         {
             var v3 = new Vec3();
             Product(v1, v2, ref v3);
             return v3;
         }
+        //векторное произведение, результат в v3
         public static void Product(Vec3 v1, Vec3 v2, ref Vec3 v3)
         {
             v3.z = v1.x * v2.y - v1.y * v2.x;
             v3.x = v1.y * v2.z - v1.z * v2.y;
             v3.y = v1.z * v2.x - v1.x * v2.z;
         }
+        //длина вектора
         public double Length()
         {
             return Math.Sqrt(x * x + y * y + z * z);
         }
-
+        //расстояние между 2-мя векторами
         public double Distance(double x1, double y1, double z1)
         {
             return Math.Sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1) + (z - z1) * (z - z1));
         }
-
+        //расстояние между 2-мя векторами
         public double Distance(Vec3 v)
         {
             return Math.Sqrt((x - v.x) * (x - v.x) + (y - v.y) * (y - v.y) + (z - v.z) * (z - v.z));
         }
+        //нормализация вектора, длина = 1
         public double Normalize()
         {
             double len = Length();
@@ -93,11 +100,12 @@ namespace MathPanel
             }
             return len;
         }
+        //строковое представление
         public new string ToString()
         {
             return string.Format("x={0}, y={1}, z={2}", x, y, z);
         }
-
+        //скалярное произведение
         public double ScalarProduct(Vec3 v1)
         {
             //len(a) * len(b) * cos(fi)
@@ -119,13 +127,13 @@ namespace MathPanel
             res.Copy(p1.x + t * v1.x, p1.y + t * v1.y, p1.z + t * v1.z);
             return true;
         }
+        //масштабирование
         public void Scale(double p)
         {
             x *= p;
             y *= p;
             z *= p;
         }
-
     }
 
     /// <summary>
@@ -134,44 +142,49 @@ namespace MathPanel
     public class Mat3
     {
         public Vec3 a, b, c;    //строки матрицы
+        //конструктор без параметров создает единичную матрицу
         public Mat3()
         {
             a = new Vec3(1, 0, 0);
             b = new Vec3(0, 1, 0);
             c = new Vec3(0, 0, 1);
         }
+        //копирование данных
         public void Copy(Mat3 mat)
         {
             a.Copy(mat.a);
             b.Copy(mat.b);
             c.Copy(mat.c);
         }
+        //масштабирование, для каждой строки свой коэффициент
         public void Scale(double p1, double p2, double p3 )
         {
             a.Scale(p1);
             b.Scale(p2);
             c.Scale(p3);
         }
+        //прибавление матрицы
         public void Add(Mat3 mat)
         {
             a.Add(mat.a);
             b.Add(mat.b);
             c.Add(mat.c);
         }
+        //сложение 2-х матриц, результат в res
         public void Sum(Mat3 mat, ref Mat3 res)
         {
             a.Sum(mat.a, ref res.a);
             b.Sum(mat.b, ref res.b);
             c.Sum(mat.c, ref res.c);
         }
-
+        //умножение матрицы на вектор, результат в res
         public void Mult(Vec3 v, ref Vec3 res)
         {
             res.x = a.x * v.x + a.y * v.y + a.z * v.z;
             res.y = b.x * v.x + b.y * v.y + b.z * v.z;
             res.z = c.x * v.x + c.y * v.y + c.z * v.z;
         }
-
+        //умножение матрицы на матрицу, результат в res
         public void Mult(Mat3 mat, ref Mat3 res)
         {
             res.a.x = a.x * mat.a.x + a.y * mat.b.x + a.z * mat.c.x;//1,1
@@ -186,7 +199,7 @@ namespace MathPanel
             res.c.y = c.x * mat.a.y + c.y * mat.b.y + c.z * mat.c.y;//3,2
             res.c.z = c.x * mat.a.z + c.y * mat.b.z + c.z * mat.c.z;//3,3
         }
-        //build from angles
+        //построить матрицу из углов поворота
         public void Build(double xRotor, double yRotor, double zRotor)
         {
             //rotate Z, X, Y
@@ -206,12 +219,17 @@ namespace MathPanel
             my.c = new Vec3(-Math.Sin(yRotor), 0, Math.Cos(yRotor));
 
             Mat3 mtemp = new Mat3();
-            mx.Mult(mz, ref mtemp);
-            my.Mult(mtemp, ref mz);
-            Copy(mz);
+            //mx.Mult(mz, ref mtemp);
+            //my.Mult(mtemp, ref mz);
+            //Copy(mz);
+
+            //порядок Y, X, Z
+            mx.Mult(my, ref mtemp);
+            mz.Mult(mtemp, ref my);
+            Copy(my);
         }
 
-        //build from vectors - each one is a new column
+        //построить матрицу из векторов - каждый вектор заполняет колонку
         public void BuildVec(Vec3 a1, Vec3 b1, Vec3 c1)
         {
             a.x = a1.x;
@@ -227,7 +245,7 @@ namespace MathPanel
             c.z = c1.z;
         }
 
-        //вычислить определитель
+        //вычислить определитель матрицы
         public double Determinant()
         {
             double d = 0;
@@ -262,17 +280,18 @@ namespace MathPanel
         {
             double d = Determinant();
             if (d == 0)
-            {   //bad!
+            {   //плохой случай, возвращаем нулевую матрицу!
                 m.a.Copy(0, 0, 0);
                 m.b.Copy(0, 0, 0);
                 m.c.Copy(0, 0, 0);
                 return;
             }
-
+            //копируем матрицу
             m.Copy(this);
+            //транспонируем
             m.Transp();
 
-            //присоединенная матрица
+            //вычислить присоединенную матрицу
             var mAdj = new Mat3();
             mAdj.a.x = (m.b.y * m.c.z - m.b.z * m.c.y) / d;
             mAdj.a.y = -(m.b.x * m.c.z - m.b.z * m.c.x) / d;
@@ -285,10 +304,10 @@ namespace MathPanel
             mAdj.c.x = (m.a.y * m.b.z - m.a.z * m.b.y) / d;
             mAdj.c.y = -(m.a.x * m.b.z - m.a.z * m.b.x) / d;
             mAdj.c.z = (m.a.x * m.b.y - m.a.y * m.b.x) / d;
-
+            //вернуть результат
             m.Copy(mAdj);
         }
-
+        //строковое представление матрицы
         public new string ToString()
         {
             return string.Format("{0}, {1}, {2}\n{3}, {4}, {5}\n{6}, {7}, {8}", a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);

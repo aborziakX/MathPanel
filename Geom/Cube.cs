@@ -1,17 +1,19 @@
 ﻿//2020, Andrei Borziak
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MathPanel
 {
     /// <summary>
-    /// Cube derived from GeOb
+    /// Куб на базе GeOb
     /// </summary>
     public class Cube : GeOb
     {
+        /// <summary>
+        /// конструктор куба
+        /// </summary>
+        /// <param name="size">размер</param>
+        /// <param name="color">цвет</param>
+        /// <param name="iOpened">побитовое ИЛИ: какие грани отсутствуют</param>
+        /// <param name="hDivide">на сколько частей делить</param>
         public Cube(double size = 1, string color = null, int iOpened = 0, int hDivide = 1) : base()
         {
             name = "cube" + id_counter;
@@ -19,9 +21,11 @@ namespace MathPanel
             ColorSet(color);
             double dH = hDivide > 1 ? size / hDivide : size;
             double x, y, z;
+            //наименьшие координаты
             double x0 = -radius, y0 = -radius, z0 = -radius;
+            //наибольшие координаты
             double x1 = radius, y1 = radius, z1 = radius;
-            //вершины
+            //вершины для наглядности
             Vec3 v000 = new Vec3(x0, y0, z0);
             Vec3 v100 = new Vec3(x1, y0, z0);
             Vec3 v110 = new Vec3(x1, y1, z0);
@@ -44,16 +48,19 @@ namespace MathPanel
                 {
                     for (int i = 0; i < hDivide; i++)
                     {
-                        //грани: fore v001, v101, v111, v011
+                        //передняя грань: v001, v101, v111, v011
                         x = x0 + dH * i;
                         y = y0 + dH * j;
+                        //задать точки грани
                         v0.Copy(x, y, z);
                         v1.Copy(x + dH, y, z);
                         v2.Copy(x + dH, y + dH, z);
                         v3.Copy(x, y + dH, z);
+                        //создать грань
                         Facet3 fac0_a = new Facet3(v0, v1, v2, v3);
                         if (!string.IsNullOrEmpty(color)) fac0_a.clr.Copy(clr);
                         fac0_a.name = name + "fo" + id_fac++;
+                        //добавить в список
                         lstFac.Add(fac0_a);
                     }
                 }
@@ -66,7 +73,7 @@ namespace MathPanel
                 {
                     for (int i = 0; i < hDivide; i++)
                     {
-                        //back v000, v010, v110, v100
+                        //задняя грань: v000, v010, v110, v100
                         x = x0 + dH * i;
                         y = y0 + dH * j;
                         v0.Copy(x, y, z);
@@ -88,7 +95,7 @@ namespace MathPanel
                 {
                     for (int i = 0; i < hDivide; i++)
                     {
-                        //left v011, v010, v000, v001
+                        //грань слева: v011, v010, v000, v001
                         z = z0 + dH * i;
                         y = y0 + dH * j;
                         v0.Copy(x, y, z);
@@ -110,7 +117,7 @@ namespace MathPanel
                 {
                     for (int i = 0; i < hDivide; i++)
                     {
-                        //right v101, v100, v110, v111
+                        //грань справа: v101, v100, v110, v111
                         z = z0 + dH * i;
                         y = y0 + dH * j;
                         v0.Copy(x, y, z);
@@ -132,7 +139,7 @@ namespace MathPanel
                 {
                     for (int i = 0; i < hDivide; i++)
                     {
-                        //top v111, v110, v010, v011
+                        //грань сверху: v111, v110, v010, v011
                         z = z0 + dH * i;
                         x = x0 + dH * j;
                         v0.Copy(x, y, z);
@@ -154,7 +161,7 @@ namespace MathPanel
                 {
                     for (int i = 0; i < hDivide; i++)
                     {
-                        //bottom v001, v000, v100, v101
+                        //грань снизу: v001, v000, v100, v101
                         z = z0 + dH * i;
                         x = x0 + dH * j;
                         v0.Copy(x, y, z);

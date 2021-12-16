@@ -4,10 +4,36 @@ using MathPanel;
 
 namespace MathPanelExt
 {
+	//опции рисования в методах
+	public class DrawOpt
+    {
+		//стиль, текст, цвет, размер, размер шрифта, высота гисто, ширина линии, цвет линии
+		public string sty = "", txt = "", clr = "", rad = "", fontsize = "", hei = "", lnw = "", csk = "";
+		public bool bFill = false;//заливать
+		//матрица трансформации и сдвиг
+		public double a11 = 1, a12 = 0, a21 = 0, a22 = 1, xTrans = 0, yTrans = 0;
+		//преобразовать координаты в соответствии с матрицей трансформации
+		public void Transform(ref double x, ref double y)
+        {
+			if (a11 == 1 && a12 == 0 && a21 == 0 && a22 == 1) return;
+			double x_n = a11 * (x - xTrans) + a12 * (y - yTrans);
+			double y_n = a21 * (x - xTrans) + a22 * (y - yTrans);
+			x = x_n + xTrans;
+			y = y_n + yTrans;
+		}
+		//трансформация - поворот на угол fi против часовой стрелки
+		public void Rotor(double fi)
+        {
+			a11 = Math.Cos(fi);
+			a12 = -Math.Sin(fi);
+			a21 = Math.Sin(fi);
+			a22 = Math.Cos(fi);
+		}
+	}
+
 	/// <summary>
 	/// класс для решения квадратного уравнения и рисования примитивов (на основе подготовки данных для вывода через JSON в GRAPHIX)
 	/// </summary>
-
 	public class QuadroEqu
 	{
 		public QuadroEqu()
@@ -28,6 +54,8 @@ namespace MathPanelExt
 		static readonly string sTxt = "{{\"x\":{0},\"y\":{1}, \"txt\":\"{2}\", \"sty\":\"{3}\"}}";
 		static readonly string sFull =
 			"{{\"x\":{0},\"y\":{1}, \"txt\":\"{2}\", \"sty\":\"{3}\", \"clr\":\"{4}\", \"rad\":\"{5}\", \"fontsize\":\"{6}\"}}";
+		static readonly string sFull_2 =
+			"{{\"x\":{0},\"y\":{1}, \"txt\":\"{2}\", \"sty\":\"{3}\", \"clr\":\"{4}\", \"rad\":\"{5}\", \"fontsize\":\"{6}\", \"hei\":\"{7}\", \"lnw\":\"{8}\", \"csk\":\"{9}\"}}";
 
 		/// <summary>
 		/// подготовка данных для квадратного уравнения
@@ -45,11 +73,25 @@ namespace MathPanelExt
 			}
 			return sb.ToString();
 		}
+
 		/// <summary>
 		/// подготовка данных для эллипса
 		/// </summary>
-		public static string DrawEllipse(double a, double b, double x0, double y0, double fi0, double fi1, int n)
+		public static string DrawEllipse(double a, double b, double x0, double y0, double fi0, double fi1, int n, DrawOpt opt = null)
 		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
 			double step = (fi1 - fi0) / n;
 			double fi = fi0;
@@ -57,23 +99,45 @@ namespace MathPanelExt
 			{
 				var x = x0 + a * Math.Cos(fi);
 				var y = y0 + b * Math.Sin(fi);
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i == n && sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
 				if (i != 0) sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(x), Dynamo.D2S(y));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
 			}
 			return sb.ToString();
 		}
+
 		/// <summary>
 		/// подготовка данных для линии
 		/// </summary>
-		public static string DrawLine(double x0, double y0, double x1, double y1)
+		public static string DrawLine(double x0, double y0, double x1, double y1, DrawOpt opt = null)
 		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.lnw != "") lnw = opt.lnw;
+				if (opt.rad != "") pointsize = opt.rad;
+			}
+
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
 			for (int i = 0; i <= 1; i++)
 			{
 				var x = i == 0 ? x0 : x1;
 				var y = i == 0 ? y0 : y1;
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i == 1 && sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
 				if (i != 0) sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(x), Dynamo.D2S(y));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
 			}
 			return sb.ToString();
 		}
@@ -81,16 +145,32 @@ namespace MathPanelExt
 		/// <summary>
 		/// подготовка данных для линии с наконечником
 		/// </summary>
-		public static string DrawArrow(double x0, double y0, double x1, double y1, int szArr)
+		public static string DrawArrow(double x0, double y0, double x1, double y1, int szArr, DrawOpt opt = null)
 		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.lnw != "") lnw = opt.lnw;
+				if (opt.rad != "") pointsize = opt.rad;
+			}
+
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double x = 0, y = 0;
 			//линия
 			for (int i = 0; i <= 1; i++)
 			{
-				var x = i == 0 ? x0 : x1;
-				var y = i == 0 ? y0 : y1;
+				x = i == 0 ? x0 : x1;
+				y = i == 0 ? y0 : y1;
+				if (opt != null) opt.Transform(ref x, ref y);
 				if (i != 0) sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(x), Dynamo.D2S(y));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
 			}
 			
 			if( x0 != x1 || y0 != y1 )
@@ -113,8 +193,12 @@ namespace MathPanelExt
 				double xPoint1 = xBeg + xNorm1 * 0.4;
 				double yPoint1 = yBeg + yNorm1 * 0.4;
 				//к точке 1
+				x = xPoint1;
+				y = yPoint1;
+				if (opt != null) opt.Transform(ref x, ref y);
 				sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(xPoint1), Dynamo.D2S(yPoint1));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
 				//назад
 				//sb.Append(",");
 				//sb.AppendFormat(sXY, Dynamo.D2S(x1), Dynamo.D2S(y1));
@@ -126,18 +210,29 @@ namespace MathPanelExt
 				double xPoint2 = xBeg + xNorm2 * 0.4;
 				double yPoint2 = yBeg + yNorm2 * 0.4;
 				//к точке 2
+				x = xPoint2;
+				y = yPoint2;
+				if (opt != null) opt.Transform(ref x, ref y);
 				sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(xPoint2), Dynamo.D2S(yPoint2));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+				
 				//назад
+				if (sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
+				x = x1;
+				y = y1;
+				if (opt != null) opt.Transform(ref x, ref y);
 				sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(x1), Dynamo.D2S(y1));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
 			}
 			return sb.ToString();
 		}
 
-		public static string DrawArrow(double x0, double y0, double x1, double y1)
+		public static string DrawArrow(double x0, double y0, double x1, double y1, DrawOpt opt = null)
 		{
-			return DrawArrow(x0, y0, x1, y1, 5);
+			return DrawArrow(x0, y0, x1, y1, 5, opt);
 		}
 
 		/// <summary>
@@ -147,6 +242,7 @@ namespace MathPanelExt
 		{
 			return x0 + (x1 - x0) * step;
 		}
+
 		/// <summary>
 		/// вычиcлить точку Bezier 2-го уровня для заданного шага
 		/// </summary>
@@ -156,6 +252,7 @@ namespace MathPanelExt
 			double p1 = Bezier1(x1, x2, step);
 			return Bezier1(p0, p1, step);
 		}
+
 		/// <summary>
 		/// вычиcлить точку Bezier 3-го уровня для заданного шага
 		/// </summary>
@@ -199,6 +296,7 @@ namespace MathPanelExt
 			}
 			return sb.ToString();
 		}
+
 		/// <summary>
 		/// заполняет цветами ячейки таблицы типа битмап
 		/// </summary>
@@ -222,7 +320,7 @@ namespace MathPanelExt
 		/// </summary>
 		public static string DrawText(double x, double y, string text)
 		{
-			return string.Format(sTxt, Dynamo.D2S(x), Dynamo.D2S(y), text, "circle");
+			return string.Format(sTxt, Dynamo.D2S(x), Dynamo.D2S(y), text, "text");
 		}
 
 		/// <summary>
@@ -232,6 +330,7 @@ namespace MathPanelExt
 		{
 			return string.Format(sTxt, Dynamo.D2S(x), Dynamo.D2S(y), text, style);
 		}
+
 		/// <summary>
 		/// подготовка данных для точки, все параметры
 		/// </summary>
@@ -243,16 +342,70 @@ namespace MathPanelExt
 		/// <summary>
 		/// подготовка данных для графика
 		/// </summary>
-		public static string DrawGraphic(double x0, double x1, double[] yArr, int n)
+		public static string DrawGraphic(double x0, double x1, double[] yArr, DrawOpt opt = null)
 		{
-			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			double step = (x1 - x0) / (n > 1 ? n - 1 : 1);
-			double x = x0;
-			for (int i = 0; i < n; i++, x += step)
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
 			{
-				var y = yArr[i];
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			int n = yArr.Length;
+			double step = (x1 - x0) / (n > 1 ? n - 1 : 1);
+			for (int i = 0; i < n; i++)
+			{
+				double x = x0 + step * i;
+				double y = yArr[i];
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i == n - 1 && sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
 				if (i != 0) sb.Append(",");
-				sb.AppendFormat(sXY, Dynamo.D2S(x), Dynamo.D2S(y));
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+			}
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// подготовка данных для графика
+		/// </summary>
+		public static string DrawGraphic(double[] xArr, double[] yArr, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			int n = yArr.Length;
+			if (n != xArr.Length) return "";
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			for (int i = 0; i < n; i++)
+			{
+				double x = xArr[i];
+				double y = yArr[i];
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i == n - 1 && sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
+				if (i != 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
 			}
 			return sb.ToString();
 		}
@@ -260,26 +413,109 @@ namespace MathPanelExt
 		/// <summary>
 		/// подготовка данных для прямоугольника
 		/// </summary>
-		public static string DrawRect(double x0, double y0, double x1, double y1, bool bFill)
+		public static string DrawRect(double x0, double y0, double x1, double y1, DrawOpt opt = null)
 		{
-			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			sb.AppendFormat(sXY, Dynamo.D2S(x0), Dynamo.D2S(y0));
-
-			sb.Append(",");
-			sb.AppendFormat(sXY, Dynamo.D2S(x1), Dynamo.D2S(y0));
-
-			sb.Append(",");
-			sb.AppendFormat(sXY, Dynamo.D2S(x1), Dynamo.D2S(y1));
-
-			sb.Append(",");
-			if (bFill) sb.AppendFormat(sTxt, Dynamo.D2S(x0), Dynamo.D2S(y1), "", "line_endf");
-			else
+			string txt = "", sty = "line", clr = "undefined", rad = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
 			{
-				sb.AppendFormat(sXY, Dynamo.D2S(x0), Dynamo.D2S(y1));
-				sb.Append(",");
-				sb.AppendFormat(sTxt, Dynamo.D2S(x0), Dynamo.D2S(y0), "", "line_end");
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") rad = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
 			}
 
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double x = 0, y = 0;
+			for (int i = 0; i <= 4; i++)
+			{
+				if (i == 0)
+				{
+					x = x0;
+					y = y0;
+				}
+				else if (i == 1)
+				{
+					x = x1;
+					y = y0;
+				}
+				else if (i == 2)
+				{
+					x = x1;
+					y = y1;
+				}
+				else if (i == 3)
+				{
+					x = x0;
+					y = y1;
+				}
+				else if (i == 4)
+				{
+					x = x0;
+					y = y0;
+					if (sty == "line")
+						sty = bFill ? "line_endf" : "line_end";
+				}
+				if (opt != null) opt.Transform(ref x, ref y);
+				if( i > 0 ) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, rad, fontsize,
+					hei, lnw, csk);
+			}
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// подготовка данных для звезды
+		/// </summary>
+		public static string DrawStar(double rBig, double r0, double x0, double y0, int n, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			double fiBeg = Math.PI * 0.5;
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double step = (Math.PI * 1) / n;
+			double step_2 = (Math.PI * 1) / (n);
+			double fi = fiBeg;
+			double fi_2 = fiBeg + step_2;
+			for (int i = 0; i <= n; i++)
+			{
+				if (i == n)
+				{
+					if(sty == "line")
+						sty = bFill ? "line_endf" : "line_end";
+					fi = fiBeg;
+				}
+				var x = x0 + rBig * Math.Cos(fi);
+				var y = y0 + rBig * Math.Sin(fi);
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i != 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+				if (i == n) break;
+				fi += 2 * step;
+
+				x = x0 + r0 * Math.Cos(fi_2);
+				y = y0 + r0 * Math.Sin(fi_2);
+				if (opt != null) opt.Transform(ref x, ref y);
+				sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+				fi_2 += 2 * step;
+			}
 			return sb.ToString();
 		}
 	}
