@@ -1,42 +1,44 @@
 ﻿//2020, Andrei Borziak
 using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.Linq;
-//using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MathPanel
 {
     /// <summary>
-    /// оболочка вокруг Color - нужен для сериализации цвета
+    /// оболочка вокруг Color - нужна для сериализации цвета
     /// </summary>
     [Serializable]
     public class ColorWrapper
     {
+        //цвет по умолчанию - зеленый
         private System.Drawing.Color color = System.Drawing.Color.Green;
-
+        //конструктор задает цвет
         public ColorWrapper(System.Drawing.Color color)
         {
             this.color = color;
         }
 
+        //конструктор без параметров - нужен для сериализации
         public ColorWrapper()
         {
-            // default constructor for serialization
         }
 
+        //получить цвет
         public System.Drawing.Color GetColor() { return color; }
+
+        //задать цвет
         public void SetColor(System.Drawing.Color clr)
         {
             color = clr;
         }
+        //задать цвет из строки
         public void SetColor(string clr)
         {
             color = System.Drawing.Color.FromName(clr);
         }
 
+        //получить/задать ARGB
         public int Argb
         {
             get
@@ -49,6 +51,7 @@ namespace MathPanel
             }
         }
 
+        //скопировать цвет
         public void Copy(ColorWrapper cw)
         {
             color = System.Drawing.Color.FromArgb(cw.Argb);
@@ -60,20 +63,24 @@ namespace MathPanel
     /// </summary>
     public class Facet3
     {
-        static int id_counter = 0;
-        public string name = "";
-        public ColorWrapper clr = new ColorWrapper();
-        //в системе объекта
+        static int id_counter = 0; //счетчик
+        public string name = ""; //название
+        public ColorWrapper clr = new ColorWrapper(); //оболочка для сериализации цвета, хранит цвет грани
+        //координаты в системе объекта
         public Vec3 v1, v2, v3, v4, v5, v6;
-        public Vec3 normal = new Vec3();
-        //в системе камеры
+        public Vec3 normal = new Vec3(); //нормаль
+        //координаты в системе камеры
         public Vec3 v1_cam, v2_cam, v3_cam, v4_cam, v5_cam, v6_cam;
-        public Vec3 normal_cam = new Vec3();
-        public double dark = 1;
-        public double area = 0;
-        public int Count { get; }
-        static Random rand = new Random();
+        public Vec3 normal_cam = new Vec3(); //нормаль
+        public double dark = 1; //яркость
+        public double area = 0; //площадь
+        public int Count { get; } //число точек в грани
+        static Random rand = new Random(); //генератор случайных чисел
+        public Phob phob = null;
+        public double cosfi = 0;
+        public GeOb shape = null;
 
+        //конструктор по умолчанию создает 4-х точечную грань
         public Facet3()
         {
             v1 = new Vec3();
@@ -89,6 +96,8 @@ namespace MathPanel
             id_counter++;
             name = "fac" + id_counter;
         }
+
+        //конструктор с 3-мя векторными парметрами - грань из 3-х точек
         public Facet3(Vec3 v1_0, Vec3 v2_0, Vec3 v3_0)
         {
             v1 = new Vec3(v1_0.x, v1_0.y, v1_0.z);
@@ -102,6 +111,8 @@ namespace MathPanel
             id_counter++;
             name = "fac" + id_counter;
         }
+
+        //конструктор с 4-мя векторными парметрами - грань из 4-х точек
         public Facet3(Vec3 v1_0, Vec3 v2_0, Vec3 v3_0, Vec3 v4_0)
         {
             v1 = new Vec3(v1_0.x, v1_0.y, v1_0.z);
@@ -117,27 +128,35 @@ namespace MathPanel
             id_counter++;
             name = "fac" + id_counter;
         }
+
         static readonly char[] cc = new char[2];
+        //конвертирует байт в строку для представления 16-тиричными числами
         static string Byte2Hex(byte b)
         {
+            //старший разряд
             byte b1 = ((byte)(b >> 4));
             cc[0] = (char)(b1 > 9 ? b1 + 0x37 + 0x20 : b1 + 0x30);
-
+            //младший разряд
             byte b2 = ((byte)(b & 0x0F));
             cc[1] = (char)(b2 > 9 ? b2 + 0x37 + 0x20 : b2 + 0x30);
 
             return new string(cc);
         }
+
+        //преобразование из System.Drawing.Color в Html-представление цвета, используется другими классами
         public static string ColorHtml(System.Drawing.Color color)
         {
             return "#" + string.Format("{0}{1}{2}", Byte2Hex(color.R), Byte2Hex(color.G), Byte2Hex(color.B));
         }
+
+        //преобразование цвета грани из System.Drawing.Color в Html-представление цвета
         public string ColorHtml()
         {
             System.Drawing.Color color = clr.GetColor();
             return "#" + string.Format("{0}{1}{2}", Byte2Hex(color.R), Byte2Hex(color.G), Byte2Hex(color.B));
         }
-        //dark from 0 to 1
+
+        //преобразование из System.Drawing.Color в Html-представление цвета, dark (яркость) от 0 до 1
         public static string ColorDarkHtml(System.Drawing.Color color, double dark)
         {
             byte r = (byte)(color.R * dark);
@@ -145,6 +164,8 @@ namespace MathPanel
             byte b = (byte)(color.B * dark);
             return "#" + string.Format("{0}{1}{2}", Byte2Hex(r), Byte2Hex(g), Byte2Hex(b));
         }
+
+        //преобразование цвета грани из System.Drawing.Color в Html-представление цвета, dark (яркость) от 0 до 1
         public string ColorDarkHtml(double dark)
         {
             System.Drawing.Color color = clr.GetColor();
@@ -154,42 +175,46 @@ namespace MathPanel
             return "#" + string.Format("{0}{1}{2}", Byte2Hex(r), Byte2Hex(g), Byte2Hex(b));
         }
 
+        //найти нормаль для грани
         public void CalcNormal(bool bCamera = false)
         {
             double aa;
             if (bCamera)
-            {
+            {   //в системе координат камеры
                 Vec3 tvec1 = new Vec3(v2_cam.x - v1_cam.x, v2_cam.y - v1_cam.y, v2_cam.z - v1_cam.z);
                 Vec3 tvec2 = new Vec3(v3_cam.x - v1_cam.x, v3_cam.y - v1_cam.y, v3_cam.z - v1_cam.z);
                 Vec3.Product(tvec1, tvec2, ref normal_cam);
                 aa = normal_cam.Normalize();
             }
             else
-            {
+            {   //в собственной системе координат
                 Vec3 tvec1 = new Vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
                 Vec3 tvec2 = new Vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
                 Vec3.Product(tvec1, tvec2, ref normal);
                 aa = normal.Normalize();
             }
+            //площадь
             area = (Count == 3 ? aa * 0.5 : aa);
         }
 
+        //найти центр для грани
         public void Center(out double x, out double y, out double z, bool bCamera = false)
         {
             if (bCamera)
-            {
+            {   //в системе координат камеры
                 x = (v1_cam.x + v2_cam.x + v3_cam.x + (Count == 4 ? v4_cam.x : 0)) / Count;
                 y = (v1_cam.y + v2_cam.y + v3_cam.y + (Count == 4 ? v4_cam.y : 0)) / Count;
                 z = (v1_cam.z + v2_cam.z + v3_cam.z + (Count == 4 ? v4_cam.z : 0)) / Count;
             }
             else
-            {
+            {   //в собственной системе координат
                 x = (v1.x + v2.x + v3.x + (Count == 4 ? v4.x : 0)) / Count;
                 y = (v1.y + v2.y + v3.y + (Count == 4 ? v4.y : 0)) / Count;
                 z = (v1.z + v2.z + v3.z + (Count == 4 ? v4.z : 0)) / Count;
             }
         }
 
+        //найти случайную точку в грани
         public void RandomPoint(out double x, out double y, out double z, bool bCamera = false)
         {
             double f1 = rand.NextDouble();
@@ -198,19 +223,20 @@ namespace MathPanel
             double f4 = (Count > 3 ? rand.NextDouble() : 0);
             double f = f1 + f2 + f3 + f4;
             if (bCamera)
-            {
+            {   //в системе координат камеры
                 x = (f1 * v1_cam.x + f2 * v2_cam.x + f3 * v3_cam.x + (Count > 3 ? f4 * v4_cam.x : 0)) / f;
                 y = (f1 * v1_cam.y + f2 * v2_cam.y + f3 * v3_cam.y + (Count > 3 ? f4 * v4_cam.y : 0)) / f;
                 z = (f1 * v1_cam.z + f2 * v2_cam.z + f3 * v3_cam.z + (Count > 3 ? f4 * v4_cam.z : 0)) / f;
             }
             else
-            {
+            {   //в собственной системе координат
                 x = (f1 * v1.x + f2 * v2.x + f3 * v3.x + (Count > 3 ? f4 * v4.x : 0)) / f;
                 y = (f1 * v1.y + f2 * v2.y + f3 * v3.y + (Count > 3 ? f4 * v4.y : 0)) / f;
                 z = (f1 * v1.z + f2 * v2.z + f3 * v3.z + (Count > 3 ? f4 * v4.z : 0)) / f;
             }
         }
 
+        //строковое представление
         public new string ToString()
         {
             string s = name;
@@ -225,34 +251,48 @@ namespace MathPanel
 
             return s;
         }
+        public string ToStringOrig()
+        {
+            string s = name;
+            s += (";v1 " + v1.ToString());
+            s += (";v2 " + v2.ToString());
+            s += (";v3 " + v3.ToString());
+            if (Count >= 4)
+                s += (";v4 " + v4.ToString());
+            s += (";norm " + normal.ToString());
+            s += (";dark " + Math.Round(dark, 2).ToString());
+            s += (";clr " + ColorHtml());
 
+            return s;
+        }
     }
 
     /// <summary>
-    /// Geometrical object (GeOb) has list of facets
+    /// Геометрический объект (Geometrical object - GeOb) - список граней
     /// </summary>
     public class GeOb
     {
-        protected static int id_counter = 0;
-        protected static int id_fac = 0;
-        public string name = "";
-        public double radius = 1;
-        public ColorWrapper clr = new ColorWrapper();
-        public bool bDrawNorm = false;  //рисовать нормали
-        public bool bDrawBack = false;  //рисовать задние грани
+        protected static int id_counter = 0; //счетчик
+        protected static int id_fac = 0; //счетчик для граней
+        public string name = ""; //название
+        public double radius = 1; //размер
+        public ColorWrapper clr = new ColorWrapper(); //основной цвет объекта
+        public bool bDrawNorm = false;  //true - рисовать нормали
+        public bool bDrawBack = false;  //true - рисовать задние грани
         public int iFill = 1;  //1-рисовать грани, 2-ребра, 3-грани и ребра
         public List<Facet3> lstFac = new List<Facet3>();   //список граней
 
         //центр вначале совпадает с координатами базового объекта
         //смещение
-        public Vec3 vShift = new Vec3(0, 0, 0);
+        Vec3 _vShift = new Vec3(0, 0, 0);
         //углы поворота
         double xRotor = 0; //вращение ящика вокруг оси X
         double yRotor = 0; //вращение ящика вокруг оси Y
         double zRotor = 0; //вращение ящика вокруг оси Z
-        Mat3 matRotor = new Mat3();
-        //растяжение
-        public double scaleX = 1, scaleY = 1, scaleZ = 1;
+        Mat3 matRotor = new Mat3(); //матрица поворота
+        //коэффициенты растяжения
+        double _scaleX = 1, _scaleY = 1, _scaleZ = 1;
+        bool bNeedTranf = false;
 
         public GeOb()
         {
@@ -297,6 +337,24 @@ namespace MathPanel
 
             return s;
         }
+        public string ToStringOrig()
+        {
+            string s = name;
+            foreach (var fac in lstFac)
+            {
+                s += (";" + fac.ToStringOrig());
+            }
+            return s;
+        }
+        public string Info()
+        {
+            string s = string.Format("GeOb {0}, размер {1}, vShift {2}, xRotor {3}, yRotor {4}, zRotor {5}, scaleX {6}, scaleY {7}, scaleZ {8}, граней {9}",
+                name, radius, vShift.ToString(),
+                xRotor, yRotor, zRotor, scaleX, scaleY, scaleZ, lstFac.Count);
+
+            return s;
+        }
+
         public double XRotor
         {
             get
@@ -306,9 +364,11 @@ namespace MathPanel
             set
             {
                 xRotor = value;
-                matRotor.Build(xRotor, yRotor, zRotor);
+                //matRotor.Build(xRotor, yRotor, zRotor);
+                bNeedTranf = true;
             }
         }
+
         public double YRotor
         {
             get
@@ -318,9 +378,11 @@ namespace MathPanel
             set
             {
                 yRotor = value;
-                matRotor.Build(xRotor, yRotor, zRotor);
+                //matRotor.Build(xRotor, yRotor, zRotor);
+                bNeedTranf = true;
             }
         }
+
         public double ZRotor
         {
             get
@@ -330,7 +392,8 @@ namespace MathPanel
             set
             {
                 zRotor = value;
-                matRotor.Build(xRotor, yRotor, zRotor);
+                //matRotor.Build(xRotor, yRotor, zRotor);
+                bNeedTranf = true;
             }
         }
 
@@ -744,7 +807,7 @@ namespace MathPanel
                 }
                 j = j % h;
                 j = h - 1 - j;//reverse by vertical
-                if( m == 0 )
+                if (m == 0)
                 {
                     iMin = i;
                     iMax = i;
@@ -789,8 +852,8 @@ namespace MathPanel
                 j = h - 1 - j;//reverse by vertical
 
                 //stretch
-                i = ((i - iMin) * w ) / di;
-                j = ((j - jMin) * h ) / dj;
+                i = ((i - iMin) * w) / di;
+                j = ((j - jMin) * h) / dj;
                 //Dynamo.Log(string.Format("i = {0}, j = {1}", i, j));
 
                 //how many pixels we need?
@@ -820,7 +883,7 @@ namespace MathPanel
                         }
                     }
                     if (n > 0)
-                    { 
+                    {
                         al = al / n;
                         bl = bl / n;
                         gr = gr / n;
@@ -832,7 +895,6 @@ namespace MathPanel
                 m++;
             }
         }
-
 
         //разбить каждую грань на мелкие для натягивания изображения
         public void Divide(int n = 1)
@@ -907,7 +969,6 @@ namespace MathPanel
             }
         }
 
-
         //разбить каждую грань на мелкие для натягивания изображения с искажением
         public void DivideFractal(int n = 1)
         {
@@ -949,7 +1010,7 @@ namespace MathPanel
             Vec3 vDiff = new Vec3();
             Random rand = new Random();
             //кортеж - информация о вершинах и их гранях, item1 - новая срединная точка
-            List<Tuple<Vec3, Vec3, Vec3, List<Facet3>, List<Facet3>, List<int>, List<int>>> lstEdges = 
+            List<Tuple<Vec3, Vec3, Vec3, List<Facet3>, List<Facet3>, List<int>, List<int>>> lstEdges =
                 new List<Tuple<Vec3, Vec3, Vec3, List<Facet3>, List<Facet3>, List<int>, List<int>>>();
             Vec3 fac_v1, fac_v2;
 
@@ -1066,7 +1127,7 @@ namespace MathPanel
                                 }
                             }
                             if (bFound)
-                            { 
+                            {
                                 if (k == 0) v12.Copy(tup.Item3);
                                 else if (k == 1) v23.Copy(tup.Item3);
                                 else v13.Copy(tup.Item3);
@@ -1134,7 +1195,7 @@ namespace MathPanel
             Vec3 v4 = new Vec3();
             double x, y, z;
 
-            for ( int j = 0; j < n; j++)
+            for (int j = 0; j < n; j++)
             {
                 x = fac.v1.x + dx_he * j;
                 y = fac.v1.y + dy_he * j;
@@ -1152,12 +1213,12 @@ namespace MathPanel
                     z += dz_wi;
 
                     Facet3 fac_c = new Facet3(v1, v2, v3, v4);
-                    if( bm == null )
+                    if (bm == null)
                         fac_c.clr.Copy(fac.clr);
                     else
                     {   //stretch
-                        int ww = ( (i * bm.width) / m ) % bm.width;
-                        int hh = ( (j * bm.height) / n ) % bm.height;
+                        int ww = ((i * bm.width) / m) % bm.width;
+                        int hh = ((j * bm.height) / n) % bm.height;
                         hh = (bm.height - 1 - hh); //flip horizontally
                         int argb = bm.map[ww + hh * bm.width];
                         fac_c.clr.Argb = argb;
@@ -1169,5 +1230,161 @@ namespace MathPanel
 
             lstFac = lstNew;
         }
+
+        //2022-02-01 
+        /// <summary>
+        /// найти ящик для формы
+        /// </summary>
+        public void FindBox(out double x0, out double x1, out double y0, out double y1, out double z0, out double z1)
+        {
+            x0 = double.MaxValue;
+            y0 = double.MaxValue;
+            z0 = double.MaxValue;
+            x1 = double.MinValue;
+            y1 = double.MinValue;
+            z1 = double.MinValue;
+            foreach (var fac in lstFac)
+            {
+                if (x0 > fac.v1.x) x0 = fac.v1.x;
+                if (y0 > fac.v1.y) y0 = fac.v1.y;
+                if (z0 > fac.v1.z) z0 = fac.v1.z;
+                if (x1 < fac.v1.x) x1 = fac.v1.x;
+                if (y1 < fac.v1.y) y1 = fac.v1.y;
+                if (z1 < fac.v1.z) z1 = fac.v1.z;
+
+                if (x0 > fac.v2.x) x0 = fac.v2.x;
+                if (y0 > fac.v2.y) y0 = fac.v2.y;
+                if (z0 > fac.v2.z) z0 = fac.v2.z;
+                if (x1 < fac.v2.x) x1 = fac.v2.x;
+                if (y1 < fac.v2.y) y1 = fac.v2.y;
+                if (z1 < fac.v2.z) z1 = fac.v2.z;
+
+                if (x0 > fac.v3.x) x0 = fac.v3.x;
+                if (y0 > fac.v3.y) y0 = fac.v3.y;
+                if (z0 > fac.v3.z) z0 = fac.v3.z;
+                if (x1 < fac.v3.x) x1 = fac.v3.x;
+                if (y1 < fac.v3.y) y1 = fac.v3.y;
+                if (z1 < fac.v3.z) z1 = fac.v3.z;
+            }
+        }
+
+        //2022-02-17
+        public double scaleX
+        {
+            get
+            {
+                return _scaleX;
+            }
+            set
+            {
+                _scaleX = value;
+                bNeedTranf = true;
+            }
+        }
+        public double scaleY
+        {
+            get
+            {
+                return _scaleY;
+            }
+            set
+            {
+                _scaleY = value;
+                bNeedTranf = true;
+            }
+        }
+        public double scaleZ
+        {
+            get
+            {
+                return _scaleZ;
+            }
+            set
+            {
+                _scaleZ = value;
+                bNeedTranf = true;
+            }
+        }
+        public Vec3 vShift
+        {
+            get
+            {
+                return _vShift;
+            }
+            set
+            {
+                _vShift = value;
+                bNeedTranf = true;
+            }
+        }
+
+        public void Transform()
+        {
+            if (bNeedTranf == false) return;
+
+            if (_vShift.x != 0 || _vShift.y != 0 || _vShift.z != 0 ||
+                xRotor != 0 || yRotor != 0 || zRotor != 0 ||
+                _scaleX != 1 || _scaleY != 1 || _scaleZ != 1)
+            {
+                Vec3 vref;
+                Vec3 vTemp = new Vec3();
+                Vec3 v_new = new Vec3();
+                bool bRot = (xRotor != 0 || yRotor != 0 || zRotor != 0);
+                if( bRot ) matRotor.Build(xRotor, yRotor, zRotor);
+
+                //для каждой грани найти координаты в системе камеры
+                foreach (var fac in lstFac)
+                {
+                    for (int j = 0; j < fac.Count && j < 4; j++)
+                    {
+                        if (j == 0)
+                        {
+                            vref = fac.v1;
+                        }
+                        else if (j == 1)
+                        {
+                            vref = fac.v2;
+                        }
+                        else if (j == 2)
+                        {
+                            vref = fac.v3;
+                        }
+                        else
+                        {
+                            vref = fac.v4;
+                        }
+
+                        //масштабировать
+                        if (scaleX != 1) vref.x *= scaleX;
+                        if (scaleY != 1) vref.y *= scaleY;
+                        if (scaleZ != 1) vref.z *= scaleZ;
+                        //вращать                    
+                        if (bRot)
+                        {
+                            vTemp.Copy(vref.x, vref.y, vref.z);
+                            Rotate(vTemp, ref v_new);
+
+                            vref.x = v_new.x;
+                            vref.y = v_new.y;
+                            vref.z = v_new.z;
+                        }
+                        //транслировать
+                        vref.Add(vShift);
+                    }
+                }
+                //reset
+                _vShift.x = 0;
+                _vShift.y = 0;
+                _vShift.z = 0;
+                xRotor = 0;
+                yRotor = 0;
+                zRotor = 0;
+                _scaleX = 1;
+                _scaleY = 1;
+                _scaleZ = 1;
+            }
+            bNeedTranf = false;
+        }
     }
 }
+

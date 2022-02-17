@@ -3,56 +3,56 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Globalization;
 
 namespace MathPanel
 {
-    //сериализуются только public! Dictionary - трюк
+    //сериализуются только public! для Dictionary - трюк
     /// <summary>
-    /// оболочка вокруг Dictionary - нужен для сериализации
+    /// оболочка вокруг Dictionary - нужна для сериализации
     /// </summary>
     [Serializable]
     public class SerializableClassX
     {
-        // since the Dictionary<> class is not serializable,
-        // we convert it to the List<KeyValuePair<>>
+        // так как Dictionary<> класс не сериализуется,
+        // мы конвертируем его в массив элементов KeyValuePair<>
         public Dictionary<string, string> DictionaryX
         {
             get
             {
-                //return SerializableList == null ? null :
-                //        SerializableList.ToDictionary(item => item.Key, item => item.Value);
                 return SerializableArray == null ? null :
                         SerializableArray.ToDictionary(item => item.Key, item => item.Value);
             }
             set
             {
-                //SerializableList = value == null ? null : value.ToList();
-                SerializableArray = value == null ? null : value.ToArray();
+                SerializableArray = (value == null ? null : value.ToArray());
             }
         }
-        // public List<KeyValuePair<string, string>> SerializableList { get; set; }
+        //массив пар (ключ-значение)
         KeyValuePair<string, string> [] SerializableArray { get; set; }
     }
 
     /// <summary>
-    /// Physical object (Phob) has predefined propertises and a dictionary for dynamic attributes
+    /// Физический объект (Physical object (Phob)) имеет предопределенные свойства и словарь для динамических атрибутов
     /// </summary>
     public class Phob
-    {   //TODO: add key types?
-        static int id_counter = 0;
-        public int Id { get; }
-        public double x, y, z;  //decart coordinates
-        public double v_x, v_y, v_z;  //velocity
-        public double mass, radius;   //mass and radius
-        public bool bDrawAsLine = false;
-        public Vec3 p1 = new Vec3(), p2 = new Vec3();
-        double x_temp, y_temp, z_temp, radius_temp; //saved
-        GeOb shape = null;  //форма
-        //custom attributes
+    {
+        static int id_counter = 0;  //поддержка уникальных идентификаторов
+        public int Id { get; }  //уникальный идентификатор
+        public double x, y, z;  //декартовы координаты
+        public double v_x, v_y, v_z;  //разложение вектора скорости движения по осям
+        public double mass, radius;   //масса и радиус
+        public bool bDrawAsLine = false;//признак рисования: true - линия, false - сфера
+        //словарь для динамических атрибутов
         readonly Dictionary<string, string> dicAttr = new Dictionary<string, string>();
+        //объект для сериализации
         public SerializableClassX serDic = new SerializableClassX();
+        double x_temp, y_temp, z_temp, radius_temp; //для сохранения
+        public Vec3 p1 = new Vec3(), p2 = new Vec3();//вектора для временных данных
+        GeOb shape = null;  //форма
+
+        /// <summary>
+        /// конструктор для Phob
+        /// </summary>
         public Phob()
         {
             x = 0;
@@ -65,6 +65,16 @@ namespace MathPanel
             radius = 1;
             Id = id_counter++;
         }
+
+        /// <summary>
+        /// конструктор для Phob с параметрами
+        /// </summary>
+        /// <param name="x1">x координата</param>
+        /// <param name="y1">y координата</param>
+        /// <param name="z1">z координата</param>
+        /// <param name="v_x1">скорость вдоль x координаты</param>
+        /// <param name="v_y1">скорость вдоль y координаты</param>
+        /// <param name="v_z1">скорость вдоль z координаты</param>
         public Phob(double x1 = 0, double y1 = 0, double z1 = 0, double v_x1 = 0, double v_y1 = 0, double v_z1 = 0)
         {
             x = x1;
@@ -77,23 +87,37 @@ namespace MathPanel
             radius = 1;
             Id = id_counter++;
         }
+
+        /// <summary>
+        /// загрузить словарь в объект для сериализации
+        /// </summary>
         public void Dic2List()
         {
             serDic.DictionaryX = dicAttr;
         }
+
+        /// <summary>
+        /// восстановить словарь из объекта для сериализации
+        /// </summary>
         public void DicFromList()
         {
             dicAttr.Clear();
             foreach (var pair in serDic.DictionaryX)
                 dicAttr.Add(pair.Key, pair.Value);
         }
+
+        /// <summary>
+        /// привести Phob к строковому представлению
+        /// </summary>
         public new string ToString()
         {
+            //создаем StringBuilder для ускорения
             var attr = new StringBuilder();
             foreach (var kv in dicAttr)
             {
                 attr.AppendFormat(", \"{0}\"=\"{1}\"", kv.Key, kv.Value);
             }
+            //возвращаем предопределенные свойства и словарь для динамических атрибутов
             return string.Format("Id={0}, x={1}, y={2}, z={3}, v_x={4}, v_y={5}, v_z={6}, mass={7}, rad={8}{9}",
                 Id, Dynamo.D2S(x),
                 Dynamo.D2S(y),
@@ -105,13 +129,19 @@ namespace MathPanel
                 Dynamo.D2S(radius),
                 attr.ToString());
         }
+
+        /// <summary>
+        /// привести Phob к строке в формате Json
+        /// </summary>
         public string ToJson()
         {
+            //создаем StringBuilder для ускорения
             var attr = new StringBuilder();
             foreach (var kv in dicAttr)
             {
                 attr.AppendFormat(", \"{0}\":\"{1}\"", kv.Key, kv.Value);
             }
+            //возвращаем предопределенные свойства и словарь для динамических атрибутов
             return string.Format("{{\"Id\":{0}, \"x\":{1}, \"y\":{2}, \"z\":{3}, \"v_x\":{4}, \"v_y\":{5}, \"v_z\":{6}, \"mass\":{7}, \"rad\":{8}{9}}}",
                 Id, Dynamo.D2S(x),
                 Dynamo.D2S(y),
@@ -124,6 +154,9 @@ namespace MathPanel
                 attr.ToString());
         }
 
+        /// <summary>
+        /// получить / присвоить форму
+        /// </summary>
         public GeOb Shape
         {
             get
@@ -136,12 +169,22 @@ namespace MathPanel
             }
         }
 
+        /// <summary>
+        /// заменить/добавить атрибут
+        /// </summary>
+        /// <param name="key">ключ атрибута</param>
+        /// <param name="value">значения атрибута</param>
         public void AttrSet(string key, string value)
         {
             if (string.IsNullOrEmpty(key)) return;
             if (dicAttr.ContainsKey(key)) dicAttr[key] = value;
             else dicAttr.Add(key, value);
         }
+
+        /// <summary>
+        /// получить значение атрибута по ключу
+        /// </summary>
+        /// <param name="key">ключ атрибута</param>
         public string AttrGet(string key)
         {
             if (string.IsNullOrEmpty(key)) return null;
@@ -160,37 +203,44 @@ namespace MathPanel
             double dz = z - ph2.z;
             return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
+
         /// <summary>
-        /// get distance between Phob and point x,y,z
+        /// получить расстояние между Phob и точкой x1,y1,z1
         /// </summary>
-        /// <param name="x1">x</param>
-        /// <param name="y1">y</param>
-        /// <param name="z1">z</param>
+        /// <param name="x1">x координата точки</param>
+        /// <param name="y1">y координата точки</param>
+        /// <param name="z1">z координата точки</param>
         public double Distance(double x1, double y1, double z1)
         {
             double dx = x - x1;
             double dy = y - y1;
             double dz = z - z1;
+            //декартово расстояние
             return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
         /// <summary>
-        /// check if collision between 2 Phob's
+        /// проверка на столкновение двух Phob
         /// </summary>
-        /// <param name="ph2">second Phob</param>
+        /// <param name="ph2">второй Phob</param>
         public bool Collision(Phob ph2)
         {
             double dx = x - ph2.x;
             double dy = y - ph2.y;
             double dz = z - ph2.z;
+            //расстояние между центрами объектов
             double d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+            //столкновение, если меньше суммы радиусов
             return d < (radius + ph2.radius);
         }
 
         /// <summary>
-        /// vector from current Phob to second one
+        /// получить координаты для вектора от центра Phob ко второму
         /// </summary>
-        /// <param name="ph2">second Phob</param>
+        /// <param name="ph2">второй Phob</param>
+        /// <param name="dx">x координата вектора</param>
+        /// <param name="dy">y координата вектора</param>
+        /// <param name="dz">z координата вектора</param>
         public void Vector(Phob ph2, out double dx, out double dy, out double dz)
         {
             dx = ph2.x - x;
@@ -199,7 +249,10 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// add vector to current Phob
+        /// изменить координаты Phob
+        /// <param name="dx">приращение для x координаты</param>
+        /// <param name="dy">приращение для y координаты</param>
+        /// <param name="dz">приращение для z координаты</param>
         /// </summary>
         public void VectorAdd(double dx, double dy, double dz)
         {
@@ -209,7 +262,7 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// Kinetic Energy of current Phob
+        /// кинетическая энергия объекта
         /// </summary>
         public double KineticEnergy()
         {
@@ -217,8 +270,11 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// Impulse vector of current Phob
+        /// импульс объекта
         /// </summary>
+        /// <param name="dx">x значение вектора импульса</param>
+        /// <param name="dy">y значение вектора импульса</param>
+        /// <param name="dz">z значение вектора импульса</param>
         public void Impulse(out double dx, out double dy, out double dz)
         {
             dx = mass * v_x;
@@ -227,49 +283,57 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// current Phob hits a second one
+        /// текущий Phob задет вторым, абсолютно упругое столкновение
         /// </summary>
-        /// <param name="ph2">second Phob</param>
+        /// <param name="ph2">второй Phob</param>
         public void Hit(Phob ph2)
-        {   //iteraction force through centers - P
+        {   //взаимодействие происходит вдоль вектора, соединяющего центы объектов - от текущего ко второму
             double px = ph2.x - x;
             double py = ph2.y - y;
             double pz = ph2.z - z;
+
             //переходим в новую инерциальную систему, движущуюся со скоростью ph2
-            //в ней он неподвижен
-            //скорость текущего в новой
+            //второй в ней неподвижен
+            //скорость текущего в новой системе
             double v1_x = v_x - ph2.v_x;
             double v1_y = v_y - ph2.v_y;
             double v1_z = v_z - ph2.v_z;
             double m2 = ph2.mass;
+
+            //какая часть импульса перейдет неподвижному второму объекту
             double k = 2 * mass * (v1_x * px + v1_y * py + v1_z * pz) /
                 ((px * px + py * py + pz * pz) * (mass + m2));
+            //соотношение масс
             double dmd = m2 / mass;
 
+            //в новой системе координат первый объект теряет скорость пропорционально соотношению масс
+            //на основании законов сохранения импульса и энергии
             v1_x -= dmd * px * k;
             v1_y -= dmd * py * k;
             v1_z -= dmd * pz * k;
-            //new speed
+
+            //новая скорость первого объекта (переходим в старую систему)
             v_x = v1_x + ph2.v_x;
             v_y = v1_y + ph2.v_y;
             v_z = v1_z + ph2.v_z;
 
+            //новая скорость второго объекта
             ph2.v_x += k * px;
             ph2.v_y += k * py;
             ph2.v_z += k * pz;
 
-            //adjust positions
+            //уточняем позиции
             double dist = Math.Sqrt(px * px + py * py + pz * pz);
             double dExt = (radius + ph2.radius - dist) / (2 * dist);
             if (dExt > 0.001)
-            {
+            {   //объекты сплющило, раздвинуть немного
                 ph2.VectorAdd(dExt * px, dExt * py, dExt * pz);
                 VectorAdd(-dExt * px, -dExt * py, -dExt * pz);
             }
         }
 
         /// <summary>
-        /// save coordinates
+        /// запомнить координаты и радиус
         /// </summary>
         public void SaveCoord()
         {
@@ -278,8 +342,9 @@ namespace MathPanel
             z_temp = z;
             radius_temp = radius;
         }
+
         /// <summary>
-        /// restore coordinates from saved
+        /// восстановить координаты и радиус
         /// </summary>
         public void RestoreCoord()
         {
@@ -291,11 +356,16 @@ namespace MathPanel
     }
 
     /// <summary>
-    /// Box to draw a scene
+    /// Ящик для рисования границ сцены
     /// </summary>
     public class Box
     {
-        public double x0, x1, y0, y1, z0, z1;
+        public double x0, y0, z0;//первая точка
+        public double x1, y1, z1;//противоположная точка
+
+        /// <summary>
+        /// конструктор
+        /// </summary>
         public Box()
         {
             this.x0 = 0;
@@ -305,6 +375,16 @@ namespace MathPanel
             this.z0 = 0;
             this.z1 = 1;
         }
+
+        /// <summary>
+        /// конструктор с параметрами
+        /// </summary>
+        /// <param name="x0">x координата первой точки</param>
+        /// <param name="x1">x координата второй точки</param>
+        /// <param name="y0">y координата первой точки</param>
+        /// <param name="y1">y координата второй точки</param>
+        /// <param name="z0">z координата первой точки</param>
+        /// <param name="z1">z координата второй точки</param>
         public Box(double x0, double x1, double y0, double y1, double z0, double z1)
         {
             this.x0 = x0;
@@ -314,6 +394,16 @@ namespace MathPanel
             this.z0 = z0;
             this.z1 = z1;
         }
+
+        /// <summary>
+        /// установить новые размеры
+        /// </summary>
+        /// <param name="x0">x координата первой точки</param>
+        /// <param name="x1">x координата второй точки</param>
+        /// <param name="y0">y координата первой точки</param>
+        /// <param name="y1">y координата второй точки</param>
+        /// <param name="z0">z координата первой точки</param>
+        /// <param name="z1">z координата второй точки</param>
         public void Copy(double x0, double x1, double y0, double y1, double z0, double z1)
         {
             this.x0 = x0;
@@ -325,12 +415,14 @@ namespace MathPanel
         }
     }
 
-
+    /// <summary>
+    /// сцена
+    /// </summary>
     public class Scene
     {
         public double z_cam = 100;  //z-позиция камеры
-        public double x_cam_angle = 120;  //угол камеры
-        public double y_cam_angle = 90;  //угол камеры
+        public double x_cam_angle = 120;  //угол камеры по горизонтали
+        public double y_cam_angle = 90;  //угол камеры по вертикали
         //размеры изображения в 0,0,0
         public double physWidth;
         public double physHeight;
@@ -343,13 +435,20 @@ namespace MathPanel
         public double xRotor = 0; //вращение ящика вокруг оси X
         public double yRotor = 0; //вращение ящика вокруг оси Y
         public double zRotor = 0; //вращение ящика вокруг оси Z
+        //список физических объектов
         public List<Phob> lst = new List<Phob>();
+        //словарь свойств
         public Dictionary<string, string> dic = new Dictionary<string, string>();
+
+        /// <summary>
+        /// конструктор
+        /// </summary>
         public Scene()
         {
-            physWidth = z_cam* Math.Tan(x_cam_angle* Math.PI / 360.0);
+            //"танцуем" от углов камеры и z-позиции камеры
+            physWidth = z_cam * Math.Tan(x_cam_angle * Math.PI / 360.0);
             physHeight = z_cam * Math.Tan(y_cam_angle * Math.PI / 360.0);
-
+            //определяем размер html-canvas
             dScreenWidth = (int)((600 * physWidth) / physHeight);
             dScreenHeight = 600;
         }

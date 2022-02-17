@@ -1,17 +1,21 @@
 ﻿//2020, Andrei Borziak
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MathPanel
 {
     /// <summary>
-    /// Cylinder derived from GeOb
+    /// Цилиндр на базе GeOb
     /// </summary>
     public class Cylinder : GeOb
     {
+        /// <summary>
+        /// конструктор цилиндра
+        /// </summary>
+        /// <param name="size">размер</param>
+        /// <param name="color">цвет</param>
+        /// <param name="divide">на сколько частей делить боковую поверхность по окружности</param>
+        /// <param name="iTop">побитовое ИЛИ: какие торцы рисовать</param>
+        /// <param name="hDivide">на сколько частей делить боковую поверхность по вертикали</param>
         public Cylinder(double size = 1, string color = null, int divide = 20, int iTop = 3, int hDivide = 1) : base()
         {
             name = "Cylinder" + id_counter;
@@ -27,7 +31,7 @@ namespace MathPanel
             double angle;
             double dH = hDivide > 1 ? size / hDivide : size;
 
-            //боковая
+            //боковая поверхность
             double z = z0;
             for (int j = 0; j < hDivide; j++)
             {
@@ -55,7 +59,7 @@ namespace MathPanel
                 z += dH;
             }
 
-            //top
+            //верхний торец
             angle = 0;
             for (int i = 0; i < divide && ((iTop & 1) > 0); i++)
             {
@@ -77,7 +81,7 @@ namespace MathPanel
                 lstFac.Add(fac0_a);
             }
 
-            //bottom
+            //нижний торец
             angle = 0;
             for (int i = 0; i < divide && ((iTop & 2) > 0); i++)
             {
@@ -98,7 +102,6 @@ namespace MathPanel
                 fac0_a.name = name + "fac" + id_fac++;
                 lstFac.Add(fac0_a);
             }
-
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -15,8 +13,8 @@ namespace MathPanel
     /// </summary>
     public class BitmapSimple
     {
-        public int width, height;
-        public int[] map;
+        public int width, height;//ширина, высота изображения
+        public int[] map;//массив значений точек изображения
         /// <summary>
         /// 2-х мерное изображение
         /// </summary>
@@ -25,13 +23,13 @@ namespace MathPanel
         /// <param name="colors">цвета повторяющиеся</param>
         public BitmapSimple(int w, int h, System.Drawing.Color[] colors)
         {
-            /* The Color Structure represents colors in terms of alpha, red, green, and blue (ARGB) channels. 
-            The color of each pixel is represented as a 32-bit number: 8 bits each for the alpha, red, green, and blue channels (ARGB). 
-            Each of the four components is a number from 0 to 255, where 0 means no intensity and 255 represents full intensity. 
-            The alpha component sets the color transparency: 0 is fully transparent, and 255 is fully opaque. 
-            To define the alpha, red, green, or blue component of a color, use the A, R, G, or B property, respectively. 
-            You can create a custom color using one of the FromArgb() methods.
-            The ToArgb() method returns the 32-bit ARGB value of this Color structure.
+            /* Цветовая структура представляет цвета в терминах альфа, красного, зеленого и синего каналов (RGB).
+Цвет каждого пикселя представлен в виде 32-разрядного числа: по 8 бит для альфа, красного, зеленого и синего каналов (RGB).
+Каждый из четырех компонентов представляет собой число от 0 до 255, где 0 означает отсутствие интенсивности, а 255 представляет полную интенсивность.
+Альфа-компонент задает прозрачность цвета: 0 полностью прозрачен, а 255 полностью непрозрачен.
+Чтобы определить альфа, красный, зеленый или синий компонент цвета, используйте свойство A, R, G или B соответственно.
+Вы можете создать собственный цвет, используя один из методов FromArgb ().
+Метод ToArgb() возвращает 32-разрядное значение ARGB этой цветовой структуры.
             */
             width = w;
             height = h;
@@ -83,7 +81,6 @@ namespace MathPanel
         /// <param name="col1">цвет сверху (слева)</param>
         /// <param name="col2">цвет снизу (справа)</param>
         /// <param name="bVert">true сверху (col1) вниз (col2), else слева направо</param>
-        //gradient, bVert ? vertical : horizontal
         public BitmapSimple(int w, int h, System.Drawing.Color col1, System.Drawing.Color col2, bool bVert = true)
         {
             width = w;
@@ -100,8 +97,8 @@ namespace MathPanel
             byte b2 = col2.B;
             if (bVert)
             {
-                //If the gradient is vertical, then everything is simple. 
-                //For each line of the image, we calculate the ARGB pixel values as a linear relationship
+                //Если градиент вертикальный, то все просто.
+                //Для каждой линии изображения вычисляем значения ARGB пикселя как линейную зависимость
                 for (int j = 0; j < height; j++)
                 {
                     alpha = a1 + ((a2 - a1) * j) / height;
@@ -111,15 +108,17 @@ namespace MathPanel
                     int argb = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
                     for (int i = 0; i < width; i++)
                     {
-                        //Write to the map array
+                        //записать цвет в массив
                         map[k++] = argb;
                     }
                 }
             }
             else
             {
-                //If the gradient is horizontal, it is slightly more difficult. 
-                //For each column of the image, we calculate the ARGB pixel values. 
+                //Если градиент горизонтальный, то чуть сложнее.
+                //Для каждого столбца изображения вычисляем значения ARGB пикселя.
+                //Образуем цикл по элементам столбца, вычисляем индекс элемента i * width + j
+                //и присваиваем ему значения ARGB
                 for (int j = 0; j < width; j++)
                 {
                     alpha = a1 + ((a2 - a1) * j) / width;
@@ -211,20 +210,20 @@ namespace MathPanel
         {
             if (nNoise <= 0 || iNoiceStrenth < 1) return;
             int k, alpha, red, green, blue, i;
-            //generate noise Using the random number generator
+            //создать объект типа "генератор случайных чисел"
             Random rnd = new Random();
             for (i = 0; i < nNoise; i++)
-            {
-                //in the loop, we find a random element in the array by the number of variations 
+            {   //в цикле по числу отклонений
+                //выбрать случайный элемент в массиве пикселей 
                 k = rnd.Next(0, width * height);
                 int argb = map[k];
                 var clr = System.Drawing.Color.FromArgb(argb);
-                //Then we slightly change the values in the channels
+                //слегка изменить значения в каналах
                 alpha = clr.A;
                 red = SafeColor(clr.R + rnd.Next(0, iNoiceStrenth) - iNoiceStrenth / 2);
                 green = SafeColor(clr.G + rnd.Next(0, iNoiceStrenth) - iNoiceStrenth / 2);
                 blue = SafeColor(clr.B + rnd.Next(0, iNoiceStrenth) - iNoiceStrenth / 2);
-                //and save pixels
+                //сохранить пиксель
                 map[k] = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
             }
         }
@@ -233,7 +232,6 @@ namespace MathPanel
         /// 2-х мерное изображение из файла
         /// </summary>
         /// <param name="fname">файл изображения</param>
-        //from file
         public BitmapSimple(string fname)
         {
             FromFile(fname);
@@ -243,34 +241,34 @@ namespace MathPanel
         /// 2-х мерное изображение из файла
         /// </summary>
         /// <param name="fname">файл изображения</param>
-        //from file
         public void FromFile(string fname)
         {
-            /*Creating an imageOrig object of the Image type (an abstract class that outputs Bitmap and Metafile) 
-            directly from the file name (there is a necessary method in the class).
-            Create an image object of the Bitmap type from this object and release the resource
+            /*
+            Создаем объект imageOrig типа Image (абстрактный класс, из которого выводятся Bitmap и Metafile) прямо 
+            из имени файла (есть нужный метод в классе).
+            Из этого объекта создаем объект image типа Bitmap и освобождаем ресурс.
             */
             Image imageOrig = new Bitmap(fname);
             Bitmap image = new Bitmap(imageOrig);
             imageOrig.Dispose();
 
-            //Find the image size and allocate the required memory
+            //Находим размеры изображения, выделяем требуемую память
             width = image.Width;
             height = image.Height;
             map = new int[width * height];
 
-            // GDI+ still lies to us - the return format is BGR, NOT RGB.
+            //GDI+ не достоверен - формат BGR, а НЕ RGB.
             BitmapData bmData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             int offset = 0;
             int stride = bmData.Stride;
-            //image.LockBits locks the Bitmap object in system memory so that pixels can be read/modified.
-            //Getting a refference to the allocated memory block
+            //image.LockBits блокирует объект Bitmap в системной памяти, чтобы пиксели можно было читать/изменять.
+            //Получаем указатель на выделенный блок памяти
             IntPtr Scan0 = bmData.Scan0;
 
             int bBl, bGr, bRd, bAl;
             int nOffset = stride - image.Width * 4;
             int k = 0;
-            //Then in a double loop we read the pixel data from the image and copy it to our array map
+            //Затем в двойном цикле читаем данные пикселей из изображения и копируем в наш массив map
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
@@ -284,7 +282,7 @@ namespace MathPanel
                 }
                 offset += nOffset;
             }
-            //unlock the memory block to free up resources
+            //В финале разблокируем блок памяти для освобождения ресурсов
             image.UnlockBits(bmData);
         }
 
@@ -335,37 +333,34 @@ namespace MathPanel
         /// <param name="fname">файл</param>
         public void Save(string fname)
         {
-            /*
-            Creating an object of the Bitmap type, which is used for working with images defined by pixel data. 
-            Encapsulates a GDI + bitmap consisting of pixel data from the graphic image and drawing attributes. 
-            Creating a Graphics object that encapsulates the GDI+ drawing surface.
-            The GDI+ interface is a General-purpose drawing model for .NET applications. 
-            In the .NET environment the GDI+ interface is used in several places, including when sending documents 
-            to a printer, displaying graphics in Windows applications, and rendering graphic elements on a web page.
-            
+            /* 
+            Создаем объект типа Bitmap, который используется для работы с изображениями, определяемыми данными пикселей. 
+            Инкапсулирует точечный рисунок GDI+, состоящий из данных пикселей графического изображения и атрибутов рисунка.
+            Создаем объект Graphics , который инкапсулирует поверхность рисования GDI+.
+            Интерфейс GDI+ - это модель рисования общего назначения для приложений .NET. 
+            В среде .NET интерфейс GDI+ используется в нескольких местах, в том числе при отправке документов на принтер, 
+            отображения графики в Windows-приложениях и визуализации графических элементов на веб-странице.
             */
             Bitmap image = new Bitmap(width, height);
             Graphics g = Graphics.FromImage(image);
 
-            /*
-            image.LockBits locks the Bitmap object in system memory so that pixels can be changed.
-            Getting a pointer to the allocated memory block
-            */
+            //image.LockBits блокирует объект Bitmap в системной памяти, чтобы пиксели можно было изменять.
             BitmapData bmData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             int offset = 0;
             int stride = bmData.Stride;
+            //Получаем указатель на выделенный блок памяти
             IntPtr Scan0 = bmData.Scan0;
 
             int nOffset = stride - image.Width * 4;
             int k = 0;
-            //Next, in a double loop, we move through our map array, extracting from each element of the structure Color
+            //Далее в двойном цикле двигаемся по нашему массиву map, извлекаем из каждого элемента структуру Color
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
                 {
                     int argb = map[k];
                     var cc = System.Drawing.Color.FromArgb(argb);
-                    //Writing colors to memory, increasing the offset
+                    //Пишем цвета в память, увеличиваем смещение
                     Marshal.WriteByte(Scan0, offset, (byte)cc.B);
                     Marshal.WriteByte(Scan0, offset + 1, (byte)cc.G);
                     Marshal.WriteByte(Scan0, offset + 2, (byte)cc.R);
@@ -375,11 +370,12 @@ namespace MathPanel
                 }
                 offset += nOffset;
             }
-            //then we unlock the memory, save it to a PNG file, and free up resources
+            //затем разблокируем память, сохраняем в файл в фрпмате PNG, освобождаем ресурсы.
             image.UnlockBits(bmData);
 
             g.Flush();
             if (File.Exists(fname)) File.Delete(fname);
+            //сохраняем как PNG или JPEG
             image.Save(fname, fname.IndexOf(".png") > 0 ? System.Drawing.Imaging.ImageFormat.Png :
                  System.Drawing.Imaging.ImageFormat.Jpeg);
             image.Dispose();
@@ -588,26 +584,30 @@ namespace MathPanel
         /// <param name="dInitForce">начальная сила капли</param>
         public void Drop(System.Drawing.Color clr, int x_0, int y_0, int wi, int he, double dInitForce, bool bLinear = true)
         {
-            //it simulates a drop of paint
+            //имитирует каплю краски
             if (wi <= 0 || he <= 0 || x_0 < 0 || x_0 >= width || y_0 < 0 || y_0 >= height) return;
             if (dInitForce <= 0 || dInitForce > 1) dInitForce = 1;
             int k, i, j, x, y;
+            //вытянутость по ширине
             double dEllipse = (wi * 1.0) / he;
+            //максимальный радиус капли
             double dRadiusMax = Math.Sqrt(wi * wi + he * he * dEllipse * dEllipse) / 2;
             for (i = 0; i < wi; i++)
-            {
+            {   //слева направо
                 for (j = 0; j < he; j++)
-                {
+                {   //сверху вниз
                     x = x_0 - wi / 2 + i;
                     y = y_0 - he / 2 + j;
                     if (x < 0 || x >= width || y < 0 || y >= height) { }
                     else
                     {
                         double dRadius = Math.Sqrt((x - x_0) * (x - x_0) + (y - y_0) * (y - y_0) * dEllipse * dEllipse);
+                        //не превышать максимальный радиус
                         if (dRadiusMax <= dRadius) continue;
                         k = y * width + x;
                         int argb = map[k];
                         var clr_orig = System.Drawing.Color.FromArgb(argb);
+                        //сила капли постепенно убывает
                         int argb_new = Merge(clr_orig, clr, dInitForce * Math.Pow((dRadiusMax - dRadius) / dRadiusMax, bLinear ? 1 : 2));
                         map[k] = argb_new;
                         //string s = string.Format("x={0}, y={1}, k={2}, i={3}, j={4}, argb={5}, new={6}", x, y, k, i, j, argb, argb_new);
@@ -623,7 +623,7 @@ namespace MathPanel
         /// <param name="cc">цвет</param>
         public static int SafeColor(int cc)
         {
-            //Don't allow the value to go out of range 0-255
+            //не давать выходить за 0-255
             if (cc < 0) return 0;
             if (cc > 255) return 255;
             return cc;
@@ -637,8 +637,8 @@ namespace MathPanel
         /// <param name="dInitForce">начальная сила капли</param>
         public static int Merge(System.Drawing.Color clr_orig, System.Drawing.Color clr, double dInitForce)
         {
-            //We sum up two values – the new color with the dInitForce weight and the original color 
-            //with the weight(1 - dInitForce).And so on all channels
+            //Суммируем 2 значения – новый цвет с весом dInitForce и исходный цвет 
+            //с весом (1 - dInitForce). И так по всем каналам
             int alpha, red, green, blue;
             alpha = clr_orig.A;
             red = SafeColor((int)(dInitForce * clr.R + clr_orig.R * (1 - dInitForce)));
@@ -647,12 +647,13 @@ namespace MathPanel
             return System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
         }
 
-        //transformations
+        //трансформации
         /// <summary>
-        /// серый
+        /// из цветного в серый
         /// </summary>
-        public void Gray()
-        {
+        /// <param name="bAver">true - брать среднее, иначе максимальное</param>
+        public void Gray(bool bAver = true)
+        {   //2021-07-13
             int alpha, red, green, blue;
             int k = 0;
             for (int y = 0; y < height; y++)
@@ -662,8 +663,14 @@ namespace MathPanel
                     int argb = map[k];
                     var cc = System.Drawing.Color.FromArgb(argb);
                     alpha = cc.A;
-                    //Converting the image to grayscale. Find the average value for the channels 
-                    red = (cc.R + cc.G + cc.B) / 3;
+                    //Преобразуем изображение в оттенки серого. Находим среднее значение по каналам  
+                    if ( bAver )red = (cc.R + cc.G + cc.B) / 3;
+                    else
+                    {   //находим максимальный уровень
+                        red = cc.R;
+                        if (red < cc.G) red = cc.G;
+                        if (red < cc.B) red = cc.B;
+                    }
                     green = red;
                     blue = red;
                     map[k++] = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
@@ -672,8 +679,118 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// черно-белый
+        /// серый со сжатием
         /// </summary>
+        public void GrayAdaptive(int col, int row, bool bAver = true)
+        {   //2021-07-13
+            int alpha, red, green, blue;
+            int k = 0, i, j, x, y, x_0, y_0, x_1, y_1, n;
+            //размеры клетки для усреднения
+            double wi = (double)width / col;  //шаг по горизонтали
+            double he = (double)height / row; //шаг по вертикали
+            //if (wi < 1 || he < 1) return;
+            
+            int[] map_2 = new int[col * row];
+            int m = 0;
+            for (j = 0; j < row; j++)
+            {
+                for (i = 0; i < col; i++)
+                {
+                    x_0 = (int)Math.Round(i * wi);
+                    y_0 = (int)Math.Round(j * he);
+                    x_1 = (int)Math.Round((i + 1) * wi);
+                    y_1 = (int)Math.Round((j + 1) * he);
+                    if (x_1 == x_0) x_1++;//2021-08-14
+                    if (y_1 == y_0) y_1++;
+                    if (x_1 > width) x_1 = width;
+                    if (y_1 > height) y_1 = height;
+                    n = 0;
+                    alpha = 0;
+                    red = 0;
+                    for (y = y_0; y < y_1; y++)
+                    {
+                        for (x = x_0; x < x_1; x++)
+                        {
+                            k = y * width + x;
+                            int argb = map[k];
+                            var cc = System.Drawing.Color.FromArgb(argb);
+                            alpha += cc.A;
+                            //Преобразуем изображение в оттенки серого. Находим среднее значение по каналам 
+                            if (bAver) red += (cc.R + cc.G + cc.B) / 3;
+                            else
+                            {   //находим максимальный уровень
+                                int redMax = cc.R;
+                                if (redMax < cc.G) redMax = cc.G;
+                                if (redMax < cc.B) redMax = cc.B;
+                                red += redMax;
+                            }
+                            n++;
+                        }
+                    }
+                    if (n > 0)
+                    {
+                        alpha = alpha / n;
+                        red = red / n;
+                    }
+                    else
+                    {
+                        alpha = 255;
+                        red = 127;
+                    }
+                    green = red;
+                    blue = red;
+                    map_2[m++] = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
+                }
+            }
+
+            width = col;
+            height = row;
+            map = map_2;
+        }
+
+        /// <summary>
+        /// зеркалка
+        /// </summary>
+        /// <param name="bHorizontal">true - зеркалить по горизонтали, иначе по вертикали</param>
+        public void Flip(bool bHorizontal = true)
+        {   //2021-07-16
+            int k, m;
+            if (bHorizontal)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width / 2; x++)
+                    {
+                        k = y * width + x;
+                        m = y * width + (width - 1 - x);
+                        int argb1 = map[k];
+                        int argb2 = map[m];
+                        map[k] = argb2;
+                        map[m] = argb1;
+                    }
+                }
+            }
+            else
+            {
+                for (int y = 0; y < height /2; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        k = y * width + x;
+                        m = (height - 1 - y) * width + x;
+                        int argb1 = map[k];
+                        int argb2 = map[m];
+                        map[k] = argb2;
+                        map[m] = argb1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// в черно-белый
+        /// </summary>
+        /// <param name="threshold">порог</param>
         public void BlackWhite(int threshold = 127)
         {
             int alpha, red, green, blue;
@@ -685,8 +802,7 @@ namespace MathPanel
                     int argb = map[k];
                     var cc = System.Drawing.Color.FromArgb(argb);
                     alpha = cc.A;
-                    //Converting the image to black and white. Find the average value for the channels 
-                    //and compare it with the threshold
+                    //Преобразуем изображение в черно-белое. Находим среднее значение по каналам и сравниваем с порогом.
                     red = (cc.R + cc.G + cc.B) / 3;
                     red = red > threshold ? 255 : 0;
                     green = red;
@@ -699,9 +815,11 @@ namespace MathPanel
         /// <summary>
         /// сделать расплавчатым
         /// </summary>
+        /// <param name="num">число итераций</param>
+        /// <param name="step">область соседей +-</param>
         public void Smooth(int num = 1, int step = 1)
         {
-            //Reducing the image contrast. Allocating memory for a temporary array
+            //Уменьшаем контрастность изображения. Выделяем память под временный массив
             int[] map_2 = new int[width * height];
             int alpha, red, green, blue;
             int k, m, n, x_2, y_2;
@@ -719,7 +837,7 @@ namespace MathPanel
                         green = 0;
                         blue = 0;
                         n = 0;
-                        //Find the neighbors of the current point , accumulate values by channels
+                        //Находим соседей текущей точки , накапливаем значения по каналам
                         for (int i = -step; i <= step; i++)
                         {
                             y_2 = y + i;
@@ -738,23 +856,26 @@ namespace MathPanel
                                 blue += cc.B;
                             }
                         }
-                        //n – number of neighbors found
+                        //n – число найденных соседей
                         if (n > 0)
                         {   
                             map_2[k] = System.Drawing.Color.FromArgb(alpha / n, red / n, green / n, blue / n).ToArgb();
                         }
                     }
                 }
-                //Finally, we copy from the temporary array to the main one
+                //В заключении копируем из временного массива в основной
                 for (int y = 0; y < height * width; y++) map[y] = map_2[y];
             }
         }
 
         /// <summary>
-        /// фильтровать
+        /// фильтровать с помощью правил
         /// </summary>
+        /// <param name="fil">список правил вида (x, y, value)</param>
+        /// <param name="num">число итераций</param>
         public void Filter(List<Tuple<int, int, double>> fil, int num = 1)
         {
+            //Выделяем память под временный массив
             int[] map_2 = new int[width * height];
             int alpha, red, green, blue;
             int k, m, n, x_2, y_2;
@@ -772,9 +893,9 @@ namespace MathPanel
                         green = 0;
                         blue = 0;
                         n = 0;
-
+                        
                         foreach (var tup in fil)
-                        {
+                        {   //для каждого правила находим соседей текущей точки
                             y_2 = y + tup.Item2;
                             if (y_2 < 0 || y_2 >= height) continue;
                             x_2 = x + tup.Item1;
@@ -788,15 +909,16 @@ namespace MathPanel
                             green += (int)(cc.G * tup.Item3);
                             blue += (int)(cc.B * tup.Item3);
                         }
+                        //n – число найденных соседей
                         if (n > 0)
-                        {   //??negative
+                        {
                             map_2[k] = System.Drawing.Color.FromArgb(SafeColor(alpha),
                                 SafeColor(red), SafeColor(green), SafeColor(blue)).ToArgb();
                         }
 
                     }
                 }
-
+                //В заключении копируем из временного массива в основной
                 for (int y = 0; y < height * width; y++) map[y] = map_2[y];
             }
         }
@@ -858,9 +980,10 @@ namespace MathPanel
         /// </summary>
         public void Pixel(int x0, int y0, int alpha, int red, int green, int blue, int size_x = 1, int size_y = 1)
         {
-            /*Changing the pixel at position x0, y0. To do this, use the parameters alpha, red, green, blue to form the color cc. 
-            Find an element of the map array and assign it. 
-            Not only one pixel can be changed, but also its neighbors in a rectangle with the size size_x, size_y (by default, they are equal to 1).
+            /*
+            Изменяем пиксель в позиции x0, y0. Для этого из параметров alpha, red, green, blue формируем цвет cc. 
+            Находим элемент массива map и присваиваем его. Подвергнуться изменению может не только один пиксель, 
+            но и его соседи в прямоугольнике с размером size_x, size_y (по умолчанию они равны 1).
             */
             var cc = System.Drawing.Color.FromArgb(alpha, red, green, blue).ToArgb();
             int k;
@@ -877,6 +1000,11 @@ namespace MathPanel
         /// <summary>
         /// изменить альфу
         /// </summary>
+        /// <param name="x0">горизонтальная позиция</param>
+        /// <param name="y0">вертикальная позиция</param>
+        /// <param name="alpha">новое значение alpha</param>
+        /// <param name="size_x">горизонтальный размер</param>
+        /// <param name="size_y">вертикальный размер</param>
         public void Alpha(int x0, int y0, int alpha, int size_x = 1, int size_y = 1)
         {
             int k, red, green, blue;
@@ -898,6 +1026,7 @@ namespace MathPanel
         /// <summary>
         /// наложить битмап с учетом альфы
         /// </summary>
+        /// <param name="bm">накладываемый BitmapSimple</param>
         public void Put(BitmapSimple bm)
         {
             if (width != bm.width || height != bm.height) return;
@@ -1045,36 +1174,34 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// generate the hash of BitmapSimple - A hash function is any function 
-        /// that can be used to map data of arbitrary size to fixed-size values. 
-        /// The values returned by a hash function are called hash values, hash codes, digests, or simply hashes.
+        /// генерировать хэш (hash) для объекта BitmapSimple. Хэш функция - некоторая функция, 
+        /// которая может быть использована для соотнесения данных произвольной длины к некоторому фиксированному размеру.
         /// </summary>
-        /// <param name="nx">divide by 'nx' horizontally</param>
-        /// <param name="ny">divide by 'nx' vertically</param>
-        /// <param name="palette">array of colors to match</param>
-        /// <param name="paletteCode">string to codify our palette colors</param>
-        /// <param name="bUpdate">if true, modify itself</param>
+        /// <param name="nx">делить на 'nx' по горизонтали</param>
+        /// <param name="ny">делить на 'ny' по вертикали</param>
+        /// <param name="palette">массив цветов для выбора ближайшего</param>
+        /// <param name="paletteCode">строка для кодировки цветов</param>
+        /// <param name="bUpdate">если true, преобразовать себя</param>
         public string Hash(int nx, int ny, Color[] palette, string paletteCode, bool bUpdate = false)
         {
             StringBuilder s = new StringBuilder();
             int k, n, alpha, red, green, blue, iMin, index;
-            //division parameters
-            int d_x = width / nx;   //rectangle width
-            int d_y = height / ny;  //rectangle height
-            //divide all area into small rectangles
-            //loop through our map
+            int d_x = width / nx;   //ширина ячейки
+            int d_y = height / ny;  //высота ячейки
+            //разделить объект на маленькие ячейки
+            //проход по карте
             for (int i = 0; i < nx; i++)
             {
                 for (int j = 0; j < ny; j++)
                 {
-                    //find an average color in the small rectangle
-                    //init counters
+                    //найти средний цвет в каждой ячейке
+                    //сбросить счетчики
                     alpha = 0;
                     red = 0;
                     green = 0;
                     blue = 0;
                     n = 0;
-                    //go through rectangle pixels, accumulate in channels
+                    //пройти по пикселям ячейки
                     for (int y = j * d_y; y < (j + 1) * d_y; y++)
                     {
                         for (int x = i * d_x; x < (i + 1) * d_x; x++)
@@ -1088,13 +1215,13 @@ namespace MathPanel
                             n++;
                         }
                     }
-                    //get average
+                    //найти средний
                     alpha /= n;
                     red /= n;
                     green /= n;
                     blue /= n;
 
-                    //find a nearest color in the palette
+                    //найти ближайший цвет в palette
                     iMin = int.MaxValue;
                     index = 0;
                     for (int m = 0; m < palette.Length; m++)
@@ -1109,11 +1236,11 @@ namespace MathPanel
                         }
                     }
 
-                    //add to hash a letter with found index
+                    //добавить к хэшу букву, кодирующую цвет
                     s.Append(paletteCode.Substring(index, 1));
 
                     if (bUpdate)
-                    {   //set pixels inside the small rectangle to a new selected color
+                    {   //заполнить ячейки новым ближайшим цветом
                         var best = palette[index].ToArgb();
                         for (int y = j * d_y; y < (j + 1) * d_y; y++)
                         {
@@ -1130,6 +1257,78 @@ namespace MathPanel
             return s.ToString();
         }
 
-
+        /// <summary>
+        /// изменить альфу, где белый по краям
+        /// </summary>
+        public void Transparent( bool bRadius = false, int border = 20, int tresh = 225)
+        {
+            int k, red, green, blue;
+            if (!bRadius)
+            {
+                //2 horizontal strips
+                for (int y = 0; y < height; y++)
+                {
+                    if (y < border || y + border > height)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            k = y * width + x;
+                            var cc = System.Drawing.Color.FromArgb(map[k]);
+                            red = cc.R;
+                            green = cc.G;
+                            blue = cc.B;
+                            if (red + green + blue > tresh * 3)
+                            {
+                                var cc2 = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
+                                map[k] = cc2;
+                            }
+                        }
+                    }
+                }
+                //2 vertical strips
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (x < border || x + border > width)
+                        {
+                            k = y * width + x;
+                            var cc = System.Drawing.Color.FromArgb(map[k]);
+                            red = cc.R;
+                            green = cc.G;
+                            blue = cc.B;
+                            if (red + green + blue > tresh * 3)
+                            {
+                                var cc2 = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
+                                map[k] = cc2;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                int xCenter = width / 2;
+                int yCenter = height / 2;
+                int rad2 = border * border;
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        if( (x - xCenter) * (x - xCenter) + (y - yCenter) * (y - yCenter) < rad2) continue;
+                        k = y * width + x;
+                        var cc = System.Drawing.Color.FromArgb(map[k]);
+                        red = cc.R;
+                        green = cc.G;
+                        blue = cc.B;
+                        if (red + green + blue > tresh * 3)
+                        {
+                            var cc2 = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
+                            map[k] = cc2;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

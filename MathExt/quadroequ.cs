@@ -305,12 +305,12 @@ namespace MathPanelExt
 		{
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-			for (int i = 0; i < clrs.Length && i < rows * cols; i++)
+			for (int i = 0; i < rows * cols; i++)
 			{
 				var x = i % cols + xShift;
 				var y = bFromBottom ? (i / cols + yShift) : (rows - 1 - i / cols + yShift);
 				if (i != 0) sb.Append(",");
-				sb.AppendFormat(sClr, Dynamo.D2S(x), Dynamo.D2S(y), MathPanel.Facet3.ColorHtml(clrs[i]));
+				sb.AppendFormat(sClr, Dynamo.D2S(x), Dynamo.D2S(y), MathPanel.Facet3.ColorHtml(clrs[i % clrs.Length]));
 			}
 			return sb.ToString();
 		}

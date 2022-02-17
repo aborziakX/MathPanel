@@ -76,6 +76,9 @@ namespace MathPanel
         public double area = 0; //площадь
         public int Count { get; } //число точек в грани
         static Random rand = new Random(); //генератор случайных чисел
+        public Phob phob = null;
+        public double cosfi = 0;
+        public GeOb shape = null;
 
         //конструктор по умолчанию создает 4-х точечную грань
         public Facet3()
@@ -248,7 +251,20 @@ namespace MathPanel
 
             return s;
         }
+        public string ToStringOrig()
+        {
+            string s = name;
+            s += (";v1 " + v1.ToString());
+            s += (";v2 " + v2.ToString());
+            s += (";v3 " + v3.ToString());
+            if (Count >= 4)
+                s += (";v4 " + v4.ToString());
+            s += (";norm " + normal.ToString());
+            s += (";dark " + Math.Round(dark, 2).ToString());
+            s += (";clr " + ColorHtml());
 
+            return s;
+        }
     }
 
     /// <summary>
@@ -268,14 +284,15 @@ namespace MathPanel
 
         //центр вначале совпадает с координатами базового объекта
         //смещение
-        public Vec3 vShift = new Vec3(0, 0, 0);
+        Vec3 _vShift = new Vec3(0, 0, 0);
         //углы поворота
         double xRotor = 0; //вращение ящика вокруг оси X
         double yRotor = 0; //вращение ящика вокруг оси Y
         double zRotor = 0; //вращение ящика вокруг оси Z
         Mat3 matRotor = new Mat3(); //матрица поворота
         //коэффициенты растяжения
-        public double scaleX = 1, scaleY = 1, scaleZ = 1;
+        double _scaleX = 1, _scaleY = 1, _scaleZ = 1;
+        bool bNeedTranf = false;
 
         public GeOb()
         {
@@ -320,6 +337,23 @@ namespace MathPanel
 
             return s;
         }
+        public string ToStringOrig()
+        {
+            string s = name;
+            foreach (var fac in lstFac)
+            {
+                s += (";" + fac.ToStringOrig());
+            }
+            return s;
+        }
+        public string Info()
+        {
+            string s = string.Format("GeOb {0}, размер {1}, vShift {2}, xRotor {3}, yRotor {4}, zRotor {5}, scaleX {6}, scaleY {7}, scaleZ {8}, граней {9}",
+                name, radius, vShift.ToString(),
+                xRotor, yRotor, zRotor, scaleX, scaleY, scaleZ, lstFac.Count);
+
+            return s;
+        }
 
         public double XRotor
         {
@@ -330,7 +364,8 @@ namespace MathPanel
             set
             {
                 xRotor = value;
-                matRotor.Build(xRotor, yRotor, zRotor);
+                //matRotor.Build(xRotor, yRotor, zRotor);
+                bNeedTranf = true;
             }
         }
 
@@ -343,7 +378,8 @@ namespace MathPanel
             set
             {
                 yRotor = value;
-                matRotor.Build(xRotor, yRotor, zRotor);
+                //matRotor.Build(xRotor, yRotor, zRotor);
+                bNeedTranf = true;
             }
         }
 
@@ -356,7 +392,8 @@ namespace MathPanel
             set
             {
                 zRotor = value;
-                matRotor.Build(xRotor, yRotor, zRotor);
+                //matRotor.Build(xRotor, yRotor, zRotor);
+                bNeedTranf = true;
             }
         }
 
@@ -770,7 +807,7 @@ namespace MathPanel
                 }
                 j = j % h;
                 j = h - 1 - j;//reverse by vertical
-                if( m == 0 )
+                if (m == 0)
                 {
                     iMin = i;
                     iMax = i;
@@ -815,8 +852,8 @@ namespace MathPanel
                 j = h - 1 - j;//reverse by vertical
 
                 //stretch
-                i = ((i - iMin) * w ) / di;
-                j = ((j - jMin) * h ) / dj;
+                i = ((i - iMin) * w) / di;
+                j = ((j - jMin) * h) / dj;
                 //Dynamo.Log(string.Format("i = {0}, j = {1}", i, j));
 
                 //how many pixels we need?
@@ -846,7 +883,7 @@ namespace MathPanel
                         }
                     }
                     if (n > 0)
-                    { 
+                    {
                         al = al / n;
                         bl = bl / n;
                         gr = gr / n;
@@ -973,7 +1010,7 @@ namespace MathPanel
             Vec3 vDiff = new Vec3();
             Random rand = new Random();
             //кортеж - информация о вершинах и их гранях, item1 - новая срединная точка
-            List<Tuple<Vec3, Vec3, Vec3, List<Facet3>, List<Facet3>, List<int>, List<int>>> lstEdges = 
+            List<Tuple<Vec3, Vec3, Vec3, List<Facet3>, List<Facet3>, List<int>, List<int>>> lstEdges =
                 new List<Tuple<Vec3, Vec3, Vec3, List<Facet3>, List<Facet3>, List<int>, List<int>>>();
             Vec3 fac_v1, fac_v2;
 
@@ -1090,7 +1127,7 @@ namespace MathPanel
                                 }
                             }
                             if (bFound)
-                            { 
+                            {
                                 if (k == 0) v12.Copy(tup.Item3);
                                 else if (k == 1) v23.Copy(tup.Item3);
                                 else v13.Copy(tup.Item3);
@@ -1158,7 +1195,7 @@ namespace MathPanel
             Vec3 v4 = new Vec3();
             double x, y, z;
 
-            for ( int j = 0; j < n; j++)
+            for (int j = 0; j < n; j++)
             {
                 x = fac.v1.x + dx_he * j;
                 y = fac.v1.y + dy_he * j;
@@ -1176,12 +1213,12 @@ namespace MathPanel
                     z += dz_wi;
 
                     Facet3 fac_c = new Facet3(v1, v2, v3, v4);
-                    if( bm == null )
+                    if (bm == null)
                         fac_c.clr.Copy(fac.clr);
                     else
                     {   //stretch
-                        int ww = ( (i * bm.width) / m ) % bm.width;
-                        int hh = ( (j * bm.height) / n ) % bm.height;
+                        int ww = ((i * bm.width) / m) % bm.width;
+                        int hh = ((j * bm.height) / n) % bm.height;
                         hh = (bm.height - 1 - hh); //flip horizontally
                         int argb = bm.map[ww + hh * bm.width];
                         fac_c.clr.Argb = argb;
@@ -1193,5 +1230,161 @@ namespace MathPanel
 
             lstFac = lstNew;
         }
+
+        //2022-02-01 
+        /// <summary>
+        /// найти ящик для формы
+        /// </summary>
+        public void FindBox(out double x0, out double x1, out double y0, out double y1, out double z0, out double z1)
+        {
+            x0 = double.MaxValue;
+            y0 = double.MaxValue;
+            z0 = double.MaxValue;
+            x1 = double.MinValue;
+            y1 = double.MinValue;
+            z1 = double.MinValue;
+            foreach (var fac in lstFac)
+            {
+                if (x0 > fac.v1.x) x0 = fac.v1.x;
+                if (y0 > fac.v1.y) y0 = fac.v1.y;
+                if (z0 > fac.v1.z) z0 = fac.v1.z;
+                if (x1 < fac.v1.x) x1 = fac.v1.x;
+                if (y1 < fac.v1.y) y1 = fac.v1.y;
+                if (z1 < fac.v1.z) z1 = fac.v1.z;
+
+                if (x0 > fac.v2.x) x0 = fac.v2.x;
+                if (y0 > fac.v2.y) y0 = fac.v2.y;
+                if (z0 > fac.v2.z) z0 = fac.v2.z;
+                if (x1 < fac.v2.x) x1 = fac.v2.x;
+                if (y1 < fac.v2.y) y1 = fac.v2.y;
+                if (z1 < fac.v2.z) z1 = fac.v2.z;
+
+                if (x0 > fac.v3.x) x0 = fac.v3.x;
+                if (y0 > fac.v3.y) y0 = fac.v3.y;
+                if (z0 > fac.v3.z) z0 = fac.v3.z;
+                if (x1 < fac.v3.x) x1 = fac.v3.x;
+                if (y1 < fac.v3.y) y1 = fac.v3.y;
+                if (z1 < fac.v3.z) z1 = fac.v3.z;
+            }
+        }
+
+        //2022-02-17
+        public double scaleX
+        {
+            get
+            {
+                return _scaleX;
+            }
+            set
+            {
+                _scaleX = value;
+                bNeedTranf = true;
+            }
+        }
+        public double scaleY
+        {
+            get
+            {
+                return _scaleY;
+            }
+            set
+            {
+                _scaleY = value;
+                bNeedTranf = true;
+            }
+        }
+        public double scaleZ
+        {
+            get
+            {
+                return _scaleZ;
+            }
+            set
+            {
+                _scaleZ = value;
+                bNeedTranf = true;
+            }
+        }
+        public Vec3 vShift
+        {
+            get
+            {
+                return _vShift;
+            }
+            set
+            {
+                _vShift = value;
+                bNeedTranf = true;
+            }
+        }
+
+        public void Transform()
+        {
+            if (bNeedTranf == false) return;
+
+            if (_vShift.x != 0 || _vShift.y != 0 || _vShift.z != 0 ||
+                xRotor != 0 || yRotor != 0 || zRotor != 0 ||
+                _scaleX != 1 || _scaleY != 1 || _scaleZ != 1)
+            {
+                Vec3 vref;
+                Vec3 vTemp = new Vec3();
+                Vec3 v_new = new Vec3();
+                bool bRot = (xRotor != 0 || yRotor != 0 || zRotor != 0);
+                if( bRot ) matRotor.Build(xRotor, yRotor, zRotor);
+
+                //для каждой грани найти координаты в системе камеры
+                foreach (var fac in lstFac)
+                {
+                    for (int j = 0; j < fac.Count && j < 4; j++)
+                    {
+                        if (j == 0)
+                        {
+                            vref = fac.v1;
+                        }
+                        else if (j == 1)
+                        {
+                            vref = fac.v2;
+                        }
+                        else if (j == 2)
+                        {
+                            vref = fac.v3;
+                        }
+                        else
+                        {
+                            vref = fac.v4;
+                        }
+
+                        //масштабировать
+                        if (scaleX != 1) vref.x *= scaleX;
+                        if (scaleY != 1) vref.y *= scaleY;
+                        if (scaleZ != 1) vref.z *= scaleZ;
+                        //вращать                    
+                        if (bRot)
+                        {
+                            vTemp.Copy(vref.x, vref.y, vref.z);
+                            Rotate(vTemp, ref v_new);
+
+                            vref.x = v_new.x;
+                            vref.y = v_new.y;
+                            vref.z = v_new.z;
+                        }
+                        //транслировать
+                        vref.Add(vShift);
+                    }
+                }
+                //reset
+                _vShift.x = 0;
+                _vShift.y = 0;
+                _vShift.z = 0;
+                xRotor = 0;
+                yRotor = 0;
+                zRotor = 0;
+                _scaleX = 1;
+                _scaleY = 1;
+                _scaleZ = 1;
+            }
+            bNeedTranf = false;
+        }
     }
 }
+

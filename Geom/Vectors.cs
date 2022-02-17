@@ -227,6 +227,11 @@ namespace MathPanel
             mx.Mult(my, ref mtemp);
             mz.Mult(mtemp, ref my);
             Copy(my);
+
+            //test length=1
+            //double lenA = a.Length();
+            //double lenB = b.Length();
+            //double lenC = c.Length();
         }
 
         //построить матрицу из векторов - каждый вектор заполняет колонку

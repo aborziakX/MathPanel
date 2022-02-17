@@ -418,12 +418,12 @@ Dynamo.Console(hz.ToString());
                 }
                 else if (key == "Up")
                 {
-                    XRotor += 0.1;
+                    XRotor -= 0.1;
                     //matRotor.Build(XRotor, YRotor, ZRotor);
                 }
                 else if (key == "Down")
                 {
-                    XRotor -= 0.1;
+                    XRotor += 0.1;
                     //matRotor.Build(XRotor, YRotor, ZRotor);
                 }
                 else if (key == "Left")
@@ -463,9 +463,10 @@ Dynamo.Console(hz.ToString());
                 , frmPath + "System.Drawing.dll"
                 , frmPath + "System.Net.dll"
                 , frmPath + "System.Net.Http.dll"
+                //, frmPath + "System.Collections.dll"
             };
             //пространства имен
-            string[] includeNamespaces = { "MathPanel", "MathPanelExt", "System.Net.Sockets" };
+            string[] includeNamespaces = { "MathPanel", "MathPanelExt", "System.Net.Sockets", "System.Collections.Generic" };
             keyConsole = "";
             CompileDynamo(s, null, includeNamespaces, includeAssemblies);
             //создаем новый поток
@@ -1470,6 +1471,8 @@ Dynamo.Console(hz.ToString());
             double rad = (2 * physWidth) / iCanvasWidth;    //1 pixel
             Vec3 vref;
             Vec3 vTemp = new Vec3();
+            shape.Transform();
+
             //для каждой грани найти координаты в системе камеры
             foreach (var fac in shape.lstFac)
             {
@@ -1495,29 +1498,6 @@ Dynamo.Console(hz.ToString());
                         fac.v4_cam.Copy(fac.v4);
                         vref = fac.v4_cam;
                     }
-
-                    //масштабировать
-                    if (shape.scaleX != 1) vref.x *= shape.scaleX;
-                    if (shape.scaleY != 1) vref.y *= shape.scaleY;
-                    if (shape.scaleZ != 1) vref.z *= shape.scaleZ;
-                    //вращать                    
-                    if (shape.XRotor != 0 || shape.YRotor != 0 || shape.ZRotor != 0)
-                    {
-                        /*double x_n, y_n, z_n;
-                        x_n = vref.x * Math.Cos(shape.ZRotor) - vref.y * Math.Sin(shape.ZRotor);
-                        y_n = vref.x * Math.Sin(shape.ZRotor) + vref.y * Math.Cos(shape.ZRotor);
-                        vref.x = x_n;
-                        vref.y = y_n;*/
-                        Vec3 v = new Vec3(vref.x, vref.y, vref.z);
-                        Vec3 v_new = new Vec3();
-                        shape.Rotate(v, ref v_new);
-
-                        vref.x = v_new.x;
-                        vref.y = v_new.y;
-                        vref.z = v_new.z;
-                    }
-                    //транслировать
-                    vref.Add(shape.vShift);
 
                     //добавить координаты объекта
                     if( ph != null )
@@ -1620,7 +1600,80 @@ Dynamo.Console(hz.ToString());
             //if (DrawCount % 100 == 1) Console(data);
             return data.ToString();
         }
-        
+
+        /// <summary>
+        /// список граней формы для визуализации в canvas
+        /// </summary>
+        /// <param name="shape">форма объекта</param>
+        /// <param name="ph">сам объект</param>
+        static List<Facet3> DrawShapeFac(GeOb shape, Phob ph)
+        {
+            List<Facet3> lstFac = new List<Facet3>();   //список граней
+            if (shape == null) return lstFac;
+            StringBuilder data = new StringBuilder();
+            double radius = 1;
+            double rad = (2 * physWidth) / iCanvasWidth;    //1 pixel
+            Vec3 vref;
+            Vec3 vTemp = new Vec3();
+            shape.Transform();
+
+            //для каждой грани найти координаты в системе камеры
+            foreach (var fac in shape.lstFac)
+            {
+                for (int j = 0; j < fac.Count; j++)
+                {
+                    if (j == 0)
+                    {
+                        fac.v1_cam.Copy(fac.v1);
+                        vref = fac.v1_cam;
+                    }
+                    else if (j == 1)
+                    {
+                        fac.v2_cam.Copy(fac.v2);
+                        vref = fac.v2_cam;
+                    }
+                    else if (j == 2)
+                    {
+                        fac.v3_cam.Copy(fac.v3);
+                        vref = fac.v3_cam;
+                    }
+                    else
+                    {
+                        fac.v4_cam.Copy(fac.v4);
+                        vref = fac.v4_cam;
+                    }
+
+                    //добавить координаты объекта
+                    if (ph != null)
+                        vref.Add(ph.x, ph.y, ph.z);
+                    fac.phob = ph;
+
+                    //перейти в СКК
+                    Traslate2Camera(ref vref.x, ref vref.y, ref vref.z, ref radius, false);
+                }
+
+                //игра света
+                fac.CalcNormal(true);
+                fac.Center(out double x, out double y, out double z, true);
+                if (z >= z_cam - 20) continue;//слишком близко
+
+                vTemp.Copy(-x, -y, z_cam - z); //вектор к камере
+                double dLen = vTemp.Length();
+                if (dLen == 0) continue;
+                double cosfi = vTemp.ScalarProduct(fac.normal_cam) / dLen;  //косинус угла между вектором на камеру и нормалью
+                fac.dark = (cosfi < 0.1) ? 0.1 : cosfi;
+
+                if (shape.iFill == 0 && !shape.bDrawBack) continue; //не рисуем
+                if (cosfi <= 0.0 && ((shape.iFill & 2) == 0) && !shape.bDrawBack) continue;//не видно грань и не рисуем ребра
+
+                fac.cosfi = cosfi;
+                fac.shape = shape;
+                fac.phob = ph;
+                lstFac.Add(fac);
+            }
+            return lstFac;
+        }
+
         /// <summary>
         /// передать JSON данные для визуализации в canvas
         /// </summary>
@@ -1759,6 +1812,7 @@ Dynamo.Console(hz.ToString());
             });
         }
 
+        //2022-02-17
         /// <summary>
         /// подготовить данные для визуализации на канвасе используя формы
         /// <param name="bBx">рисовать оси</param>
@@ -1766,6 +1820,211 @@ Dynamo.Console(hz.ToString());
         /// <return>attribute value</return>
         /// </summary>
         public static void SceneDrawShape(bool bBx = true, bool bCons = false)
+        {
+            DateTime dt1 = DateTime.Now;
+            DrawCount++;
+            int i = 0;
+            double dX0 = 0, dX1 = 1, dY0 = 0, dY1 = 1;
+            double radius = 1;
+            double rad = (2 * physWidth) / iCanvasWidth;    //1 pixel
+
+            var data = new StringBuilder();
+            string starter = "{{\"data\":[";
+            data.AppendFormat(starter);
+
+            //показать границы ящика
+            if (box != null && bBx) data.Append(BoxEdges());
+
+            List<Facet3> lstFac = new List<Facet3>();   //список граней
+
+            //для каждого объекта сцены
+            List<Phob> lst = dicPhob.Values.ToList();
+            foreach (Phob ph in lst)
+            {   //перейти в СКК
+                ph.SaveCoord();
+                Traslate2Camera(ref ph.x, ref ph.y, ref ph.z, ref ph.radius, true);
+                if (box == null)
+                {
+                    if (i == 0)
+                    {
+                        dX0 = ph.x;
+                        dX1 = dX0 + 0.1;
+                        dY0 = ph.y;
+                        dY1 = dY0 + 0.1;
+                    }
+                    else
+                    {
+                        if (dX0 > ph.x) dX0 = ph.x;
+                        if (dX1 < ph.x) dX1 = ph.x;
+                        if (dY0 > ph.y) dY0 = ph.y;
+                        if (dY1 < ph.y) dY1 = ph.y;
+                    }
+                }
+                i++;
+            }
+            //сортировать по удаленности от камеры
+            lst.Sort(delegate (Phob x, Phob y)
+            {
+                return x.z >= y.z ? 1 : -1;
+            });
+
+            foreach (Phob ph in lst)
+            {
+                if (ph.z < z_cam && ph.Shape == null)
+                {
+                    if (data.Length > starter.Length) data.Append(",");
+                    if (ph.bDrawAsLine == false)
+                        data.Append(ph.ToJson());
+                    else
+                    {   //рисовать как линию
+                        double px = ph.p1.x;
+                        double py = ph.p1.y;
+                        double pz = ph.p1.z;
+                        var xxx = ph.AttrGet("clr");
+                        var yyy = ph.AttrGet("lnw");
+                        var txt1 = ph.AttrGet("txt1");
+                        var txt2 = ph.AttrGet("txt2");
+                        var fontsize = ph.AttrGet("fontsize");
+                        Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
+                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
+                            D2S(px), D2S(py), "line", D2S(radius),
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1, 
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+
+                        px = ph.p2.x;
+                        py = ph.p2.y;
+                        pz = ph.p2.z;
+                        Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
+                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
+                            D2S(px), D2S(py), "line_end", D2S(radius),
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2, 
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+                    }
+                }
+                //воостановить координаты
+                ph.RestoreCoord();
+
+                if (ph.Shape != null)
+                {
+                    lstFac.AddRange( DrawShapeFac(ph.Shape, ph) );
+                }
+            }
+
+            try
+            {   //can fail while scene is reloaded
+                lstFac.Sort(delegate (Facet3 fx, Facet3 fy)
+                {
+                    double x_t0, y_t0, z_t0, x_t1, y_t1, z_t1;
+                    fx.Center(out x_t0, out y_t0, out z_t0, true);
+                    fy.Center(out x_t1, out y_t1, out z_t1, true);
+                    return z_t0 >= z_t1 ? 1 : -1;
+                });
+            }
+            catch (Exception) { };
+
+            //данные на экран для каждой грани
+            Vec3 vref;
+            foreach (var fac in lstFac)
+            {
+                var ph = fac.phob;
+                var shape = fac.shape;
+                var cosfi = fac.cosfi;
+                fac.Center(out double x, out double y, out double z, true);
+                double x1 = x, y1 = y, z1 = z;
+
+                for (int j = 0; j <= fac.Count; j++)
+                {
+                    if (j < fac.Count)
+                    {
+                        if (j == 0) vref = fac.v1_cam;
+                        else if (j == 1) vref = fac.v2_cam;
+                        else if (j == 2) vref = fac.v3_cam;
+                        else vref = fac.v4_cam;
+
+                        Traslate2Screen(ref vref.x, ref vref.y, ref vref.z, ref radius);
+                    }
+                    else vref = fac.v1_cam;
+
+                    string title = "";
+                    if (j == fac.Count && ph != null && ph.AttrGet("text") != null)
+                        title = ph.AttrGet("text");
+
+                    string edges = "";
+                    //цвет ребер как грани
+                    if ((shape.iFill & 3) == 1) edges = string.Format(",\"csk\":\"{0}\"", fac.ColorDarkHtml(fac.dark));
+
+                    string style = j == fac.Count ? ((((shape.iFill & 1) == 1) && cosfi > 0.0) ? "line_endf" : "line_end") : "line";
+
+                    if (data.Length != 0) data.Append(",");
+                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\"{6}}}",
+                        D2S(vref.x), D2S(vref.y),
+                        style, D2S(rad),
+                        fac.ColorDarkHtml(fac.dark), title, edges);
+
+                    if (shape.bDrawNorm)
+                    {
+                        //нормали
+                        if (data.Length != 0) data.Append(",");
+                        Traslate2Screen(ref x, ref y, ref z, ref radius);
+                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
+                            D2S(x), D2S(y),
+                            "line", D2S(rad),
+                            clrNormal, "", widNormal);
+                        Traslate2Screen(ref x1, ref y1, ref z1, ref radius);
+                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{7}  {5}\", \"lnw\":\"{6}\"}}",
+                            D2S(x1), D2S(y1),
+                            "line_end", D2S(rad),
+                            clrNormal, Math.Round(cosfi, 3), widNormal, fac.name);
+                    }
+                }
+            }
+
+            if (box == null)
+            {
+                var extra = (dX1 - dX0) * 0.01;
+                dX0 -= extra;
+                dX1 += extra;
+                extra = (dY1 - dY0) * 0.01;
+                dY0 -= extra;
+                dY1 += extra;
+            }
+            else
+            {
+                /*dX0 = box.x0;
+                dX1 = box.x1;
+                dY0 = box.y0;
+                dY1 = box.y1;*/
+                dX1 = physWidth;
+                dX0 = -dX1;
+                dY1 = physHeight;
+                dY0 = -dY1;
+            }
+            
+            //параметры рисования: размеры, цвет, стиль
+            string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\" }}",
+                D2S(dX0), D2S(dX1),
+                D2S(dY0), D2S(dY1),
+                iCanvasWidth, iCanvasHeight, clrStroke, canvasBg);
+            //screenJson = string.Format("{{\"data\":[{1}], \"options\":{0}}}", opt, data.ToString());
+            data.AppendFormat("], \"options\":{0}}}", opt);
+            screenJson = data.ToString();
+
+            DateTime dt2 = DateTime.Now;
+            TimeSpan diff = dt2 - dt1;
+            int ms = (int)diff.TotalMilliseconds;
+            if((loglevel & 0x1) > 0)
+                Log("SceneDrawShape ms=" + ms + ", len=" + screenJson.Length);
+
+            if (!bReady || dispObj.HasShutdownStarted) return;
+            //мы запускаем код в UI потоке
+            dispObj.Invoke(delegate
+            {
+                if (bCons) Console(screenJson);
+                webConsole.InvokeScript("ext_json", screenJson);
+            });
+        }
+        //old low quality approach
+        public static void SceneDrawShapeBook(bool bBx = true, bool bCons = false)
         {
             DateTime dt1 = DateTime.Now;
             DrawCount++;
@@ -1830,7 +2089,7 @@ Dynamo.Console(hz.ToString());
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
                         data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
                             D2S(px), D2S(py), "line", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1, 
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1,
                             string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
 
                         px = ph.p2.x;
@@ -1839,7 +2098,7 @@ Dynamo.Console(hz.ToString());
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
                         data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
                             D2S(px), D2S(py), "line_end", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2, 
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2,
                             string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
                     }
                 }
@@ -1889,7 +2148,7 @@ Dynamo.Console(hz.ToString());
             DateTime dt2 = DateTime.Now;
             TimeSpan diff = dt2 - dt1;
             int ms = (int)diff.TotalMilliseconds;
-            if((loglevel & 0x1) > 0)
+            if ((loglevel & 0x1) > 0)
                 Log("SceneDrawShape ms=" + ms + ", len=" + screenJson.Length);
 
             if (!bReady || dispObj.HasShutdownStarted) return;
@@ -2368,6 +2627,7 @@ Dynamo.Console(hz.ToString());
         /// <summary>
         /// метод для вызова тестов
         /// </summary>
+        /// <param name="id">id теста</param>
         public static void GraphExample(string id)
         {
             if (!bReady || dispObj.HasShutdownStarted) return;
@@ -2378,5 +2638,68 @@ Dynamo.Console(hz.ToString());
             });
         }
 
+        /// <summary>
+        /// разбить объект на кучу мелких на основе граней
+        /// </summary>
+        /// <param name="ph">объект</param>
+        /// <param name="speed">скорость осколков</param>
+        public static void Explode(Phob ph, double speed = 0)
+        {
+            var shape = ph.Shape;
+            if (shape == null)
+                return;
+            int cnt = shape.lstFac.Count;
+            double cubeVolume = (ph.radius * ph.radius * ph.radius * shape.scaleX * shape.scaleY * shape.scaleZ);
+            double newVolume = (cubeVolume * 0.5) / cnt;
+            double newSize = Math.Exp(Math.Log(newVolume) / 3);
+            System.Drawing.Color clr = shape.clr.GetColor();
+            double x, y, z;
+            foreach (var fac in shape.lstFac)
+            {
+                fac.Center(out x, out y, out z, false);
+                x = ph.x + x * shape.scaleX;
+                y = ph.y + y * shape.scaleY;
+                z = ph.z + z * shape.scaleZ;
+                int id = PhobNew(x, y, z);
+                var hz = PhobGet(id) as Phob;
+                Cube cub = new Cube(newSize, clr.Name);
+                hz.Shape = cub;
+
+                //найти скорость
+                double dLen = Math.Sqrt((x - ph.x) * (x - ph.x) + (y - ph.y) * (y - ph.y) + (z - ph.z) * (z - ph.z));
+                if (dLen > 0)
+                {
+                    dLen = speed / dLen;
+                    hz.v_x = (x - ph.x) * dLen;
+                    hz.v_y = (y - ph.y) * dLen;
+                    hz.v_z = (z - ph.z) * dLen;
+                }
+            }
+
+            Dynamo.PhobDel(ph.Id);
+        }
+
+        /// <summary>
+        /// изменить позицию объекта на основе его скорости
+        /// </summary>
+        /// <param name="DT">шаг времени</param>
+        public static void UpdatePosition(double DT)
+        {
+            foreach (var pair in dicPhob)
+            {
+                var hz = pair.Value;
+                hz.x += hz.v_x * DT;
+                hz.y += hz.v_y * DT;
+                hz.z += hz.v_z * DT;
+            }
+        }
+
+        /// <summary>
+        /// получить словарь объектов
+        /// </summary>
+        public static Dictionary<int, Phob> ScenePhobs()
+        {
+            return dicPhob;
+        }
     }
 }

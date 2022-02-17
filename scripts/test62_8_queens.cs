@@ -2,6 +2,7 @@
 //расставить 8 королев на шахматной доске, чтобы не били друг друга
 //92 из 40320
 using MathPanel;
+using MathPanelExt;
 using System.Net.Sockets;
 using System;
 
@@ -12,6 +13,89 @@ namespace DynamoCode
 {
     public class Script
     {
+        System.Drawing.Color[] clrs =
+        {
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+            System.Drawing.Color.AliceBlue,
+            System.Drawing.Color.Aqua,
+        };
         bool IsHit(int row, int col, int [] pos)
         {
             int j;
@@ -33,6 +117,7 @@ namespace DynamoCode
             Dynamo.Console("test62_8_queens.cs, " + 1 * 2 * 3 * 4 * 5 * 6 * 7 * 8);
             int i, curRow = 0; //текущий ряд
             int[] rowPos = new int[8];//8 рядов на доске
+            int[] rowPosGood = new int[8];//8 рядов на доске
             for (i = 0; i < 8; i++) rowPos[i] = 0;//неопределено
             int res = 0;
             while(curRow >= 0)
@@ -66,6 +151,10 @@ namespace DynamoCode
                         if (res > 100) return;
                         Dynamo.Console("результат " + res);
                         for (i = 0; i < 8; i++) Dynamo.Console((i + 1) + "=" + rowPos[i]);
+                        if( res == 1 )
+                        {
+                            for (i = 0; i < 8; i++) rowPosGood[i] = rowPos[i];
+                        }
                     }
                     else curRow++;
                 }
@@ -73,7 +162,19 @@ namespace DynamoCode
                 {   //сдвиг в текущем ряду
                 }
             }
-            
+
+            string s1 = QuadroEqu.DrawBitmap(8, 8, clrs);
+            string s2 = "{\"options\":{\"x0\": -0.5, \"x1\": 10, \"y0\": -0.7, \"y1\": 10, \"clr\": \"#ff0000\", \"sty\": \"dots\", \"size\":74, \"lnw\": 3, \"wid\": 800, \"hei\": 600 }";
+            string s3 = "";
+            for (i = 0; i < 8; i++)
+            {
+                s3 += ",";
+                s3 += QuadroEqu.DrawPoint(i + 0, rowPosGood[i] - 1.15, "", "circle", "#ff0000", "0.3", "20");
+            }
+
+            s2 += ", \"data\":[" + s1 + s3 + "]}";
+            Dynamo.Console(s2);
+            Dynamo.SceneJson(s2);
         }
     }
 }
