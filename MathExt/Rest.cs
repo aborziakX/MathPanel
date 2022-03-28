@@ -8,7 +8,7 @@ using System.IO;
 namespace MathPanelExt
 {
 	/// <summary>
-	/// класс для запросов через REST
+	/// класс для запросов через REST-протокол и просто к веб-ресурсам
 	/// </summary>
 
 	public class Rest
@@ -18,12 +18,13 @@ namespace MathPanelExt
 		}
 
         /// <summary>
-        /// urlencod
+        /// urlencode кодирование
         /// </summary>
+        /// <param name="str">строка для кодирования</param>
         public static string EncodeString(string str)
         {
-            //maxLengthAllowed .NET < 4.5 = 32765;
-            //maxLengthAllowed .NET >= 4.5 = 65519;
+            //максимальная длина строки .NET < 4.5 = 32765;
+            //максимальная длина строки .NET >= 4.5 = 65519;
             int maxLengthAllowed = 65519;
             StringBuilder sb = new StringBuilder();
             int loops = str.Length / maxLengthAllowed;
@@ -38,12 +39,13 @@ namespace MathPanelExt
             return sb.ToString();
         }
         /// <summary>
-        /// urlencoded decode
+        /// urlencode декодирование
         /// </summary>
+        /// <param name="encodedString">строка для декодирования</param>
         public static string DecodeString(string encodedString)
         {
-            //maxLengthAllowed .NET < 4.5 = 32765;
-            //maxLengthAllowed .NET >= 4.5 = 65519;
+            //максимальная длина строки .NET < 4.5 = 32765;
+            //максимальная длина строки .NET >= 4.5 = 65519;
             int maxLengthAllowed = 65519;
 
             int charsProcessed = 0;
@@ -55,7 +57,7 @@ namespace MathPanelExt
                     ? encodedString.Substring(charsProcessed, maxLengthAllowed)
                     : encodedString.Substring(charsProcessed);
 
-                // If the loop cut an encoded tag (%xx), we cut before the encoded char to not loose the entire char for decoding
+                // если цикл режет тег кодирования (%xx), мы режем раньше тега, чтобы не потерять данные
                 var incorrectStrPos = stringToUnescape.Length == maxLengthAllowed ? stringToUnescape.IndexOf("%", stringToUnescape.Length - 4, StringComparison.InvariantCulture) : -1;
                 if (incorrectStrPos > -1)
                 {
@@ -78,6 +80,7 @@ namespace MathPanelExt
         /// <summary>
         /// GET запрос
         /// </summary>
+        /// <param name="url">веб-адрес ресурса</param>
         public static string Get(string url)
         {
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
@@ -93,6 +96,10 @@ namespace MathPanelExt
         /// <summary>
         /// application/x-www-form-urlencoded POST запрос
         /// </summary>
+        /// <param name="url">веб-адрес ресурса</param>
+        /// <param name="data">данные в запросе</param>
+        /// <param name="user">логин</param>
+        /// <param name="pass">пароль</param>
         public static string Post(string url, string data, string user, string pass)
         {
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
@@ -114,18 +121,18 @@ namespace MathPanelExt
                 req.PreAuthenticate = true;*/
             }
 
-            // Encode the parameters as form data:
+            // Закодировать данные как форму
             byte[] formData = UTF8Encoding.UTF8.GetBytes(data);
             req.ContentLength = formData.Length;
             string result;
 
             try
             {
-                // Send the request:
+                // послать запрос:
                 Stream post = req.GetRequestStream();
                 post.Write(formData, 0, formData.Length);
 
-                // Pick up the response:
+                // получить ответ:
                 HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
                 StreamReader reader = new StreamReader(resp.GetResponseStream());
                 result = reader.ReadToEnd();
@@ -144,12 +151,12 @@ namespace MathPanelExt
         //based on https://stackoverflow.com/questions/1688855/httpwebrequest-c-sharp-uploading-a-file
         public static string Upload(string url, string user, string pass, List<Tuple<string, string, string, bool>> data)
         {
-            //Identificate separator
+            //сепаратор
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
             //Encoding
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
-            //Creation and specification of the request
+            //создать запрос
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
@@ -208,7 +215,7 @@ namespace MathPanelExt
                 rs.Close();
                 rs = null;
 
-                //Get the response
+                //получить ответ
                 wresp = wr.GetResponse();
                 Stream stream2 = wresp.GetResponseStream();
                 StreamReader reader2 = new StreamReader(stream2);

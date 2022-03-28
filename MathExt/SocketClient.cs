@@ -18,6 +18,7 @@ using System.Security.Cryptography;
 
 namespace MathPanelExt
 {
+    public delegate void PerformStatus(string sData);
     public class SocketClient
     {
         static object locker = new object();
@@ -29,15 +30,17 @@ namespace MathPanelExt
 
         public string sSend = "";
         public int nIter = 10;
+        public int iSleep = 100;
         int port;
         string name = "tunnel", host;
-        Socket cliSocket;
+        public Socket cliSocket;
         IPEndPoint proxyEndPoint;
         byte[] buffer = new byte[BUFSIZE];
-        bool running_ = false;
+        public bool running_ = false;
         DateTime dtSess;
         Random rnd = new Random();
         StringBuilder builder = new StringBuilder();
+        public PerformStatus pc_hand = null;
 
         public SocketClient(string _name, string _host, int _port)
         {
@@ -58,7 +61,7 @@ namespace MathPanelExt
             }
 
             proxyEndPoint = new IPEndPoint(proxyIP, port);
-            Log("SocketClient created", 3);
+            Log("SocketClient created", 0);
         }
         void Connect()
         {
@@ -76,7 +79,7 @@ namespace MathPanelExt
             s.SendBufferSize = BUFSIZE;
 
             cliSocket.Connect(proxyEndPoint);
-            Log("SocketClient connected", 3);
+            Log("SocketClient connected", 0);
         }
         public void Run()
         {
@@ -98,7 +101,7 @@ namespace MathPanelExt
                     }
                     byte[] data = Encoding.UTF8.GetBytes(message);
                     cliSocket.Send(data);
-                    Log("sent " + message, 3);
+                    Log("sent " + message, 0);
                     Thread.Sleep(rnd.Next(100));
 
                     // получаем ответ
@@ -110,13 +113,16 @@ namespace MathPanelExt
                         builder.Append(Encoding.UTF8.GetString(buffer, 0, bytes));
                     }
                     while (cliSocket.Available > 0);
-                    Log("от сервера: " + builder.ToString(), 3);
+                    string sData = builder.ToString();
+                    Log("от сервера: " + sData, 0);
 
                     // закрываем сокет
                     cliSocket.Shutdown(SocketShutdown.Both);
                     cliSocket.Close();
 
-                    Thread.Sleep(rnd.Next(100));
+                    if (pc_hand != null) pc_hand(sData);
+
+                    Thread.Sleep(rnd.Next(iSleep));
                 }
             }
             catch (Exception ex)
@@ -159,7 +165,7 @@ namespace MathPanelExt
 
         static void Main2(string[] args)
         {
-            Log("Main started", 3);
+            Log("Main started", 0);
             List<Thread> theList = new List<Thread>();
             List<SocketClient> sockList = new List<SocketClient>();
 
@@ -241,7 +247,7 @@ namespace MathPanelExt
             }
             finally
             {
-                Log("client finished", 3);
+                Log("client finished", 0);
                 Console.WriteLine("Press 'Enter'");
                 Console.ReadLine();
             }

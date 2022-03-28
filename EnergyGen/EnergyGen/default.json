@@ -1,0 +1,38 @@
+{
+  "Generators": [
+    {
+      "Id": 1,
+      "MaxAge": 30,
+      "MaxCapacity": 200,
+      "FuelTypeId": 1,
+      "Fuel2EnergyConversionRate": 20,
+      "Name": "Генератор 1"
+    },
+    {
+      "Id": 2,
+      "MaxAge": 500,
+      "MaxCapacity": 90,
+      "FuelTypeId": 2,
+      "Fuel2EnergyConversionRate": 30,
+      "Name": "Генератор 2"
+    }
+  ],
+  "FuelTotalReserves": [
+    {
+      "Id": 1,
+      "Fuel": 80,
+      "Name": "Уголь"
+    },
+    {
+      "Id": 2,
+      "Fuel": 40,
+      "Name": "Газ"
+    },
+    {
+      "Id": 3,
+      "Fuel": 10,
+      "Name": "Уран"
+    }
+  ],
+  "DemandLevel": 250
+}

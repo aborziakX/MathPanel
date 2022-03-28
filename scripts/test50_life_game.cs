@@ -4,42 +4,47 @@ using MathPanelExt;
 using System.Net.Sockets;
 using System;
 /*
-The game 'Life' was invented by the British mathematician John Conway in 1970. Successfully mimics the behavior of cell colonies.
-It uses only 3 rules, but generates interesting ornaments.
-Rule 1. A dead cell becomes alive if it has land borders with exactly three alive.
-Rule 2. The living cell continues to live, if it borders with two or three live.
-Rule 3. In all other cases, the cell is dead. The living die from lack of food (too many neighbors) or loss of heat (too few neighbors).
-So people who die are alone or live in the crowd.
+Игра 'Жизнь' придумана британским математиком John Conway в 1970 году. Удачно имитирует поведение колоний клеток. 
+Использует всего 3 правила, но генерирует интересные орнаменты.
+Правило 1. Мертвая клетка становится живой, если она граничит ровно с тремя живыми.
+Правило 2. Живая продолжает жить, если граничит с двумя или тремя живыми.
+Правило 3. Во всех остальных случаях клетка является мертвой. Живая умирает от нехватки пищи 
+(слишком много соседей) или потери тепла (слишком мало соседей).
+Так и люди, в одиночку гибнут, в толпе нивелируются.
 */
 
-///assemblies to be added
+///сборки для использования
 ///[DLL]System.dll,System.Xaml.dll,WindowsBase.dll,PresentationFramework.dll,PresentationCore.dll,System.Drawing.dll,System.Net.dll,System.Net.Http.dll,System.Core.dll[/DLL]
 ///
 namespace DynamoCode
 {
     public class Script
     {
-        //randomly init cells
+        //инициализировать область случайным образом
         void Init(int [] arr, Random rnd, int nInit)
         {
             int sz = arr.Length;
-            for (int i = 0; i < sz; i++) arr[i] = 0;//dead
+            for (int i = 0; i < sz; i++) arr[i] = 0;//мертвая
 
             for (int i = 0; i < nInit; i++)
             {
-                arr[rnd.Next(sz)] = 1;//alive
+                //найти случайную позицию
+                arr[rnd.Next(sz)] = 1;//живая
             }
         }
 
-        //add one more alive cell
+        //добавить одну живую клетку
         void addLive(int[] arr, Random rnd)
         {
             int sz = arr.Length;
+            //найти случайную позицию
             int k = rnd.Next(sz);
             arr[k] = 1;
         }
 
-        //update cells color
+        //обновить цвет клеток, arr - текущее состояние,
+        //arrCol - массив цветов для колонии,
+        //clrs - 2 цвета визуализации
         void updateCells(int[] arr, System.Drawing.Color[] arrCol, System.Drawing.Color[] clrs)
         {
             int sz = arr.Length;
@@ -49,63 +54,65 @@ namespace DynamoCode
             }
         }
 
-        //new iteration
+        //новая итерация, arr - текущее состояние,
+        //m - число строк, n - число колонок
+        //arrNeighb - число соседей
         void Iterate(int[] arr, int m, int n, int [] arrNeighb)
         {
             int sz = arr.Length;
             int i, ind;
-            //calculate neighboors
+            //подготовиться к вычислению числа соседей
             for (i = 0; i < sz; i++) arrNeighb[i] = 0;
 
             for (i = 0; i < sz; i++)
-            {   //check all 8 neighboors
+            {   //проверить всех 8 соседей клетки с индексом i
                 //Dynamo.Console("i=" + i);
                 if (i % n == 0)
-                {   //on left border
+                {   //клетка на левой границе
                 }
                 else
-                {   //not most left
-                    ind = i - 1;//left
+                {   //не на левой границе, посмотреть
+                    ind = i - 1;//сосед слева
                     if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
-                    ind = i - 1 - n;//left and top
+                    ind = i - 1 - n;//слева и сверху
                     if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
-                    ind = i - 1 + n;//left and bottom
+                    ind = i - 1 + n;//слева и снизу
                     if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
                 }
 
                 if (i % n == n - 1)
-                {   //on right border
+                {   //на правой границе
                 }
                 else
-                {   //not most right
-                    ind = i + 1;//right
+                {   //не на правой границе, посмотреть
+                    ind = i + 1;//справа
                     if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
-                    ind = i + 1 - n;//right, top
+                    ind = i + 1 - n;//справа и сверху
                     if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
-                    ind = i + 1 + n;//right, bottom
+                    ind = i + 1 + n;//справа и снизу
                     if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
                 }
 
-                //top
+                //сверху
                 ind = i - n;
                 if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
-                //bottom
+                //снизу
                 ind = i + n;
                 if (ind >= 0 && ind < sz && arr[ind] == 1) arrNeighb[i]++;
             }
 
-            //new generation
+            //новая генерация
             for (i = 0; i < sz; i++)
             {
                 if (arr[i] == 0 && arrNeighb[i] == 3)
-                {   //new alive - Rule 1
+                {   //новая живая клетка - Правило 1
                     arr[i] = 1;
                 }
                 else if (arr[i] == 1 && (arrNeighb[i] == 2 || arrNeighb[i] == 3))
-                {   //keep alive - Rule 2
+                {   //живи - Правило 2
                 }
                 else
-                {   //die - Rule 3
+                {   //умри - Правило 3
                     arr[i] = 0;
                 }
             }
@@ -115,64 +122,58 @@ namespace DynamoCode
         {
             Dynamo.Console("test50_life_game");
 
-            //colors
-            System.Drawing.Color[] arrCol = { System.Drawing.Color.Black, System.Drawing.Color.Green };//dead, alive
-            int m = 40; //rows
-            int n = 50; //columns
-            int nInit = 500;    //number of initially alives
-            int sz = m * n;     //table size
-            int[] arr = new int[sz];        //cell state
-            int[] arrNeighb = new int[sz];  //number of neighboors
-                                            //cell colors
+            //цвета: черный - мертвая клетка, зеленый - живая
+            System.Drawing.Color[] arrCol = { System.Drawing.Color.Black, System.Drawing.Color.Green };
+            int m = 40; //число строк
+            int n = 50; //число колонок
+            int nInit = 500;    //начальное число живых клеток
+            int sz = m * n;     //размер таблицы
+            int[] arr = new int[sz];        //массив для состояния клеток
+            int[] arrNeighb = new int[sz];  //массив для числа соседей
+            //массив для цветов
             System.Drawing.Color[] clrs = new System.Drawing.Color[sz];
-            //number of iterations
+            //число итераций
             int NPOINTS = 1000;
-            //the random number generator
+            //генератор случайных чисел
             Random rnd = new Random();
 
-            //define drawing optional parameters: use table (m by n) in canvas 800 by 600
+            //задаем парметры рисования options: используем таблицу (m * n) на канвасе 800 * 600
             string sOpt = "{\"options\":{\"x0\": 0, \"x1\": " + n + ", \"y0\": 0, \"y1\": " + m + ", \"clr\": \"#00ff00\", \"sty\": \"dots\", \"size\":20, \"lnw\": 2, \"wid\": 800, \"hei\": 600 }";
 
-            //initialize the colony
+            //инициализируем колонию
             Init(arr, rnd, nInit);
 
-            //update table colors
+            //обновляем цвета
             updateCells(arr, arrCol, clrs);
-            //Dynamo.Console("init done");
 
-            //loop for desired number
+            //цикл по заданному количеству итераций
             for (int i = 0; i < NPOINTS; i++)
             {
-                //create bitmap code
-                var s1 = MathPanelExt.QuadroEqu.DrawBitmap(m, n, clrs);
-                //Dynamo.Console("quadro done=" + i);
+                //создать код для bitmap
+                var s1 = QuadroEqu.DrawBitmap(m, n, clrs);
 
-                //display
+                //нарисовать
                 var sJson = sOpt + ", \"data\":[" + s1 + "]}";
                 Dynamo.SceneJson(sJson);
-                //Dynamo.Console("json done=" + i);
 
-                //sleep a while
+                //заснуть ненадолго
                 System.Threading.Thread.Sleep(500);
-                //Dynamo.Console("sleep done=" + i);
+                //проверить клавиатуру
                 string resp = Dynamo.KeyConsole;
                 if (resp == "Q")
-                {
+                {   //давай до свидания
                     break;
                 }
                 if (resp == "A")
-                {
+                {   //добавить клетку
                     addLive(arr, rnd);
-                    Dynamo.Console("add 1 done=" + i);
                 }
 
-                //new iteration
+                //следующая итерация
                 Iterate(arr, m, n, arrNeighb);
-                //Dynamo.Console("iter done=" + i);
 
-                //update table
+                //обновляем цвета
                 updateCells(arr, arrCol, clrs);
-                //Dynamo.Console("upd done=" + i);
             }
         }
     }
