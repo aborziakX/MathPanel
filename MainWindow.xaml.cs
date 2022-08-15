@@ -875,6 +875,8 @@ Dynamo.Console(hz.ToString());
                 box = value;
                 if (box != null)
                 {
+                    boxShape = new Cube();//2022-08-15
+                    boxShape.iFill = 2; //ребра
                     boxShape.Reshape(box.x0, box.x1, box.y0, box.y1, box.z0, box.z1);
                     xBoXTrans = -(box.x0 + box.x1) / 2;
                     yBoXTrans = -(box.y0 + box.y1) / 2;
