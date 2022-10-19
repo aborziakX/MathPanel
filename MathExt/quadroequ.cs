@@ -468,6 +468,53 @@ namespace MathPanelExt
 		}
 
 		/// <summary>
+		/// подготовка данных для прямоугольника
+		/// </summary>
+		/// <param name="bFill">true=заливать</param>
+		public static string DrawRect(double x0, double y0, double x1, double y1, bool bFill)
+		{
+			string txt = "", sty = "line", clr = "undefined", rad = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double x = 0, y = 0;
+			for (int i = 0; i <= 4; i++)
+			{
+				if (i == 0)
+				{
+					x = x0;
+					y = y0;
+				}
+				else if (i == 1)
+				{
+					x = x1;
+					y = y0;
+				}
+				else if (i == 2)
+				{
+					x = x1;
+					y = y1;
+				}
+				else if (i == 3)
+				{
+					x = x0;
+					y = y1;
+				}
+				else if (i == 4)
+				{
+					x = x0;
+					y = y0;
+					if (sty == "line")
+						sty = bFill ? "line_endf" : "line_end";
+				}
+				if (i > 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, rad, fontsize,
+					hei, lnw, csk);
+			}
+			return sb.ToString();
+		}
+
+		/// <summary>
 		/// подготовка данных для звезды
 		/// </summary>
 		public static string DrawStar(double rBig, double r0, double x0, double y0, int n, DrawOpt opt = null)
