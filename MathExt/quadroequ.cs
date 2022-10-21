@@ -258,7 +258,7 @@ namespace MathPanelExt
 		/// </summary>
 		static double Bezier3(double x0, double x1, double x2, double x3, double step)
 		{
-			double p0 = Bezier2(x0, x1, x1, step);
+			double p0 = Bezier2(x0, x1, x2, step);
 			double p1 = Bezier2(x1, x2, x3, step);
 			return Bezier1(p0, p1, step);
 		}
