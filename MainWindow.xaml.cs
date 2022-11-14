@@ -2268,7 +2268,7 @@ Dynamo.Console(hz.ToString());
                 //boxShape.Reshape(box.x0, box.x1, box.y0, box.y1, box.z0, box.z1);
                 SceneBox = sc.box;
             }
-            else box = null;
+            else box = null; 
 
             matRotor.Build(XRotor, YRotor, ZRotor);
         }
