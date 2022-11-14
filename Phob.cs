@@ -94,6 +94,7 @@ namespace MathPanel
         public void Dic2List()
         {
             serDic.DictionaryX = dicAttr;
+            if( shape != null ) shape.ResetPhob();
         }
 
         /// <summary>
@@ -104,6 +105,7 @@ namespace MathPanel
             dicAttr.Clear();
             foreach (var pair in serDic.DictionaryX)
                 dicAttr.Add(pair.Key, pair.Value);
+            if (shape != null) shape.SetPhob(this);
         }
 
         /// <summary>
@@ -412,6 +414,11 @@ namespace MathPanel
             this.y1 = y1;
             this.z0 = z0;
             this.z1 = z1;
+        }
+
+        public bool Is1Box()
+        {
+            return (x0 == 0 && x1 == 1 && y0 == 0 && y1 == 1 && z0 == 0 && z1 == 1);
         }
     }
 

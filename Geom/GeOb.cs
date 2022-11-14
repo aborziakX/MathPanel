@@ -355,6 +355,23 @@ namespace MathPanel
             return s;
         }
 
+        public void ResetPhob()
+        {
+            foreach (var f in lstFac)
+            {
+                f.phob = null;
+                f.shape = null;
+            }
+        }
+        public void SetPhob(Phob ph)
+        {
+            foreach (var f in lstFac)
+            {
+                f.phob = ph;
+                f.shape = this;
+            }
+        }
+
         public double XRotor
         {
             get

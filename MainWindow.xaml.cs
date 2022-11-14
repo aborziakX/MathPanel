@@ -1833,7 +1833,7 @@ Dynamo.Console(hz.ToString());
             var data = new StringBuilder();
             string starter = "{{\"data\":[";
             data.AppendFormat(starter);
-
+            
             //показать границы ящика
             if (box != null && bBx) data.Append(BoxEdges());
 
@@ -1957,27 +1957,31 @@ Dynamo.Console(hz.ToString());
 
                     string style = j == fac.Count ? ((((shape.iFill & 1) == 1) && cosfi > 0.0) ? "line_endf" : "line_end") : "line";
 
-                    if (data.Length != 0) data.Append(",");
+                    if (data.Length > starter.Length) data.Append(",");
                     data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\"{6}}}",
                         D2S(vref.x), D2S(vref.y),
                         style, D2S(rad),
                         fac.ColorDarkHtml(fac.dark), title, edges);
+                }
+                if (shape.bDrawNorm)
+                {
+                    //нормали
+                    x1 = x + fac.normal_cam.x * shape.radius * 0.25;
+                    y1 = y + fac.normal_cam.y * shape.radius * 0.25;
+                    z1 = z + fac.normal_cam.z * shape.radius * 0.25;
 
-                    if (shape.bDrawNorm)
-                    {
-                        //нормали
-                        if (data.Length != 0) data.Append(",");
-                        Traslate2Screen(ref x, ref y, ref z, ref radius);
-                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                            D2S(x), D2S(y),
-                            "line", D2S(rad),
-                            clrNormal, "", widNormal);
-                        Traslate2Screen(ref x1, ref y1, ref z1, ref radius);
-                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{7}  {5}\", \"lnw\":\"{6}\"}}",
-                            D2S(x1), D2S(y1),
-                            "line_end", D2S(rad),
-                            clrNormal, Math.Round(cosfi, 3), widNormal, fac.name);
-                    }
+                    if (data.Length > starter.Length) data.Append(",");
+                    Traslate2Screen(ref x, ref y, ref z, ref radius);
+                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
+                        D2S(x), D2S(y),
+                        "line", D2S(rad),
+                        clrNormal, "", widNormal);
+                    
+                    Traslate2Screen(ref x1, ref y1, ref z1, ref radius);
+                    data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{7}  {5}\", \"lnw\":\"{6}\"}}",
+                        D2S(x1), D2S(y1),
+                        "line_end", D2S(rad),
+                        clrNormal, Math.Round(cosfi, 3), widNormal, fac.name);
                 }
             }
 
@@ -2258,11 +2262,14 @@ Dynamo.Console(hz.ToString());
             x_cam_angle = sc.x_cam_angle;
             y_cam_angle = sc.y_cam_angle;
             z_cam = sc.z_cam;
-            if (box != null)
+            if (!sc.box.Is1Box())
             {
-                box.Copy(sc.box.x0, sc.box.x1, sc.box.y0, sc.box.y1, sc.box.z0, sc.box.z1);
-                boxShape.Reshape(box.x0, box.x1, box.y0, box.y1, box.z0, box.z1);
+                //box.Copy(sc.box.x0, sc.box.x1, sc.box.y0, sc.box.y1, sc.box.z0, sc.box.z1);
+                //boxShape.Reshape(box.x0, box.x1, box.y0, box.y1, box.z0, box.z1);
+                SceneBox = sc.box;
             }
+            else box = null;
+
             matRotor.Build(XRotor, YRotor, ZRotor);
         }
 
