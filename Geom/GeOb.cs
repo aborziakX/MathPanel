@@ -292,7 +292,7 @@ namespace MathPanel
         Mat3 matRotor = new Mat3(); //матрица поворота
         //коэффициенты растяжения
         double _scaleX = 1, _scaleY = 1, _scaleZ = 1;
-        bool bNeedTranf = false;
+        bool bNeedTranf = false, bRotateVecDone = false;
 
         public GeOb()
         {
@@ -434,9 +434,11 @@ namespace MathPanel
         {
             matRotor.BuildVec(a1, b1, c1);
             //TODO need real calc
-            xRotor = 0.1;
-            yRotor = 0.1;
-            zRotor = 0.1;
+            xRotor = 0.0;
+            yRotor = 0.0;
+            zRotor = 0.0;
+            bRotateVecDone = true;
+            bNeedTranf = true;
         }
 
         public void Fractal(int n = 1, double weight = 0.33)
@@ -1335,13 +1337,16 @@ namespace MathPanel
             }
         }
 
+        /// <summary>
+        /// трансформировать все грани
+        /// </summary>
         public void Transform()
         {
             if (bNeedTranf == false) return;
 
             if (_vShift.x != 0 || _vShift.y != 0 || _vShift.z != 0 ||
                 xRotor != 0 || yRotor != 0 || zRotor != 0 ||
-                _scaleX != 1 || _scaleY != 1 || _scaleZ != 1)
+                _scaleX != 1 || _scaleY != 1 || _scaleZ != 1 || bRotateVecDone)
             {
                 Vec3 vref;
                 Vec3 vTemp = new Vec3();
@@ -1376,7 +1381,7 @@ namespace MathPanel
                         if (scaleY != 1) vref.y *= scaleY;
                         if (scaleZ != 1) vref.z *= scaleZ;
                         //вращать                    
-                        if (bRot)
+                        if (bRot || bRotateVecDone)
                         {
                             vTemp.Copy(vref.x, vref.y, vref.z);
                             Rotate(vTemp, ref v_new);
@@ -1399,8 +1404,68 @@ namespace MathPanel
                 _scaleX = 1;
                 _scaleY = 1;
                 _scaleZ = 1;
+                bRotateVecDone = false;
             }
             bNeedTranf = false;
+        }
+
+        //2022-11-18
+        /// <summary>
+        /// удалить все грани
+        /// </summary>
+        public void Clear()
+        {
+            lstFac.Clear();
+        }
+
+        /// <summary>
+        /// добавить все грани из GeOb sh
+        /// </summary>
+        /// <param name="sh">геометрический объект</param>
+        /// <param name="bClear">флаг очистки</param>
+        public void AddShape(GeOb sh, bool bClear = true)
+        {
+            lstFac.AddRange(sh.lstFac);
+            if (bClear)
+                sh.Clear();
+        }
+
+        /// <summary>
+        /// шаблон делегата для SetZ
+        /// </summary>
+        public delegate double CalcZFunc(double x, double y);
+
+        /// <summary>
+        /// Установить Z грани на основе делегата
+        /// </summary>
+        /// <param name="dlg">делегат</param>
+        public void SetZ(CalcZFunc dlg)
+        {
+            Vec3 vref;
+            //для каждой грани найти координаты в системе камеры
+            foreach (var fac in lstFac)
+            {
+                for (int j = 0; j < fac.Count && j < 4; j++)
+                {
+                    if (j == 0)
+                    {
+                        vref = fac.v1;
+                    }
+                    else if (j == 1)
+                    {
+                        vref = fac.v2;
+                    }
+                    else if (j == 2)
+                    {
+                        vref = fac.v3;
+                    }
+                    else
+                    {
+                        vref = fac.v4;
+                    }
+                    vref.z = dlg(vref.x, vref.y);
+                }
+            }
         }
     }
 }
