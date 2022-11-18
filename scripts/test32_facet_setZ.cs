@@ -13,7 +13,7 @@ namespace DynamoCode
     {
         double FuncZ(double x, double y)
         {
-            return (x * x - y * y) * 0.1;
+            return (x * x - y * y) * 0.1; 
         }
         public void Execute()
         {
