@@ -30,8 +30,8 @@ namespace DynamoCode
         };
         static double dLink = 20;
         static double dKoefSpring = 0.01;
-        static double dKoefSpeed = 0.9;
-        static double DT = 0.5;
+        static double dKoefSpeed = 0.5;
+        static double DT = 0.15;
 
         static void DrawSprings(List<Tuple<int, int, int>> lstConnect)
         {
@@ -135,8 +135,11 @@ namespace DynamoCode
                     hz.bDrawAsLine = true;
                     Tuple<int, int, int> tup = new Tuple<int, int, int>(arr[i], arr[i + 1], id);
                     lstConnect.Add(tup);
+                    hs.Add(arr[i]);
+                    hs.Add(arr[i + 1]);
                 }
             }
+            Dynamo.Console("arr length=" + arr.Length + ", lstConnect.Count=" + lstConnect.Count);
 
             Dynamo.SceneBox = new Box(0, 40, 0, 40, 0, 40);
             DrawSprings(lstConnect);
@@ -209,7 +212,7 @@ namespace DynamoCode
                 {
                     double ix, iy, iz;
                     Dynamo.SceneImpulse(out ix, out iy, out iz);
-                    Dynamo.Console(Dynamo.SceneEnergy().ToString() + ", ix=" + ix + ", iy=" + iy + ", iz=" + iz);
+                    Dynamo.Console("en=" + Dynamo.SceneEnergy().ToString() + ", ix=" + ix + ", iy=" + iy + ", iz=" + iz);
                 }
                 System.Threading.Thread.Sleep(50); //Мы ждем 1/20 секунду в даном потоке   
             }
