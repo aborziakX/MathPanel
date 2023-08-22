@@ -2634,6 +2634,26 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
+        /// get Canvas Mouse Info
+        /// </summary>
+        public static string GetCanvasMouseInfo()
+        {
+            var s = "";
+            if (!bReady || dispObj.HasShutdownStarted) return "";
+            while (true)
+            {
+                //мы запускаем код в UI потоке
+                dispObj.Invoke(delegate
+                {
+                    s = (string)webConsole.InvokeScript("ext_mouse");
+                });
+                if (s != "") break;
+                System.Threading.Thread.Sleep(100);
+            }
+            return s;
+        }
+
+        /// <summary>
         /// метод для вызова тестов
         /// </summary>
         /// <param name="id">id теста</param>
