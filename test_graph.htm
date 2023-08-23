@@ -72,7 +72,8 @@ function getHeight() {
 }
 var width_x, height_x;
 var xClick = 0, yClick = 0, xMouse = 0, yMouse = 0, xMouseUp = 0, yMouseUp = 0, 
-    b_mouseDown = false, b_clickDone = false;
+        b_mouseDown = false, b_clickDone = false;
+var canvas2;
 function my_onload() {
     width_x = Math.floor( getWidth() ) - 40;
     height_x = Math.floor( getHeight() ) - 60;
@@ -87,21 +88,25 @@ function my_onload() {
     cnv.width = width_x;
     cnv.height = height_x;
 
-    $("#canvas2")
+    canvas2 = $("#canvas2");
+    canvas2
       .mousemove(function (event) {
-        xMouse = event.pageX;
-        yMouse = event.pageY;
+        var po = canvas2.position();
+        xMouse = event.pageX - po.left;
+        yMouse = event.pageY - po.top;
       })
       .mouseup(function (event) {
-        xMouseUp = event.pageX;
-        yMouseUp = event.pageY;
+        var po = canvas2.position();
+        xMouseUp = event.pageX - po.left;
+        yMouseUp = event.pageY - po.top;
         b_mouseDown = false;
         b_clickDone = true;
         //$( "#comment" ).append( "<span style='color:#f00;'>Mouse up.</span>" );
       })
       .mousedown(function(event) {
-        xClick = event.pageX;
-        yClick = event.pageY;
+        var po = canvas2.position();
+        xClick = event.pageX - po.left;
+        yClick = event.pageY - po.top;
         b_mouseDown = true;
         b_clickDone = false;
         //var msg = "Mouse down at " + event.pageX + ", " + event.pageY;

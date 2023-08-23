@@ -85,6 +85,9 @@ Dynamo.Console(hz.ToString());
         static string ext_params = ""; //дополнительный параметр
 
         static bool bOldCode = false;//if true - incorrect order of rotations
+
+        static Engine engine = new Engine();
+
         public static bool BOldCode
         {
             get
@@ -2634,12 +2637,22 @@ Dynamo.Console(hz.ToString());
         }
 
         /// <summary>
-        /// get Canvas Mouse Info
+        /// получить информацию о мыши в канвасе
         /// </summary>
-        public static string GetCanvasMouseInfo()
+        /// <param name="xClick">x позиция клика мыши</param>
+        /// <param name="yClick">y позиция клика мыши</param>
+        /// <param name="xMouse"x позиция мыши</param>
+        /// <param name="yMouse">y позиция мыши</param>
+        /// <param name="xMouseUp">x позиция окончании клика мыши</param>
+        /// <param name="yMouseUp">y позиция окончании клика мыши</param>
+        /// <param name="b_mouseDown">мышь нажата</param>
+        /// <param name="b_clickDone">клик произошел</param>
+        public static bool GetCanvasMouseInfo(ref int xClick, ref int yClick,
+            ref int xMouse, ref int yMouse, ref int xMouseUp, ref int yMouseUp,
+            ref bool b_mouseDown, ref bool b_clickDone)
         {
             var s = "";
-            if (!bReady || dispObj.HasShutdownStarted) return "";
+            if (!bReady || dispObj.HasShutdownStarted) return false;
             while (true)
             {
                 //мы запускаем код в UI потоке
@@ -2647,10 +2660,16 @@ Dynamo.Console(hz.ToString());
                 {
                     s = (string)webConsole.InvokeScript("ext_mouse");
                 });
-                if (s != "") break;
+                if (s != "")
+                {
+                    engine.ParseCanvasMouseInfo(ref s, ref xClick, ref yClick,
+                        ref xMouse, ref yMouse, ref xMouseUp, ref yMouseUp,
+                        ref b_mouseDown, ref b_clickDone);
+                    break;
+                }
                 System.Threading.Thread.Sleep(100);
             }
-            return s;
+            return true;
         }
 
         /// <summary>

@@ -112,6 +112,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Engine.cs" />
     <Compile Include="Geom\Bitmap.cs" />
     <Compile Include="Geom\Cone.cs" />
     <Compile Include="Geom\Cube.cs" />
