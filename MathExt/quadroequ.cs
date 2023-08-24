@@ -301,7 +301,7 @@ namespace MathPanelExt
 		/// заполняет цветами ячейки таблицы типа битмап
 		/// </summary>
 		public static string DrawBitmap(int rows, int cols, System.Drawing.Color[] clrs, 
-			int xShift = 0, int yShift = 0, bool bFromBottom = true)
+			double xShift = 0, double yShift = 0, bool bFromBottom = true)
 		{
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
 

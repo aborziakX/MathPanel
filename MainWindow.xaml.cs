@@ -86,7 +86,7 @@ Dynamo.Console(hz.ToString());
 
         static bool bOldCode = false;//if true - incorrect order of rotations
 
-        static Engine engine = new Engine();
+        //static Engine engine = new Engine();
 
         public static bool BOldCode
         {
@@ -1682,13 +1682,14 @@ Dynamo.Console(hz.ToString());
         /// <summary>
         /// передать JSON данные для визуализации в canvas
         /// </summary>
-        public static void SceneJson(string s_json, bool bSecond = false)
+        public static void SceneJson(string s_json, bool bSecond = false, bool bCons = false)
         {
             if (!bReady || dispObj.HasShutdownStarted) return;
             screenJson = s_json;
             //мы запускаем код в UI потоке
             dispObj.Invoke(delegate
             {
+                if( bCons ) txtConsole.Text += (screenJson + "\r\n");
                 webConsole.InvokeScript("ext_json", screenJson, bSecond);
             });
         }
@@ -2623,13 +2624,15 @@ Dynamo.Console(hz.ToString());
         {
             ext_params = "";
             if (!bReady || dispObj.HasShutdownStarted) return ext_params;
-            while (true)
+            //мы запускаем код в UI потоке
+            dispObj.Invoke(delegate
             {
-                //мы запускаем код в UI потоке
-                dispObj.Invoke(delegate
-                {
-                    ext_params = (string)webConsole.InvokeScript("ext_params");
-                });
+                ext_params = (string)webConsole.InvokeScript("ext_params");
+            });
+            int n = 0;
+            while (n < 10)
+            {
+                n++;
                 if (ext_params != "") break;
                 System.Threading.Thread.Sleep(100);
             }
@@ -2653,16 +2656,18 @@ Dynamo.Console(hz.ToString());
         {
             var s = "";
             if (!bReady || dispObj.HasShutdownStarted) return false;
-            while (true)
+            //мы запускаем код в UI потоке
+            dispObj.Invoke(delegate
             {
-                //мы запускаем код в UI потоке
-                dispObj.Invoke(delegate
-                {
-                    s = (string)webConsole.InvokeScript("ext_mouse");
-                });
+                s = (string)webConsole.InvokeScript("ext_mouse");
+            });
+            int n = 0;
+            while (n < 10)
+            {
+                n++;
                 if (s != "")
                 {
-                    engine.ParseCanvasMouseInfo(ref s, ref xClick, ref yClick,
+                    /*engine.*/ParseCanvasMouseInfo(ref s, ref xClick, ref yClick,
                         ref xMouse, ref yMouse, ref xMouseUp, ref yMouseUp,
                         ref b_mouseDown, ref b_clickDone);
                     break;
