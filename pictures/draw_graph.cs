@@ -22,7 +22,9 @@ s9 = "";
 
 //ребра
 s9 += ("" + MathPanelExt.QuadroEqu.DrawLine(400, 500, 600, 330));//AB
+s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(600, 330, 550, 100));//BC
 s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(550, 100, 250, 100));//CD
+s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(250, 100, 200, 330));//DE
 s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(200, 330, 400, 500));//EA
 s9 += ("," + MathPanelExt.QuadroEqu.DrawPoint(400, 500, "", "line_end"));
 

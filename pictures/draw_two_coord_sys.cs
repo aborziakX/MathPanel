@@ -24,7 +24,7 @@ Cube cub3 = new Cube(10, "Blue");
 cub3.ZRotor = 0.7;
 hz3.Shape = cub3;
 
-//мои оси
+//РјРѕРё РѕСЃРё
 //X
 id = Dynamo.PhobNew(-0, -0, -0);
 var hz = Dynamo.PhobGet(id) as Phob;
@@ -88,6 +88,8 @@ Dynamo.XBoXTrans = 60;
 Dynamo.YBoXTrans = 40;
 Dynamo.ZBoXTrans = -340;
 Dynamo.CameraZ = 100;
+Dynamo.BAxes = true;
+Dynamo.BDrawBox = true;
 
 Dynamo.YRotor = -15 * Math.PI / 180.0;
 Dynamo.XRotor = 15 * Math.PI / 180.0;

@@ -286,6 +286,7 @@ Dynamo.Console(hz.ToString());
             {
                 data = File.ReadAllText(openFileDialog.FileName, Encoding.UTF8);
                 textBlock1.Text = data;
+                this.Title = "MathPanel " + version + " - " + openFileDialog.FileName;
             }
         }
 
@@ -299,6 +300,7 @@ Dynamo.Console(hz.ToString());
             if (openFileDialog.ShowDialog() == true)
             {
                 File.WriteAllText(openFileDialog.FileName, textBlock1.Text, Encoding.UTF8);
+                this.Title = "MathPanel " + version + " - " + openFileDialog.FileName;
             }
         }
 
@@ -368,6 +370,7 @@ Dynamo.Console(hz.ToString());
         {
             string data = File.ReadAllText("template.cs", Encoding.UTF8);
             textBlock1.Text = data;
+            this.Title = "MathPanel " + version + " - ";
         }
 
         //обработчик кнопки "Картинка"

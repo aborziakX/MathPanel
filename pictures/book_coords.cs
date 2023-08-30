@@ -31,6 +31,7 @@ Dynamo.ZRotor = 0.9; //вращаем сначала ось Z против ча�
 Dynamo.XRotor = -1.9; //потом вращаем ось X по часовой стрелке
 Dynamo.YRotor = 0.0;
 //Dynamo.BOldCode = true;
+Dynamo.BAxes = false;
 Dynamo.SceneDraw(); //рисовать сцену
 
 //return;

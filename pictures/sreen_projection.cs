@@ -37,6 +37,7 @@ double x2 = xCenter - widScreen2 * sqrt2_2;
 double y2 = yCenter + widScreen2 * sqrt2_2;
 s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(x2, y2 - widScreen2, x2, y2 + widScreen2));//снизу вверх
 s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(x2, y2 + widScreen2, x1, y1 + widScreen2));//замыкаем
+s9 += ("," + MathPanelExt.QuadroEqu.DrawLine(x2, y2 - widScreen2, x1, y1 - widScreen2));//замыкаем
 
 s10 = string.Format(sOptFormat, "#ffffff", "1");
 s10 += ", \"data\":[" + s9 + "]}";

@@ -16,6 +16,7 @@ Dynamo.BDrawBox = false;
 Dynamo.ZBoXTrans = 0.5;
 Dynamo.XBoXTrans = 0.4;
 Dynamo.CameraZ = 50;
+Dynamo.BAxes = false;
 Dynamo.SceneDrawShape(true);
 
 for(int i = 0; i< 1000; i++)
