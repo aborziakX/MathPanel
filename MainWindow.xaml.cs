@@ -83,6 +83,7 @@ Dynamo.Console(hz.ToString());
         static int loglevel = 0; //уровень логирования
         static string canvasBg = "#000000"; //фон канваса
         static string ext_params = ""; //дополнительный параметр
+        static string sConsoleText = ""; //текст в консоли
 
         static bool bOldCode = false;//if true - incorrect order of rotations
 
@@ -631,7 +632,11 @@ Dynamo.Console(hz.ToString());
             //мы запускаем код в UI потоке
             dispObj.Invoke(delegate
             {
-                if (bReady) txtConsole.Text += (s + (bNewLine ? "\r\n" : ""));
+                if (bReady)
+                {
+                    sConsoleText += (s + (bNewLine ? "\r\n" : ""));
+                    txtConsole.Text = sConsoleText;
+                }
             });
         }
 
@@ -645,8 +650,22 @@ Dynamo.Console(hz.ToString());
             //мы запускаем код в UI потоке
             dispObj.Invoke(delegate
             {
-                if (bReady) txtConsole.Text = "";
+                if (bReady)
+                {
+                    sConsoleText = "";
+                    txtConsole.Text = "";
+                }
             });
+        }
+        /// <summary>
+        /// получить текст в окне сообщений
+        /// </summary>
+        public static string ConsoleText
+        {
+            get
+            {
+                return sConsoleText;
+            }
         }
 
         /// <summary>
@@ -1692,7 +1711,11 @@ Dynamo.Console(hz.ToString());
             //мы запускаем код в UI потоке
             dispObj.Invoke(delegate
             {
-                if( bCons ) txtConsole.Text += (screenJson + "\r\n");
+                if (bCons)
+                {
+                    sConsoleText += (screenJson + "\r\n");
+                    txtConsole.Text = sConsoleText;
+                }
                 webConsole.InvokeScript("ext_json", screenJson, bSecond);
             });
         }

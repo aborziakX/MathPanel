@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterForm", "MeterForm\Mete
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathPanelCore", "MathPanelCore\MathPanelCore\MathPanelCore.csproj", "{CCDFE40C-1A5E-4FA2-AFBD-849C3BE027FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "Test\test\test.csproj", "{E0A2EC14-FA08-4B32-94E6-CAA6C49A645A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{CCDFE40C-1A5E-4FA2-AFBD-849C3BE027FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCDFE40C-1A5E-4FA2-AFBD-849C3BE027FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCDFE40C-1A5E-4FA2-AFBD-849C3BE027FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0A2EC14-FA08-4B32-94E6-CAA6C49A645A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0A2EC14-FA08-4B32-94E6-CAA6C49A645A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0A2EC14-FA08-4B32-94E6-CAA6C49A645A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0A2EC14-FA08-4B32-94E6-CAA6C49A645A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
