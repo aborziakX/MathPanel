@@ -36,6 +36,8 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,8 +48,21 @@
   <ItemGroup>
     <Compile Include="Engine.cs" />
     <Compile Include="EngineScript.cs" />
+    <Compile Include="Geom\Bitmap.cs" />
+    <Compile Include="Geom\Cone.cs" />
+    <Compile Include="Geom\Cube.cs" />
+    <Compile Include="Geom\Cylinder.cs" />
+    <Compile Include="Geom\GeOb.cs" />
+    <Compile Include="Geom\OneFacet.cs" />
+    <Compile Include="Geom\Pipe.cs" />
+    <Compile Include="Geom\RadiusVar.cs" />
+    <Compile Include="Geom\Sphere.cs" />
+    <Compile Include="Geom\Tetra.cs" />
+    <Compile Include="Geom\Tor.cs" />
     <Compile Include="Geom\Vectors.cs" />
     <Compile Include="MathPanelExt\DSP.cs" />
+    <Compile Include="MathPanelExt\Rest.cs" />
+    <Compile Include="Phob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
