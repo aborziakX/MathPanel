@@ -266,7 +266,7 @@ namespace DynamoCode
 
         public void Execute()
         {
-            Dynamo.Console("Script started!");
+            Dynamo.Console("Script started! Нажать 'q' для завершения");
             //Dynamo.Scriplet("test21_springs_runge", "Шары на пружинах");
 
             Dynamo.SceneClear();

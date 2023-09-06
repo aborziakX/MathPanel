@@ -72,21 +72,21 @@ namespace MathPanel
                     for (int i = 0; i < files1.Length; i++)
                     {
                         string data = File.ReadAllText(files1[i], Encoding.UTF8);
-                        sConsoleText = "";
+                        ConsoleTextClear();
                         Process(data);
                         if (my_thread.IsAlive)
                         {
                             if (!my_thread.Join(20000))
                             {   // or an agreed resonable time
-                                System.Console.WriteLine("sConsoleText1=" + sConsoleText);
+                                System.Console.WriteLine("sConsoleText1=" + ConsoleText);
                             }
-                            else System.Console.WriteLine("sConsoleText2=" + sConsoleText);
+                            else System.Console.WriteLine("sConsoleText2=" + ConsoleText);
                         }
-                        else System.Console.WriteLine("sConsoleText3=" + sConsoleText);
+                        else System.Console.WriteLine("sConsoleText3=" + ConsoleText);
 
                         string f = files1[i].Replace(script_dir, must_dir) + ".txt";
                         string res = File.ReadAllText(f, Encoding.UTF8);
-                        if (res == sConsoleText)
+                        if (res == ConsoleText)
                         {
                             System.Console.WriteLine("success " + files1[i]);
                         }
@@ -101,19 +101,19 @@ namespace MathPanel
                     for (int i = 0; i < files1.Length; i++)
                     {
                         string data = File.ReadAllText(files1[i], Encoding.UTF8);
-                        sConsoleText = "";
+                        ConsoleTextClear();
                         Process(data);
                         if (my_thread.IsAlive)
                         {
                             if (!my_thread.Join(20000))
                             {   // or an agreed resonable time
-                                System.Console.WriteLine("sConsoleText1=" + sConsoleText);
+                                System.Console.WriteLine("sConsoleText1=" + ConsoleText);
                             }
-                            else System.Console.WriteLine("sConsoleText2=" + sConsoleText);
+                            else System.Console.WriteLine("sConsoleText2=" + ConsoleText);
                         }
-                        else System.Console.WriteLine("sConsoleText3=" + sConsoleText);
+                        else System.Console.WriteLine("sConsoleText3=" + ConsoleText);
                         string f = files1[i].Replace(script_dir, must_dir) + ".txt";
-                        File.WriteAllText(f, sConsoleText, Encoding.UTF8);
+                        File.WriteAllText(f, ConsoleText, Encoding.UTF8);
                     }
                 }
             } 
@@ -129,7 +129,8 @@ namespace MathPanel
         // методы аналогичные в MainWindow.xaml.cs , использующие dispObj
         public static void Console(string s, bool bNewLine = true)
         {
-            sConsoleText += (s + (bNewLine ? "\r\n" : ""));
+            sbConsoleText.Append(s); 
+            if(bNewLine) sbConsoleText.Append("\r\n");
             System.Console.WriteLine(s);
         }
 

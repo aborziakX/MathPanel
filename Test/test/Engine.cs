@@ -3,6 +3,7 @@
 //2020-2023, Andrei Borziak
 //MathPanel (математическая панель) для работы со скриптами, написанными на C#.
 //Область применения – моделирование процессов и визуализация.
+//В этом файле основная часть кода движка (годится для Core)
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace MathPanel
         readonly static Dictionary<int, Phob> dicPhob = new Dictionary<int, Phob>(); //словарь физических объектов
         static bool bReady = false; //признак успешной инициализации
         static string keyConsole = ""; //ввод с клавиатуры
-        static string sConsoleText = ""; //текст в консоли
+        static private StringBuilder sbConsoleText = new StringBuilder(); //текст в консоли
         static double z_cam = 100;  //z-позиция камеры
         static double x_cam_angle = 1.5;  //угол камеры по горизонтали
         static double y_cam_angle = 1.5;  //угол камеры по вертикали
@@ -71,15 +72,29 @@ namespace MathPanel
         /// преобразовать вещественное число в строку с точностью 4 знака после запятой
         /// </summary>
         /// <param name="d">число</param>
-        public static string D2S(double d)
+        /// <param name="prec">число знаков после запятой</param>
+        public static string D2S(double d, int prec = 4)
         {   //F4
-            string s = d.ToString("G4", CultureInfo.InvariantCulture.NumberFormat);
+            string format = "G4";
+            if( prec >= 0 && prec <= 16 && prec != 4) format = "G" + prec;
+            string s = d.ToString(format, CultureInfo.InvariantCulture.NumberFormat);
             if (s.Contains("NaN"))
             {
                 int kk = 0;
             }
             return s;
         }
+
+        /// <summary>
+        /// преобразовать строку в вещественное число
+        /// </summary>
+        /// <param name="s">строка</param>
+        public static double ToDouble(string s)
+        {
+            return Double.Parse(s.Replace(",", "."),
+                System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+        }
+
         /// <summary>
         /// получить текст в окне сообщений
         /// </summary>
@@ -87,9 +102,19 @@ namespace MathPanel
         {
             get
             {
-                return sConsoleText;
+                return sbConsoleText.ToString();
             }
         }
+
+        /// <summary>
+        /// очистить текст из окна сообщений
+        /// </summary>
+        public static void ConsoleTextClear()
+        {
+            sbConsoleText.Clear();
+        }
+
+        /// 
         /// <summary>
         /// логирование
         /// </summary>
@@ -1999,6 +2024,71 @@ namespace MathPanel
         public static Dictionary<int, Phob> ScenePhobs()
         {
             return dicPhob;
+        }
+
+        /// <summary>
+        /// получить информацию о мыши в канвасе
+        /// </summary>
+        /// <param name="_info">строка с информацией</param>
+        /// <param name="_xClick">x позиция клика мыши</param>
+        /// <param name="_yClick">y позиция клика мыши</param>
+        /// <param name="_xMouse"x позиция мыши</param>
+        /// <param name="_yMouse">y позиция мыши</param>
+        /// <param name="_xMouseUp">x позиция окончании клика мыши</param>
+        /// <param name="_yMouseUp">y позиция окончании клика мыши</param>
+        /// <param name="_b_mouseDown">мышь нажата</param>
+        /// <param name="_b_clickDone">клик произошел</param>
+        public static void ParseCanvasMouseInfo(ref string _info, ref int _xClick, ref int _yClick,
+            ref int _xMouse, ref int _yMouse, ref int _xMouseUp, ref int _yMouseUp,
+            ref bool _b_mouseDown, ref bool _b_clickDone)
+        {
+            var arr = _info.Split(';');
+            foreach (var s in arr)
+            {
+                if (s == "") continue;
+                var arr2 = s.Split('=');
+                if (arr2.Length != 2) continue;
+                if (arr2[0] == "xClick")
+                {
+                    _xClick = (int)Math.Round(ToDouble(arr2[1]), 0);
+                    //xClick = _xClick;
+                }
+                else if (arr2[0] == "yClick")
+                {
+                    _yClick = (int)Math.Round(ToDouble(arr2[1]), 0);
+                    //yClick = _yClick;
+                }
+                else if (arr2[0] == "xMouse")
+                {
+                    _xMouse = (int)Math.Round(ToDouble(arr2[1]), 0);
+                    //xMouse = _xMouse;
+                }
+                else if (arr2[0] == "yMouse")
+                {
+                    _yMouse = (int)Math.Round(ToDouble(arr2[1]), 0);
+                    //yMouse = _yMouse;
+                }
+                else if (arr2[0] == "xMouseUp")
+                {
+                    _xMouseUp = (int)Math.Round(ToDouble(arr2[1]), 0);
+                    //xMouseUp = xMouseUp;
+                }
+                else if (arr2[0] == "yMouseUp")
+                {
+                    _yMouseUp = (int)Math.Round(ToDouble(arr2[1]), 0);
+                    //yMouseUp = _yMouseUp;
+                }
+                else if (arr2[0] == "b_mouseDown")
+                {
+                    _b_mouseDown = bool.Parse(arr2[1]);
+                    //b_mouseDown = _b_mouseDown;
+                }
+                else if (arr2[0] == "b_clickDone")
+                {
+                    _b_clickDone = bool.Parse(arr2[1]);
+                    //b_clickDone = _b_clickDone;
+                }
+            }
         }
     }
 }
