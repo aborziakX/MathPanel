@@ -1567,15 +1567,19 @@ namespace MathPanel
                 if (thr != my_thread && thr.IsAlive) thr.Abort();
             }
             dicPhob.Clear();
+            Phob.ResetCounter();
             //смещение ящика в системе камеры
             xBoXTrans = 0;
             yBoXTrans = 0;
             zBoXTrans = -100;
-            xRotor = -1.50899693899575;// -75 * Math.PI / 180.0; //вращение ящика вокруг оси X
-            yRotor = -0.0853981633974484;// - 45 * Math.PI / 180.0; //вращение ящика вокруг оси Y
+            xRotor = -1.409; //-1.50899693899575;// -75 * Math.PI / 180.0; //вращение ящика вокруг оси X
+            yRotor = 0.115; //-0.0853981633974484;// - 45 * Math.PI / 180.0; //вращение ящика вокруг оси Y
             zRotor = 0.1;//0; //вращение ящика вокруг оси Z
             matRotor.Build(XRotor, YRotor, ZRotor);
             screenJson = "";
+            bDrawBox = true; //признак рисования ящика
+            bAxes = true;
+            CameraZ = 100;
         }
 
         /// <summary>

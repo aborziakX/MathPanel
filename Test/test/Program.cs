@@ -17,6 +17,7 @@ namespace MathPanel
         static string script_dir = ""; //script dir
         static string must_dir = ""; //must dir
         static string mode = "0"; //0-test, 1-generate
+        static string verbose = "0";
         static void Main(string[] args)
         {
             //чтение конфигурации
@@ -57,6 +58,9 @@ namespace MathPanel
             s = ConfigurationManager.AppSettings["mode"];
             if (!string.IsNullOrEmpty(s))
                 mode = s;
+            s = ConfigurationManager.AppSettings["verbose"];
+            if (!string.IsNullOrEmpty(s))
+                verbose = s;
 
             System.Console.WriteLine("test started " + mode + "," + script_dir + "," + must_dir);
 
@@ -71,6 +75,7 @@ namespace MathPanel
                 {   //0-test
                     for (int i = 0; i < files1.Length; i++)
                     {
+                        System.Console.WriteLine(files1[i]);
                         string data = File.ReadAllText(files1[i], Encoding.UTF8);
                         ConsoleTextClear();
                         Process(data);
@@ -78,11 +83,11 @@ namespace MathPanel
                         {
                             if (!my_thread.Join(20000))
                             {   // or an agreed resonable time
-                                System.Console.WriteLine("sConsoleText1=" + ConsoleText);
+                                if (verbose == "1") System.Console.WriteLine("sConsoleText1=" + ConsoleText);
                             }
-                            else System.Console.WriteLine("sConsoleText2=" + ConsoleText);
+                            else if (verbose == "1") System.Console.WriteLine("sConsoleText2=" + ConsoleText);
                         }
-                        else System.Console.WriteLine("sConsoleText3=" + ConsoleText);
+                        else if (verbose == "1") System.Console.WriteLine("sConsoleText3=" + ConsoleText);
 
                         string f = files1[i].Replace(script_dir, must_dir) + ".txt";
                         string res = File.ReadAllText(f, Encoding.UTF8);
@@ -100,6 +105,7 @@ namespace MathPanel
                 {   //1-generate
                     for (int i = 0; i < files1.Length; i++)
                     {
+                        System.Console.WriteLine(files1[i]);
                         string data = File.ReadAllText(files1[i], Encoding.UTF8);
                         ConsoleTextClear();
                         Process(data);
@@ -107,11 +113,11 @@ namespace MathPanel
                         {
                             if (!my_thread.Join(20000))
                             {   // or an agreed resonable time
-                                System.Console.WriteLine("sConsoleText1=" + ConsoleText);
+                                if (verbose == "1") System.Console.WriteLine("sConsoleText1=" + ConsoleText);
                             }
-                            else System.Console.WriteLine("sConsoleText2=" + ConsoleText);
+                            else if (verbose == "1") System.Console.WriteLine("sConsoleText2=" + ConsoleText);
                         }
-                        else System.Console.WriteLine("sConsoleText3=" + ConsoleText);
+                        else if (verbose == "1") System.Console.WriteLine("sConsoleText3=" + ConsoleText);
                         string f = files1[i].Replace(script_dir, must_dir) + ".txt";
                         File.WriteAllText(f, ConsoleText, Encoding.UTF8);
                     }
@@ -123,6 +129,7 @@ namespace MathPanel
                 System.Console.WriteLine(zz);
                 Log(zz);
             }
+            System.Console.WriteLine("test finished, press Enter");
             System.Console.ReadKey();
         }
 
@@ -131,7 +138,7 @@ namespace MathPanel
         {
             sbConsoleText.Append(s); 
             if(bNewLine) sbConsoleText.Append("\r\n");
-            System.Console.WriteLine(s);
+            if(verbose == "1") System.Console.WriteLine(s);
         }
 
         public static void SceneDraw(bool bCons = false)
@@ -144,6 +151,11 @@ namespace MathPanel
         {
             SceneDrawShapeHelper(bBx, bCons);
             Console(screenJson);
+        }
+
+        public static void SceneJson(string s_json, bool bSecond = false, bool bCons = false)
+        {
+            Console(s_json);
         }
     }
 }

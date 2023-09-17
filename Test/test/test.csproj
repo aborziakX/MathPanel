@@ -61,6 +61,7 @@
     <Compile Include="Geom\Tor.cs" />
     <Compile Include="Geom\Vectors.cs" />
     <Compile Include="MathPanelExt\DSP.cs" />
+    <Compile Include="MathPanelExt\quadroequ.cs" />
     <Compile Include="MathPanelExt\Rest.cs" />
     <Compile Include="Phob.cs" />
     <Compile Include="Program.cs" />

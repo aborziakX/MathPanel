@@ -1,4 +1,5 @@
-﻿Vec3 vX = new Vec3(1, 0, 0);
+﻿Dynamo.SceneClear();
+Vec3 vX = new Vec3(1, 0, 0);
 Vec3 vY = new Vec3(0, 1, 0);
 //векторное произведение, получаем единичный вектор вдоль Z
 Vec3 vZ = Vec3.Product(vX, vY);

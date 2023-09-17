@@ -89,6 +89,14 @@ namespace MathPanel
         }
 
         /// <summary>
+        /// сбросить счетчик уникальных идентификаторов
+        /// </summary>
+        public static void ResetCounter()
+        {
+            id_counter = 0;
+        }
+
+        /// <summary>
         /// загрузить словарь в объект для сериализации
         /// </summary>
         public void Dic2List()
