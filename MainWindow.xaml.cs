@@ -285,26 +285,29 @@ Dynamo.Console(hz.ToString());
                 {
                     Console(string.Format("ERROR {0}", err.ErrorText));
                 }
-                /* //тест
-                Console(string.Format("Try Assembly:"));
-                Assembly assembly = Assembly.LoadFile(outputAssembly);
-                Type type = assembly.GetType("MathPanelExt.QuadroEqu");
-                MethodInfo method = type.GetMethod("Solve");
-                double x1 = 0, x2 = 0;
-                object[] pars = new object[5];
-                pars[0] = 1.0;
-                pars[1] = 0.0;
-                pars[2] = -1.0;
-                pars[3] = null;
-                pars[4] = null;
-                object res = method.Invoke(null, pars);
-                //bool blResult = (bool)res;
-                //if (blResult)
+                if (sourceDll.Contains("QuadroEquDemo"))
                 {
-                    x1 = (double)pars[3];
-                    x2 = (double)pars[4];
+                    //тест
+                    Console(string.Format("Try Assembly:"));
+                    Assembly assembly = Assembly.LoadFile(outputAssembly);
+                    Type type = assembly.GetType("MathPanelExt.QuadroEquDemo");
+                    MethodInfo method = type.GetMethod("Solve");
+                    double x1 = 0, x2 = 0;
+                    object[] pars = new object[5];
+                    pars[0] = 1.0;
+                    pars[1] = 0.0;
+                    pars[2] = -1.0;
+                    pars[3] = null;
+                    pars[4] = null;
+                    object res = method.Invoke(null, pars);
+                    //bool blResult = (bool)res;
+                    //if (blResult)
+                    {
+                        x1 = (double)pars[3];
+                        x2 = (double)pars[4];
+                    }
+                    Console(string.Format("x1 {0}, x2 {1}", x1, x2));
                 }
-                Console(string.Format("x1 {0}, x2 {1}", x1, x2));*/
             }
             catch (Exception ex) { Console(ex.ToString()); }
             return;

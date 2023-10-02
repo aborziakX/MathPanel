@@ -7,9 +7,9 @@ namespace MathPanelExt
 	/// class for solving the quadratic equation
 	/// </summary>
 
-	public class QuadroEqu
+	public class QuadroEquDemo
 	{
-		public QuadroEqu()
+		public QuadroEquDemo()
 		{
 		}
 		/// <summary>

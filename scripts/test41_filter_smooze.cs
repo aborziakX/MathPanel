@@ -17,7 +17,7 @@ namespace DynamoCode
             Dynamo.Console("test41_filter_control");
             //Dynamo.Scriplet("test41_filter_control", "Красно-синее небо");
             int nStars = 40;
-            string sDir = AppDomain.CurrentDomain.BaseDirectory;
+            string sDir = @"C:\c_devel\images\";//AppDomain.CurrentDomain.BaseDirectory;
             string path = sDir + "world1960.jpg";
 
             List<Tuple<int, int, double>> fil = new List<Tuple<int, int, double>>();
