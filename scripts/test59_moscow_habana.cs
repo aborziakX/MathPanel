@@ -21,7 +21,7 @@ namespace DynamoCode
             var hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.Console(hz.ToString());
 
-            var bm = new BitmapSimple(@"world1960.jpg");
+            var bm = new BitmapSimple(@"C:\c_devel\images\world1960.jpg");
             bool bMap = false;
             var t4 = new Sphere(20, "Yellow", bMap ? 200 : 20);//20 - diameter
             if( bMap ) t4.SetBitmap(bm);

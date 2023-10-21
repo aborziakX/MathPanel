@@ -140,6 +140,7 @@
   <ItemGroup>
     <Compile Include="MathExt\DB.cs" />
     <Compile Include="MathExt\DSP.cs" />
+    <Compile Include="MathExt\FileSystemClean.cs" />
     <Compile Include="MathExt\GradientSearch.cs" />
     <Compile Include="MathExt\quadroequ.cs" />
     <Compile Include="MathExt\Rest.cs" />
