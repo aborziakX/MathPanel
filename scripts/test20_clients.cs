@@ -28,6 +28,8 @@ namespace DynamoCode
             int port = 3345; //порт связи
             int nIter = 10; //число итераций
             int nClients = 300; //число клиентов
+            SocketClient.loglevel = 3;
+
             //список потоков
             List<Thread> theList = new List<Thread>();
             //список клиентов

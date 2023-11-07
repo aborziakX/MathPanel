@@ -312,7 +312,15 @@ namespace MathPanelExt
             //read a new message
             StateObject newstate = new StateObject();
             newstate.workSocket = handler;
-            handler.BeginReceive(newstate.buffer, 0, StateObject.BUFSIZE, 0, new AsyncCallback(readCallback), newstate);
+            try
+            {
+                handler.BeginReceive(newstate.buffer, 0, StateObject.BUFSIZE, 0, new AsyncCallback(readCallback), newstate);
+            }
+            catch (Exception)
+            {
+                handler.Close();
+                return;
+            }
         }
 
         // Checks if the socket is connected

@@ -76,6 +76,7 @@ namespace DynamoCode
                 SocketServer.Log(Thread.CurrentThread.ManagedThreadId + ", cmd=" + cmd, 3);
                 mmm++;
                 toSend = mmm + toSend + sEnd;
+                SocketServer.Log("toSend=" + toSend);
                 //добавляем в словарь код клиента (ключ) и время (значение)
                 AddKeyValue(cmd, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
@@ -148,7 +149,8 @@ namespace DynamoCode
 
                 //if (step % 3== 0)
                 //Dynamo.Console("*", false);
-                Dynamo.Console("Нажать 'q' для завершения");
+                if (step % 30 == 0)
+                    Dynamo.Console("Нажать 'q' для завершения");
                 //дать отдохнуть потоку 1 секунду
                 System.Threading.Thread.Sleep(1000);
                 step++;

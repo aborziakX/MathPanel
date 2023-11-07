@@ -24,7 +24,7 @@ namespace MathPanelExt
         static object locker = new object();
         static int BUFSIZE = 4096;
         static string sLogFile = "socket_client.log";
-        static int loglevel = 0;
+        public static int loglevel = 0;
 
         static string test1 = "GET / HTTP/1.1\r\nHost: {0}\r\n\r\n";
 

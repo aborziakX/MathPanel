@@ -95,10 +95,12 @@ namespace MathPanelExt
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
 			double step = (fi1 - fi0) / n;
 			double fi = fi0;
+			double x, y;
+
 			for (int i = 0; i <= n; i++, fi += step)
 			{
-				var x = x0 + a * Math.Cos(fi);
-				var y = y0 + b * Math.Sin(fi);
+				x = x0 + a * Math.Cos(fi);
+				y = y0 + b * Math.Sin(fi);
 				if (opt != null) opt.Transform(ref x, ref y);
 				if (i == n && sty == "line")
 					sty = bFill ? "line_endf" : "line_end";
@@ -106,6 +108,102 @@ namespace MathPanelExt
 				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
 					hei, lnw, csk);
 			}
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// подготовка данных для сектора эллипса
+		/// </summary>
+		/// <param name="bFill">true=заливать</param>
+		public static string DrawSector(double a, double b, double x0, double y0, double fi0, double fi1, int n, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double step = (fi1 - fi0) / n;
+			double fi = fi0;
+
+			double x, y;
+			//движение из центра
+			x = x0;
+			y = y0;
+			if (opt != null) opt.Transform(ref x, ref y);
+			sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+
+			for (int i = 0; i <= n; i++, fi += step)
+			{
+				x = x0 + a * Math.Cos(fi);
+				y = y0 + b * Math.Sin(fi);
+				sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+			}
+
+			//движение в центр
+			x = x0;
+			y = y0;
+			if (opt != null) opt.Transform(ref x, ref y);
+			if (sty == "line")
+				sty = bFill ? "line_endf" : "line_end";
+			sb.Append(",");
+			sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// подготовка данных для "пирога"
+		/// </summary>
+		public static string DrawPie(double a, double b, double x0, double y0,  
+			double[] aData, string[] aClr, string[] aText, DrawOpt opt = null)
+		{
+			int le1 = aData.Length, i;
+			int le2 = aClr.Length;
+			int le3 = aText.Length;
+			if (le1 != le2 || le1 != le3) return "";
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+			double sum = 0.0;
+			for (i = 0; i < aData.Length; i++)
+			{
+				sum += aData[i];
+			}
+
+			double fi = 0, fi_0 = 0, x, y, delta = 2 * b / aData.Length;
+			for (i = 0; i < aData.Length; i++)
+			{
+				fi += (2 * Math.PI * aData[i]) / sum;
+				int n = (int)((60 * aData[i]) / sum);
+				if( i > 0 ) sb.Append(",");
+				if (opt != null) opt.clr = aClr[i];
+				sb.Append(DrawSector(a, b, x0, y0, fi_0, fi, n, opt));
+				fi_0 = fi;
+			}
+
+			//легенда
+			x = x0 + a + 1;
+			y = y0 + b - 1;
+			for (i = 0; i < aData.Length; i++)
+			{
+				sb.Append(",");
+				sb.Append(DrawPoint(x, y, aText[i], "text", aClr[i], "5", "24"));
+				y -= delta;
+			}
+
 			return sb.ToString();
 		}
 
