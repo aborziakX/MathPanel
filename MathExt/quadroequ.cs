@@ -663,5 +663,64 @@ namespace MathPanelExt
 			}
 			return sb.ToString();
 		}
+
+		public static string DrawRotatedRect(double x0, double y0, double width, double height, double angleDegrees, bool bFill = false, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", rad = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") rad = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double angleRadians = angleDegrees * (Math.PI / 180.0);
+
+			for (int i = 0; i <= 4; i++)
+			{
+				double rectX, rectY;
+
+				if (i == 0)
+				{
+					rectX = x0;
+					rectY = y0;
+				}
+				else if (i == 1)
+				{
+					rectX = x0 + width * Math.Cos(angleRadians);
+					rectY = y0 + width * Math.Sin(angleRadians);
+				}
+				else if (i == 2)
+				{
+					rectX = x0 + width * Math.Cos(angleRadians) - height * Math.Sin(angleRadians);
+					rectY = y0 + width * Math.Sin(angleRadians) + height * Math.Cos(angleRadians);
+				}
+				else if (i == 3)
+				{
+					rectX = x0 - height * Math.Sin(angleRadians);
+					rectY = y0 + height * Math.Cos(angleRadians);
+				}
+				else // i == 4
+				{
+					rectX = x0;
+					rectY = y0;
+					if (sty == "line")
+						sty = bFill ? "line_endf" : "line_end";
+				}
+
+				if (opt != null) opt.Transform(ref rectX, ref rectY);
+				if (i > 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(rectX), Dynamo.D2S(rectY), txt, sty, clr, rad, fontsize,
+					hei, lnw, csk);
+			}
+
+			return sb.ToString();
+		}
 	}
 }
