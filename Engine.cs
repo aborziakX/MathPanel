@@ -1560,7 +1560,7 @@ namespace MathPanel
         /// <summary>
         /// удалить все Phob объекты со сцены
         /// </summary>
-        public static void SceneClear()
+        public static void SceneClear(bool bConsoleClear = true)
         {
             foreach (var thr in lstThr)
             {
@@ -1580,6 +1580,7 @@ namespace MathPanel
             bDrawBox = true; //признак рисования ящика
             bAxes = true;
             CameraZ = 100;
+            if (bConsoleClear) ConsoleClear();
         }
 
         /// <summary>

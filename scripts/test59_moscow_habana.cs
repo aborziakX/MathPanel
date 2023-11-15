@@ -16,6 +16,9 @@ namespace DynamoCode
         public void Execute()
         {
             Dynamo.SceneClear();
+            //ящик повернут относительно камеры, ось Z вверх, ось X вправо
+            double dRad = 10.5;
+
             int id = Dynamo.PhobNew(0, 0, 0);
             Dynamo.Console(id.ToString());
             var hz = Dynamo.PhobGet(id) as Phob;
@@ -27,42 +30,78 @@ namespace DynamoCode
             if( bMap ) t4.SetBitmap(bm);
             else t4.iFill = 2;//edges
             hz.Shape = t4;
-            
 
-            //white sphere, точка на экваторе Африки, нулевой меридиан
-            id = Dynamo.PhobNew(-10.5, 0, 0);
+            var vGreenw = new Vec3(0, -dRad, 0);
+            //некие координаты на Земле
+            //-Y - white sphere, точка на экваторе Африки, нулевой меридиан
+            id = Dynamo.PhobNew(0, -dRad, 0); 
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ffffff");
-            Dynamo.PhobAttrSet(id, "txt", "0/0");
+            //Dynamo.PhobAttrSet(id, "txt", "0/0 white");
             Dynamo.PhobAttrSet(id, "fontsize", "20");
             hz.radius = 0.3;
+            Dynamo.PhobAttrSet(id, "txt2", "0/0");
+            //Dynamo.PhobAttrSet(id, "txt1", "O");
+            Dynamo.PhobAttrSet(id, "lnw", "2");
+            hz.bDrawAsLine = true;
+            hz.p1.Copy(-0, -0, -0);
+            hz.p2.Copy(0, -dRad, 0);
 
-            double dRad = 10.5;
+            //X - voilet sphere, точка на экваторе, 90 меридиан
+            id = Dynamo.PhobNew(dRad, 0, 0);
+            hz = Dynamo.PhobGet(id) as Phob;
+            Dynamo.PhobAttrSet(id, "clr", "#ff00ff");
+            //Dynamo.PhobAttrSet(id, "txt", "0/90 voilet");
+            Dynamo.PhobAttrSet(id, "fontsize", "20");
+            hz.radius = 0.3;
+            Dynamo.PhobAttrSet(id, "txt2", "0/90");
+            //Dynamo.PhobAttrSet(id, "txt1", "O");
+            Dynamo.PhobAttrSet(id, "lnw", "2");
+            hz.bDrawAsLine = true;
+            hz.p1.Copy(-0, -0, -0);
+            hz.p2.Copy(dRad, 0, 0 );
+
+            //blue sphere, точка на северном полюсе
+            id = Dynamo.PhobNew(0, 0, dRad);
+            hz = Dynamo.PhobGet(id) as Phob;
+            Dynamo.PhobAttrSet(id, "txt2", "Северный полюс");
+            Dynamo.PhobAttrSet(id, "txt1", "O");
+            hz.bDrawAsLine = true;
+            hz.p1.Copy(-0, -0, -0);
+            hz.p2.Copy(0, -0, dRad);
+            Dynamo.PhobAttrSet(id, "clr", "#0000ff");
+            //Dynamo.PhobAttrSet(id, "txt", "North blue");
+            Dynamo.PhobAttrSet(id, "fontsize", "20");
+            Dynamo.PhobAttrSet(id, "lnw", "2");
+            hz.radius = 0.3;
+
             var mat = new Mat3();
             //Moscow,
             var lat = 55.7522;
             var lon = 37.6156;
-            mat.Build(0, ((lat) * Math.PI) / 180, ((180 - lon) * Math.PI) / 180);
-            mat.Scale(dRad, dRad, dRad);
-            Dynamo.Console(string.Format("vMoscow x {0}, y {1}, z {2}", mat.a.x, mat.a.y, mat.a.z));
-            Vec3 vMoscow = new Vec3(mat.a.x, mat.a.y, mat.a.z);
+            mat.Build(-(lat * Math.PI) / 180, 0, (lon * Math.PI) / 180);
+            Dynamo.Console("m1=" + mat.ToString());
+            Vec3 vMoscow = new Vec3();
+            mat.Mult(vGreenw, ref vMoscow);
+            Dynamo.Console(string.Format("vMoscow x={0}, y={1}, z={2}", vMoscow.x, vMoscow.y, vMoscow.z));
 
-            id = Dynamo.PhobNew(mat.a.x, mat.a.y, mat.a.z);
+            id = Dynamo.PhobNew(vMoscow.x, vMoscow.y, vMoscow.z);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ff0000");
-            Dynamo.PhobAttrSet(id, "txt", "Moscow");
+            Dynamo.PhobAttrSet(id, "txt", "Москва");
             Dynamo.PhobAttrSet(id, "fontsize", "20");
             hz.radius = 0.3;
 
             //Гавана 
             lat = 23.133;
-            lon = -82.383;
-            mat.Build(0, ((lat) * Math.PI) / 180, ((180 - lon) * Math.PI) / 180);
-            mat.Scale(dRad, dRad, dRad);
-            Dynamo.Console(string.Format("vHabana x {0}, y {1}, z {2}", mat.a.x, mat.a.y, mat.a.z));
-            Vec3 vHabana = new Vec3(mat.a.x, mat.a.y, mat.a.z);
+            lon = 360.0 - 82.383;
+            mat.Build(-(lat * Math.PI) / 180, 0, (lon * Math.PI) / 180);
+            Dynamo.Console("m2=" + mat.ToString());
+            Vec3 vHabana = new Vec3();
+            mat.Mult(vGreenw, ref vHabana);
+            Dynamo.Console(string.Format("vHabana x={0}, y={1}, z={2}", vHabana.x, vHabana.y, vHabana.z));
 
-            id = Dynamo.PhobNew(mat.a.x, mat.a.y, mat.a.z);
+            id = Dynamo.PhobNew(vHabana.x, vHabana.y, vHabana.z);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ffff00");
             Dynamo.PhobAttrSet(id, "txt", "Гавана");
@@ -73,11 +112,11 @@ namespace DynamoCode
             Vec3 vRot = Vec3.Product(vMoscow, vHabana);
             vRot.Normalize();
             vRot.Scale(dRad);
-            Dynamo.Console(string.Format("vRot x {0}, y {1}, z {2}", vRot.x, vRot.y, vRot.z));
+            Dynamo.Console(string.Format("vRot x={0}, y={1}, z={2}", vRot.x, vRot.y, vRot.z));
             id = Dynamo.PhobNew(vRot.x, vRot.y, vRot.z);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#00ff00");
-            Dynamo.PhobAttrSet(id, "txt", "ax");
+            Dynamo.PhobAttrSet(id, "txt", "rotation axe");
             Dynamo.PhobAttrSet(id, "fontsize", "20");
             hz.radius = 0.3;
 
@@ -90,7 +129,7 @@ namespace DynamoCode
             Vec3 vY = Vec3.Product(vRot, vMoscow);
             vY.Normalize();
             vY.Scale(dRad);
-            Dynamo.Console(string.Format("vY x {0}, y {1}, z {2}", vY.x, vY.y, vY.z));
+            Dynamo.Console(string.Format("vY x={0}, y={1}, z={2}", vY.x, vY.y, vY.z));
 
             //rotate
             Vec3 a = new Vec3();
@@ -104,12 +143,12 @@ namespace DynamoCode
                 a.Scale(Math.Cos(zRotor));
                 b.Scale(Math.Sin(zRotor));
                 a.Add(b);
-                Dynamo.Console(string.Format("A x {0}, y {1}, z {2}", a.x, a.y, a.z));
+                Dynamo.Console(string.Format("A x={0}, y={1}, z={2}", a.x, a.y, a.z));
 
                 id = Dynamo.PhobNew(a.x, a.y, a.z);
                 hz = Dynamo.PhobGet(id) as Phob;
                 Dynamo.PhobAttrSet(id, "clr", "#00ff00");
-                hz.radius = 0.1;
+                hz.radius = 0.2;
             }
 
             Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);

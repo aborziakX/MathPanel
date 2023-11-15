@@ -1,9 +1,7 @@
 ﻿using System;
 
-//TODO добавить вращение вокруг оси - from test59_moscow_habana
 namespace MathPanel
 {
-
     /// <summary>
     /// 3-х мерный вектор
     /// </summary>
@@ -17,6 +15,7 @@ namespace MathPanel
             y = 0;
             z = 0;
         }
+        
         //конструктор с параметрами для инициализации вектора
         public Vec3(double x0 = 0, double y0 = 0, double z0 = 0)
         {
@@ -24,6 +23,7 @@ namespace MathPanel
             y = y0;
             z = z0;
         }
+        
         //копирование данных
         public void Copy(double x0, double y0, double z0)
         {
@@ -31,6 +31,7 @@ namespace MathPanel
             y = y0;
             z = z0;
         }
+        
         //копирование данных из другого вектора
         public void Copy(Vec3 v)
         {
@@ -38,6 +39,7 @@ namespace MathPanel
             y = v.y;
             z = v.z;
         }
+        
         //прибавление вектора, параметры - его компоненты
         public void Add(double x0, double y0, double z0)
         {
@@ -45,6 +47,7 @@ namespace MathPanel
             y += y0;
             z += z0;
         }
+        
         //прибавление вектора
         public void Add(Vec3 v)
         {
@@ -52,6 +55,7 @@ namespace MathPanel
             y += v.y;
             z += v.z;
         }
+        
         //сложение 2-х векторов, результат записывается в res
         public void Sum(Vec3 v, ref Vec3 res)
         {
@@ -59,6 +63,7 @@ namespace MathPanel
             res.y = y + v.y;
             res.z = z + v.z;
         }
+        
         //векторное произведение, результат в новом векторе
         public static Vec3 Product(Vec3 v1, Vec3 v2)
         {
@@ -66,6 +71,7 @@ namespace MathPanel
             Product(v1, v2, ref v3);
             return v3;
         }
+        
         //векторное произведение, результат в v3
         public static void Product(Vec3 v1, Vec3 v2, ref Vec3 v3)
         {
@@ -73,21 +79,25 @@ namespace MathPanel
             v3.x = v1.y * v2.z - v1.z * v2.y;
             v3.y = v1.z * v2.x - v1.x * v2.z;
         }
+        
         //длина вектора
         public double Length()
         {
             return Math.Sqrt(x * x + y * y + z * z);
         }
+        
         //расстояние между 2-мя векторами
         public double Distance(double x1, double y1, double z1)
         {
             return Math.Sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1) + (z - z1) * (z - z1));
         }
+        
         //расстояние между 2-мя векторами
         public double Distance(Vec3 v)
         {
             return Math.Sqrt((x - v.x) * (x - v.x) + (y - v.y) * (y - v.y) + (z - v.z) * (z - v.z));
         }
+        
         //нормализация вектора, длина = 1
         public double Normalize()
         {
@@ -100,11 +110,13 @@ namespace MathPanel
             }
             return len;
         }
+        
         //строковое представление
         public new string ToString()
         {
-            return string.Format("x={0}, y={1}, z={2}", x, y, z);
+            return string.Format("[x={0}, y={1}, z={2}]", x, y, z);
         }
+        
         //скалярное произведение
         public double ScalarProduct(Vec3 v1)
         {
@@ -127,12 +139,50 @@ namespace MathPanel
             res.Copy(p1.x + t * v1.x, p1.y + t * v1.y, p1.z + t * v1.z);
             return true;
         }
+        
         //масштабирование
         public void Scale(double p)
         {
             x *= p;
             y *= p;
             z *= p;
+        }
+
+        //вращение вокруг оси axe, находим точки vecs на расстоянинии radius
+        public static void RotationPoints(Vec3 axe, double radius, Vec3[] vecs)
+        {
+            if (vecs == null || vecs.Length == 0 ||
+                (axe.x == 0 && axe.y == 0 && axe.z == 0)) return;
+            double fi = 2.0 * Math.PI / vecs.Length; //шаг
+
+            //найти непараллельный вектор
+            Vec3 v = new Vec3(axe.x, axe.y * 2, axe.z * 3);
+            if (axe.x == 0 && axe.y == 0) v.x = 1;
+            else if (axe.x == 0 && axe.z == 0) v.x = 1;
+            else if (axe.y == 0 && axe.z == 0) v.y = 1;
+
+            //перемножим - найдем перпендикуляр
+            Vec3 vNorm = Vec3.Product(axe, v);
+            vNorm.Normalize();
+            vNorm.Scale(radius);
+
+            //axe - new Z, vNorm - new X, найдем Y
+            Vec3 vY = Vec3.Product(axe, vNorm);
+            vY.Normalize();
+            vY.Scale(radius);
+
+            //rotate            
+            Vec3 b = new Vec3();
+            for (int m = 0; m < vecs.Length; m++)
+            {
+                var zRotor = (fi * m);
+                Vec3 a = vecs[m];
+                a.Copy(vNorm);
+                b.Copy(vY);
+                a.Scale(Math.Cos(zRotor));
+                b.Scale(Math.Sin(zRotor));
+                a.Add(b);
+            }
         }
     }
 
@@ -149,6 +199,7 @@ namespace MathPanel
             b = new Vec3(0, 1, 0);
             c = new Vec3(0, 0, 1);
         }
+        
         //копирование данных
         public void Copy(Mat3 mat)
         {
@@ -156,6 +207,7 @@ namespace MathPanel
             b.Copy(mat.b);
             c.Copy(mat.c);
         }
+        
         //масштабирование, для каждой строки свой коэффициент
         public void Scale(double p1, double p2, double p3 )
         {
@@ -163,6 +215,7 @@ namespace MathPanel
             b.Scale(p2);
             c.Scale(p3);
         }
+        
         //прибавление матрицы
         public void Add(Mat3 mat)
         {
@@ -170,6 +223,7 @@ namespace MathPanel
             b.Add(mat.b);
             c.Add(mat.c);
         }
+        
         //сложение 2-х матриц, результат в res
         public void Sum(Mat3 mat, ref Mat3 res)
         {
@@ -177,6 +231,7 @@ namespace MathPanel
             b.Sum(mat.b, ref res.b);
             c.Sum(mat.c, ref res.c);
         }
+        
         //умножение матрицы на вектор, результат в res
         public void Mult(Vec3 v, ref Vec3 res)
         {
@@ -184,6 +239,7 @@ namespace MathPanel
             res.y = b.x * v.x + b.y * v.y + b.z * v.z;
             res.z = c.x * v.x + c.y * v.y + c.z * v.z;
         }
+        
         //умножение матрицы на матрицу, результат в res
         public void Mult(Mat3 mat, ref Mat3 res)
         {
@@ -199,7 +255,12 @@ namespace MathPanel
             res.c.y = c.x * mat.a.y + c.y * mat.b.y + c.z * mat.c.y;//3,2
             res.c.z = c.x * mat.a.z + c.y * mat.b.z + c.z * mat.c.z;//3,3
         }
+        
         //построить матрицу из углов поворота
+        //Чтобы найти координаты в СКЯ мы последовательно(Z, X, Y)
+        //применяем соотношения(6.2) с учетом смены углов вращения.
+        //Чтобы найти координаты в СКК мы в обратной последовательности(Y, X, Z)
+        //применяем соотношения(6.3) с учетом смены углов вращения.
         public void Build(double xRotor, double yRotor, double zRotor)
         {
             //rotate Z, X, Y
@@ -312,10 +373,11 @@ namespace MathPanel
             //вернуть результат
             m.Copy(mAdj);
         }
+        
         //строковое представление матрицы
         public new string ToString()
         {
-            return string.Format("{0}, {1}, {2}\n{3}, {4}, {5}\n{6}, {7}, {8}", a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+            return string.Format("[[{0}, {1}, {2}],\n[{3}, {4}, {5}],\n[{6}, {7}, {8}]]", a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
         }
     }
 }

@@ -130,6 +130,7 @@
     <Compile Include="Geom\Sphere.cs" />
     <Compile Include="Geom\Tetra.cs" />
     <Compile Include="Geom\Tor.cs" />
+    <Compile Include="Geom\Tree.cs" />
     <Compile Include="Geom\Vectors.cs" />
     <Compile Include="JSconverter.cs" />
     <Compile Include="MainWindow.xaml.cs">

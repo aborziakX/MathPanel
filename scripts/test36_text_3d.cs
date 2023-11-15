@@ -16,7 +16,8 @@ namespace DynamoCode
             Dynamo.Console("test36_text_3d");
             //Dynamo.Scriplet("test36_text_3d", "Просто текст в 3Д");
             Dynamo.SceneClear();
-            //red
+
+            //red Cube
             int id = Dynamo.PhobNew(-0, 0, 0);
             var hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ff0000");
@@ -26,29 +27,32 @@ namespace DynamoCode
             cub.XRotor = 0.3;
             hz.Shape = cub;
 
-            //yellow
+            //yellow obj
             id = Dynamo.PhobNew(-10, 0, -10);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ffff00");
             hz.radius = 0.5;
-            //green
+
+            //green obj
             id = Dynamo.PhobNew(10, 0, 10);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#00ff00");
             hz.radius = 2;
-            //white
-            id = Dynamo.PhobNew(0, -10, 5);
+
+            //white obj with text
+            id = Dynamo.PhobNew(1, -10, 5);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ffffff");
-            Dynamo.PhobAttrSet(id, "txt", "white");
+            Dynamo.PhobAttrSet(id, "txt", "white txt");
             Dynamo.PhobAttrSet(id, "fontsize", "20");
             hz.radius = 0.3;
 
             //мои оси
+            //X
             id = Dynamo.PhobNew(-20, -20, -20);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ff00ff");
-            Dynamo.PhobAttrSet(id, "txt2", "purple");
+            Dynamo.PhobAttrSet(id, "txt2", "X purple");
             Dynamo.PhobAttrSet(id, "txt1", "O");
             hz.bDrawAsLine = true;
             hz.p1.Copy(-20, -20, -20);
@@ -60,19 +64,24 @@ namespace DynamoCode
             Dynamo.PhobAttrSet(id, "txt", "purple");
             hz.radius = 0;*/
 
+            //Y
+            //cyan line, no text
             id = Dynamo.PhobNew(-20, -20, -20);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#00ffff");
             hz.bDrawAsLine = true;
             hz.p1.Copy(-20, -20, -20);
             hz.p2.Copy(-20, 20, -20);
-            //cyan
+
+            //cyan obj, radius=0
             id = Dynamo.PhobNew(-20, 20, -20);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#00ffff");
-            Dynamo.PhobAttrSet(id, "txt", "cyan");
+            Dynamo.PhobAttrSet(id, "txt", "Y cyan txt");
             hz.radius = 0;
 
+            //Z
+            //yellow line, no text
             id = Dynamo.PhobNew(-20, -20, -20);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ffff00");
@@ -80,11 +89,12 @@ namespace DynamoCode
             hz.bDrawAsLine = true;
             hz.p1.Copy(-20, -20, -20);
             hz.p2.Copy(-20, -20, 20);
-            //yellow
+
+            //yellow obj, radius=0
             id = Dynamo.PhobNew(-20, -20, 20);
             hz = Dynamo.PhobGet(id) as Phob;
             Dynamo.PhobAttrSet(id, "clr", "#ffff00");
-            Dynamo.PhobAttrSet(id, "txt", "yellow");
+            Dynamo.PhobAttrSet(id, "txt", "Z yellow txt");
             hz.radius = 0;
 
             Dynamo.Console("total fac=" + Dynamo.SceneFacets());
