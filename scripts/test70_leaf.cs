@@ -1,11 +1,11 @@
-﻿//test69_tree
+﻿//test70_leaf
 Dynamo.SceneClear();
 int id = Dynamo.PhobNew(0, 0, 0);
 Dynamo.Console(id.ToString());
 var hz = Dynamo.PhobGet(id) as Phob;
 Dynamo.Console(hz.ToString());
 
-var t4 = new Tree(15, "Yellow", 8, 3);
+var t4 = new Leaf(15, "Yellow", 8, 3);
 //t4.bDrawNorm = true;
 hz.Shape = t4;
 

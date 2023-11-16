@@ -15,7 +15,7 @@ namespace MathPanel
             y = 0;
             z = 0;
         }
-        
+
         //конструктор с параметрами для инициализации вектора
         public Vec3(double x0 = 0, double y0 = 0, double z0 = 0)
         {
@@ -23,7 +23,15 @@ namespace MathPanel
             y = y0;
             z = z0;
         }
-        
+
+        //конструктор - копирование данных из другого вектора
+        public Vec3(Vec3 v)
+        {
+            x = v.x;
+            y = v.y;
+            z = v.z;
+        }
+
         //копирование данных
         public void Copy(double x0, double y0, double z0)
         {
@@ -55,7 +63,7 @@ namespace MathPanel
             y += v.y;
             z += v.z;
         }
-        
+
         //сложение 2-х векторов, результат записывается в res
         public void Sum(Vec3 v, ref Vec3 res)
         {
@@ -63,7 +71,15 @@ namespace MathPanel
             res.y = y + v.y;
             res.z = z + v.z;
         }
-        
+
+        //сложение 2-х векторов, результат записывается в this
+        public void SumTwo(Vec3 v1, Vec3 v2)
+        {
+            x = v1.x + v2.x;
+            y = v1.y + v2.y;
+            z = v1.z + v2.z;
+        }
+
         //векторное произведение, результат в новом векторе
         public static Vec3 Product(Vec3 v1, Vec3 v2)
         {
