@@ -55,6 +55,14 @@ namespace MathPanel
 
         static bool bOldCode = false; //if true - incorrect order of rotations
 
+        static Mat3 matStepClock = new Mat3(0, 0, 0.1); //матрица для вращения стрекой почасовой
+        static Mat3 matStepOver = new Mat3(0, 0, -0.1); //матрица для вращения стрекой против часовой
+        static Mat3 matStepUp = new Mat3(0.1, 0, 0); //матрица для вращения стрекой вверх
+        static Mat3 matStepDown = new Mat3(-0.1, 0, 0); //матрица для вращения стрекой вниз
+        static Mat3 matStepLeft = new Mat3(0, 0.1, 0); //матрица для вращения стрекой влево
+        static Mat3 matStepRight = new Mat3(0, -0.1, 0); //матрица для вращения стрекой вправо
+
+
         public static bool BOldCode
         {
             get
@@ -2094,6 +2102,54 @@ namespace MathPanel
                     //b_clickDone = _b_clickDone;
                 }
             }
+        }
+
+        /// <summary>
+        /// найти новую матрицу после поворота вокруг оси камеры
+        /// </summary>
+        public static void FindNewMatRotor(int axe)
+        {
+            //формула перехода из СКЯ(щика) в СКК(амеры)
+            //vCam = matRotor * vBox + vShift
+            //когда мы двигаем камеру = вращаем СКК
+            //соединяем центрв СКК и СКЯ , vShift временно исчезает
+            //m_1 обратная матрица для matRotor
+            //m_1 * vCam = vBox
+            //ex = m_1 * ex-Cam - единичный вектор x из СКЯ в СКК
+            //ex = m_1 * ey-Cam 
+            //ez = m_1 * ez-Cam 
+            //вращаем с помощью matStepRight
+            //ezNew = matStepRight * ez
+            //получаем 3 новых вектора, из них строим m_1
+            //находим matRotor
+            Mat3 mStep = null;
+            if( axe == 0 ) mStep = matStepClock; //матрица для вращения стрекой почасовой
+            else if (axe == 1) mStep = matStepOver; //матрица для вращения стрекой против часовой
+            else if (axe == 2) mStep = matStepUp; //матрица для вращения стрекой вверх
+            else if (axe == 3) mStep = matStepDown; //матрица для вращения стрекой вниз
+            else if (axe == 4) mStep = matStepLeft; //матрица для вращения стрекой влево
+            else mStep = matStepRight;
+
+            Vec3 ex_c = new Vec3(1, 0, 0);
+            Vec3 ey_c = new Vec3(0, 1, 0);
+            Vec3 ez_c = new Vec3(0, 0, 1);
+            Vec3 ex = new Vec3();
+            Vec3 ey = new Vec3();
+            Vec3 ez = new Vec3();
+
+            Mat3 m_1 = new Mat3();
+            matRotor.Inverse(ref m_1);
+
+            m_1.Mult(ex_c, ref ex);
+            m_1.Mult(ey_c, ref ey);
+            m_1.Mult(ez_c, ref ez);
+
+            mStep.Mult(ex, ref ex_c);
+            mStep.Mult(ey, ref ey_c);
+            mStep.Mult(ez, ref ez_c);
+
+            m_1.BuildVec(ex_c, ey_c, ez_c);
+            m_1.Inverse(ref matRotor);
         }
     }
 }

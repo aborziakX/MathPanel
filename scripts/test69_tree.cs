@@ -1,5 +1,6 @@
 ﻿//test69_tree
 Dynamo.SceneClear();
+
 int id = Dynamo.PhobNew(0, 0, 0);
 Dynamo.Console(id.ToString());
 var hz = Dynamo.PhobGet(id) as Phob;

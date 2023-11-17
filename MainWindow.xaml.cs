@@ -362,33 +362,39 @@ Dynamo.Console(hz.ToString());
             {
                 if (key == "OemPlus")
                 {
-                    ZRotor += 0.1;
-                    //matRotor.Build(XRotor, YRotor, ZRotor);
+                    //ZRotor += 0.1;
+                    ////matRotor.Build(XRotor, YRotor, ZRotor);
+                    FindNewMatRotor(0);
                 }
                 else if (key == "OemMinus")
                 {
-                    ZRotor -= 0.1;
-                    //matRotor.Build(XRotor, YRotor, ZRotor);
+                    //ZRotor -= 0.1;
+                    ////matRotor.Build(XRotor, YRotor, ZRotor);
+                    FindNewMatRotor(1);
                 }
                 else if (key == "Up")
                 {
-                    XRotor -= 0.1;
-                    //matRotor.Build(XRotor, YRotor, ZRotor);
+                    //XRotor -= 0.1;
+                    ////matRotor.Build(XRotor, YRotor, ZRotor);
+                    FindNewMatRotor(2);
                 }
                 else if (key == "Down")
                 {
-                    XRotor += 0.1;
-                    //matRotor.Build(XRotor, YRotor, ZRotor);
+                    //XRotor += 0.1;
+                    ////matRotor.Build(XRotor, YRotor, ZRotor);
+                    FindNewMatRotor(3);
                 }
                 else if (key == "Left")
                 {
-                    YRotor -= 0.1;
-                    //matRotor.Build(XRotor, YRotor, ZRotor);
+                    //YRotor -= 0.1;
+                    ////matRotor.Build(XRotor, YRotor, ZRotor);
+                    FindNewMatRotor(4);
                 }
                 else if (key == "Right")
                 {
-                    YRotor += 0.1;
-                    //matRotor.Build(XRotor, YRotor, ZRotor);
+                    //YRotor += 0.1;
+                    ////matRotor.Build(XRotor, YRotor, ZRotor);
+                    FindNewMatRotor(5);
                 }
             }
             else

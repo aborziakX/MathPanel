@@ -215,7 +215,17 @@ namespace MathPanel
             b = new Vec3(0, 1, 0);
             c = new Vec3(0, 0, 1);
         }
-        
+
+        //конструктор с параметрами поворотов
+        public Mat3(double xRotor, double yRotor, double zRotor)
+        {
+            a = new Vec3(1, 0, 0);
+            b = new Vec3(0, 1, 0);
+            c = new Vec3(0, 0, 1);
+
+            Build(xRotor, yRotor, zRotor);
+        }
+
         //копирование данных
         public void Copy(Mat3 mat)
         {
