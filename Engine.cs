@@ -1,5 +1,4 @@
 ﻿//#define OLDCODE
-//раскомментируйте OLDCODE , чтобы использовать первоначальный код методов из книги
 //2020-2023, Andrei Borziak
 //MathPanel (математическая панель) для работы со скриптами, написанными на C#.
 //Область применения – моделирование процессов и визуализация.
@@ -53,27 +52,12 @@ namespace MathPanel
         static string canvasBg = "#000000"; //фон канваса
         static string ext_params = ""; //дополнительный параметр
 
-        static bool bOldCode = false; //if true - incorrect order of rotations
-
         static Mat3 matStepClock = new Mat3(0, 0, 0.1); //матрица для вращения стрекой почасовой
         static Mat3 matStepOver = new Mat3(0, 0, -0.1); //матрица для вращения стрекой против часовой
         static Mat3 matStepUp = new Mat3(0.1, 0, 0); //матрица для вращения стрекой вверх
         static Mat3 matStepDown = new Mat3(-0.1, 0, 0); //матрица для вращения стрекой вниз
         static Mat3 matStepLeft = new Mat3(0, 0.1, 0); //матрица для вращения стрекой влево
         static Mat3 matStepRight = new Mat3(0, -0.1, 0); //матрица для вращения стрекой вправо
-
-
-        public static bool BOldCode
-        {
-            get
-            {
-                return bOldCode;
-            }
-            set
-            {
-                bOldCode = value;
-            }
-        }
 
         //API
         /// <summary>
@@ -537,86 +521,6 @@ namespace MathPanel
             return s;
         }
 
-#if OLDCODE
-        /// <summary>
-        /// преобразовать координаты в системе ящика в координаты в системе камеры (старый метод)
-        /// </summary>
-        /// <param name="x">x координата</param>
-        /// <param name="y">y координата</param>
-        /// <param name="z">z координата</param>
-        /// <param name="radius">радиус объекта</param>
-        /// <param name="bScreen">проецировать координаты на экран</param>
-        public static void Traslate2Camera(ref double x, ref double y, ref double z, ref double radius, bool bScreen = false)
-        {
-            double x_n, y_n, z_n;
-            if (bOldCode)
-            {//old
-                //вращать вокруг Z
-                if (zRotor != 0)
-                {
-                    x_n = x * Math.Cos(zRotor) - y * Math.Sin(zRotor);
-                    y_n = x * Math.Sin(zRotor) + y * Math.Cos(zRotor);
-                    x = x_n;
-                    y = y_n;
-                }
-
-                //вращать вокруг X
-                if (xRotor != 0)
-                {
-                    y_n = y * Math.Cos(xRotor) - z * Math.Sin(xRotor);
-                    z_n = y * Math.Sin(xRotor) + z * Math.Cos(xRotor);
-                    y = y_n;
-                    z = z_n;
-                }
-
-                //вращать вокруг Y
-                if (yRotor != 0)
-                {
-                    z_n = z * Math.Cos(yRotor) - x * Math.Sin(yRotor);
-                    x_n = z * Math.Sin(yRotor) + x * Math.Cos(yRotor);
-                    z = z_n;
-                    x = x_n;
-                }
-            }
-            else
-            {   //new version
-                //вращать вокруг Y
-                if (yRotor != 0)
-                {
-                    z_n = z * Math.Cos(yRotor) - x * Math.Sin(yRotor);
-                    x_n = z * Math.Sin(yRotor) + x * Math.Cos(yRotor);
-                    z = z_n;
-                    x = x_n;
-                }
-
-                //вращать вокруг X
-                if (xRotor != 0)
-                {
-                    y_n = y * Math.Cos(xRotor) - z * Math.Sin(xRotor);
-                    z_n = y * Math.Sin(xRotor) + z * Math.Cos(xRotor);
-                    y = y_n;
-                    z = z_n;
-                }
-
-                //вращать вокруг Z
-                if (zRotor != 0)
-                {
-                    x_n = x * Math.Cos(zRotor) - y * Math.Sin(zRotor);
-                    y_n = x * Math.Sin(zRotor) + y * Math.Cos(zRotor);
-                    x = x_n;
-                    y = y_n;
-                }
-            }
-
-            //сдвинуть
-            x += xBoXTrans;
-            y += yBoXTrans;
-            z += zBoXTrans;
-
-            if (bScreen)
-                Traslate2Screen(ref x, ref y, ref z, ref radius);
-        }
-#else
         /// <summary>
         /// преобразовать координаты в системе ящика в координаты в системе камеры
         /// </summary>
@@ -640,7 +544,6 @@ namespace MathPanel
             if (bScreen)
                 Traslate2Screen(ref x, ref y, ref z, ref radius);
         }
-#endif
 
         /// <summary>
         /// транслировать координаты объекта в системе камеры и размер в координаты на экране
@@ -657,151 +560,6 @@ namespace MathPanel
             radius *= d_squeeze;
         }
 
-#if OLDCODE
-        /// <summary>
-        /// данные для рисования ребер ящика (старый метод)
-        /// </summary>
-        static string BoxEdges()
-        {
-            double x, y, z, radius = 1, x_fr, y_fr, z_fr;
-            double rad = Math.Abs(1.0 / ((box.x1 - box.x0) * iCanvasWidth));
-
-            string data = "";
-            //задняя сторона
-            for (int j = 0; j < 5; j++)
-            {
-                if (j == 0)
-                {
-                    x = box.x0;
-                    y = box.y0;
-                }
-                else if (j == 1)
-                {
-                    x = box.x1;
-                    y = box.y0;
-                }
-                else if (j == 2)
-                {
-                    x = box.x1;
-                    y = box.y1;
-                }
-                else if (j == 3)
-                {
-                    x = box.x0;
-                    y = box.y1;
-                }
-                else
-                {
-                    x = box.x0;
-                    y = box.y0;
-                }
-                z = box.z0;
-
-                //привязать к экрану
-                Traslate2Camera(ref x, ref y, ref z, ref radius, true);
-                if (z >= z_cam) continue;
-
-                if (data != "") data += ",";
-                //параметры рисования: размеры, цвет, стиль
-                data += string.Format("{{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    D2S(x), D2S(y),
-                    j == 4 ? "line_end" : "line", D2S(rad));
-            }
-
-            //передняя сторона
-            for (int j = 0; j < 5; j++)
-            {
-                if (j == 0)
-                {
-                    x = box.x0;
-                    y = box.y0;
-                }
-                else if (j == 1)
-                {
-                    x = box.x1;
-                    y = box.y0;
-                }
-                else if (j == 2)
-                {
-                    x = box.x1;
-                    y = box.y1;
-                }
-                else if (j == 3)
-                {
-                    x = box.x0;
-                    y = box.y1;
-                }
-                else
-                {
-                    x = box.x0;
-                    y = box.y0;
-                }
-                z = box.z1;
-
-                //привязать к экрану
-                Traslate2Camera(ref x, ref y, ref z, ref radius, true);
-                if (z >= z_cam) continue;
-
-                if (data != "") data += ",";
-                //параметры рисования: размеры, цвет, стиль
-                data += string.Format("{{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    D2S(x), D2S(y),
-                    j == 4 ? "line_end" : "line", D2S(rad));
-            }
-
-            //боковины
-            for (int j = 0; j < 4; j++)
-            {
-                if (j == 0)
-                {
-                    x = box.x0;
-                    y = box.y0;
-                    x_fr = box.x0;
-                    y_fr = box.y0;
-                }
-                else if (j == 1)
-                {
-                    x = box.x1;
-                    y = box.y0;
-                    x_fr = box.x1;
-                    y_fr = box.y0;
-                }
-                else if (j == 2)
-                {
-                    x = box.x1;
-                    y = box.y1;
-                    x_fr = box.x1;
-                    y_fr = box.y1;
-                }
-                else
-                {
-                    x = box.x0;
-                    y = box.y1;
-                    x_fr = box.x0;
-                    y_fr = box.y1;
-                }
-                z = box.z0;
-                z_fr = box.z1;
-
-                //привязать к экрану
-                Traslate2Camera(ref x, ref y, ref z, ref radius, true);
-                //привязать к экрану
-                Traslate2Camera(ref x_fr, ref y_fr, ref z_fr, ref radius, true);
-                if (z >= z_cam || z_fr >= z_cam) continue;
-
-                if (data != "") data += ",";
-                data += string.Format("{{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    D2S(x), D2S(y),
-                    "line", D2S(rad));
-
-                data += string.Format(", {{\"x\":{0}, \"y\":{1}, \"clr\":\"#cccccc\", \"rad\":\"{3}\", \"sty\":\"{2}\"}}",
-                    D2S(x_fr), D2S(y_fr),
-                    "line_end", D2S(rad));
-            }
-
-            return data.ToString();
-        }
-#else
         /// <summary>
         /// данные для рисования ребер ящика 
         /// </summary>
@@ -830,6 +588,8 @@ namespace MathPanel
                 if (z >= z_cam) return "";
                 Traslate2Screen(ref x, ref y, ref z, ref radius);
 
+                string clr = "#ff0000";
+
                 for (int j = 0; j < 3; j++)
                 {
                     if (j == 0)
@@ -838,6 +598,7 @@ namespace MathPanel
                         y_fr = box.y0;
                         z_fr = box.z0;
                         text = "X";
+                        clr = "#ff0000";
                     }
                     else if (j == 1)
                     {
@@ -845,6 +606,7 @@ namespace MathPanel
                         y_fr = box.y1;
                         z_fr = box.z0;
                         text = "Y";
+                        clr = "#00ff00";
                     }
                     else
                     {
@@ -852,27 +614,24 @@ namespace MathPanel
                         y_fr = box.y0;
                         z_fr = box.z1;
                         text = "Z";
+                        clr = "#0000ff";
                     }
                     Traslate2Camera(ref x_fr, ref y_fr, ref z_fr, ref radius, false);
                     if (z_fr >= z_cam) continue;
                     Traslate2Screen(ref x_fr, ref y_fr, ref z_fr, ref radius);
 
                     if (data.Length > 0) data.Append(",");
-                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"lnw\":\"{5}\", \"txt\":\"{6}\"}}",
-                        D2S(x), D2S(y),
-                        "line", D2S(rad),
-                        clrNormal, widNormal, "");
-
-                    data.AppendFormat(", {{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"lnw\":\"{5}\", \"txt\":\"{6}\"}}",
-                        D2S(x_fr), D2S(y_fr),
-                        "line_end", D2S(rad),
-                        clrNormal, widNormal, text);
+                    DrawPoint(data, x, y, rad, clr, "line", null, "", 
+                        widNormal.ToString(), clr);
+                    data.Append(","); 
+                    DrawPoint(data, x_fr, y_fr, rad, clr, "line_end", null, text,
+                        widNormal.ToString(), clr);
                 }
             }
 
             return data.ToString();
         }
-#endif
+
         /// <summary>
         /// подготовить данные формы для визуализации в canvas
         /// </summary>
@@ -983,17 +742,15 @@ namespace MathPanel
                     if (j == fac.Count && ph != null && ph.AttrGet("text") != null)
                         title = ph.AttrGet("text");
 
+                    string dark = fac.ColorDarkHtml(fac.dark);
                     string edges = "";
                     //цвет ребер как грани
-                    if ((shape.iFill & 3) == 1) edges = string.Format(",\"csk\":\"{0}\"", fac.ColorDarkHtml(fac.dark));
+                    if ((shape.iFill & 3) == 1) edges = dark;
 
                     string style = j == fac.Count ? ((((shape.iFill & 1) == 1) && cosfi > 0.0) ? "line_endf" : "line_end") : "line";
 
                     if (data.Length != 0) data.Append(",");
-                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\"{6}}}",
-                        D2S(vref.x), D2S(vref.y),
-                        style, D2S(rad),
-                        fac.ColorDarkHtml(fac.dark), title, edges);
+                    DrawPoint(data, vref.x, vref.y, rad, dark, style, null, title, null, edges);
                 }
 
                 if (shape.bDrawNorm)
@@ -1001,15 +758,11 @@ namespace MathPanel
                     //нормали
                     if (data.Length != 0) data.Append(",");
                     Traslate2Screen(ref x, ref y, ref z, ref radius);
-                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                        D2S(x), D2S(y),
-                        "line", D2S(rad),
-                        clrNormal, "", widNormal);
+                    DrawPoint(data, x, y, rad, clrNormal, "line", null, "", widNormal.ToString(), clrNormal);
+                    data.Append(",");
                     Traslate2Screen(ref x1, ref y1, ref z1, ref radius);
-                    data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{7}  {5}\", \"lnw\":\"{6}\"}}",
-                        D2S(x1), D2S(y1),
-                        "line_end", D2S(rad),
-                        clrNormal, Math.Round(cosfi, 3), widNormal, fac.name);
+                    DrawPoint(data, x1, y1, rad, clrNormal, "line_end", null, 
+                        fac.name + " " + Math.Round(cosfi, 3), widNormal.ToString(), clrNormal);
                 }
             }
             //if (DrawCount % 100 == 1) Console(data);
@@ -1156,20 +909,27 @@ namespace MathPanel
                         var txt1 = ph.AttrGet("txt1");
                         var txt2 = ph.AttrGet("txt2");
                         var fontsize = ph.AttrGet("fontsize");
-                        Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
-                            D2S(px), D2S(py), "line", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1,
-                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
 
+                        Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
+                        DrawPoint(data, px, py, radius,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, 
+                            "line", null,
+                            string.IsNullOrEmpty(txt1) ? "" : txt1,
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+                        data.Append(",");
                         px = ph.p2.x;
                         py = ph.p2.y;
                         pz = ph.p2.z;
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
-                            D2S(px), D2S(py), "line_end", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2,
-                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+                        DrawPoint(data, px, py, radius,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            "line_end", null,
+                            string.IsNullOrEmpty(txt2) ? "" : txt2,
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            string.IsNullOrEmpty(fontsize) ? "" : fontsize);
                     }
                 }
                 //восстановить координаты
@@ -1202,7 +962,7 @@ namespace MathPanel
                 D2S(dX0), D2S(dX1),
                 D2S(dY0), D2S(dY1),
                 iCanvasWidth, iCanvasHeight, clrStroke, canvasBg);
-            screenJson = string.Format("{{\"options\":{0}, \"data\":[{1}]}}", opt, data.ToString());
+            screenJson = string.Format("{{\"options\":{0}, \"dd\":[{1}]}}", opt, data.ToString());
 
             /*if (!bReady || dispObj.HasShutdownStarted) return;
             //мы запускаем код в UI потоке
@@ -1230,7 +990,7 @@ namespace MathPanel
             double rad = (2 * physWidth) / iCanvasWidth;    //1 pixel
 
             var data = new StringBuilder();
-            string starter = "{{\"data\":[";
+            string starter = "{{\"dd\":[";
             data.AppendFormat(starter);
 
             //показать границы ящика
@@ -1286,20 +1046,27 @@ namespace MathPanel
                         var txt1 = ph.AttrGet("txt1");
                         var txt2 = ph.AttrGet("txt2");
                         var fontsize = ph.AttrGet("fontsize");
+                        
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
-                            D2S(px), D2S(py), "line", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1,
-                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
-
+                        DrawPoint(data, px, py, radius,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            "line", null,
+                            string.IsNullOrEmpty(txt1) ? "" : txt1,
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+                        data.Append(",");
                         px = ph.p2.x;
                         py = ph.p2.y;
                         pz = ph.p2.z;
                         Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
-                            D2S(px), D2S(py), "line_end", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2,
-                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
+                        DrawPoint(data, px, py, radius,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            "line_end", null,
+                            string.IsNullOrEmpty(txt2) ? "" : txt2,
+                            string.IsNullOrEmpty(yyy) ? "3" : yyy,
+                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx,
+                            string.IsNullOrEmpty(fontsize) ? "" : fontsize);
                     }
                 }
                 //воостановить координаты
@@ -1350,17 +1117,15 @@ namespace MathPanel
                     if (j == fac.Count && ph != null && ph.AttrGet("text") != null)
                         title = ph.AttrGet("text");
 
+                    string dark = fac.ColorDarkHtml(fac.dark);
                     string edges = "";
                     //цвет ребер как грани
-                    if ((shape.iFill & 3) == 1) edges = string.Format(",\"csk\":\"{0}\"", fac.ColorDarkHtml(fac.dark));
+                    if ((shape.iFill & 3) == 1) edges = dark;
 
                     string style = j == fac.Count ? ((((shape.iFill & 1) == 1) && cosfi > 0.0) ? "line_endf" : "line_end") : "line";
 
                     if (data.Length > starter.Length) data.Append(",");
-                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\"{6}}}",
-                        D2S(vref.x), D2S(vref.y),
-                        style, D2S(rad),
-                        fac.ColorDarkHtml(fac.dark), title, edges);
+                    DrawPoint(data, vref.x, vref.y, rad, dark, style, null, title, null, edges, null);
                 }
                 if (shape.bDrawNorm)
                 {
@@ -1371,16 +1136,11 @@ namespace MathPanel
 
                     if (data.Length > starter.Length) data.Append(",");
                     Traslate2Screen(ref x, ref y, ref z, ref radius);
-                    data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\"}}",
-                        D2S(x), D2S(y),
-                        "line", D2S(rad),
-                        clrNormal, "", widNormal);
-
+                    DrawPoint(data, x, y, rad, clrNormal, "line", null, "", widNormal.ToString(), clrNormal);
+                    data.Append(",");
                     Traslate2Screen(ref x1, ref y1, ref z1, ref radius);
-                    data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{7}  {5}\", \"lnw\":\"{6}\"}}",
-                        D2S(x1), D2S(y1),
-                        "line_end", D2S(rad),
-                        clrNormal, Math.Round(cosfi, 3), widNormal, fac.name);
+                    DrawPoint(data, x1, y1, rad, clrNormal, "line_end", null,
+                        fac.name + " " + Math.Round(cosfi, 3), widNormal.ToString(), clrNormal);
                 }
             }
 
@@ -1410,7 +1170,6 @@ namespace MathPanel
                 D2S(dX0), D2S(dX1),
                 D2S(dY0), D2S(dY1),
                 iCanvasWidth, iCanvasHeight, clrStroke, canvasBg);
-            //screenJson = string.Format("{{\"data\":[{1}], \"options\":{0}}}", opt, data.ToString());
             data.AppendFormat("], \"options\":{0}}}", opt);
             screenJson = data.ToString();
 
@@ -1428,141 +1187,22 @@ namespace MathPanel
                 webConsole.InvokeScript("ext_json", screenJson);
             });*/
         }
-        //old low quality approach
-        public static void SceneDrawShapeBookHelper(bool bBx = true, bool bCons = false)
+
+        /// <summary>
+        /// данные для точки
+        /// </summary>
+        static void DrawPoint(StringBuilder data, double x, double y, double rad, 
+            string clr, string style, string height, string title, string lnw, string csk, string fontsize=null)
         {
-            DateTime dt1 = DateTime.Now;
-            DrawCount++;
-            int i = 0;
-            double dX0 = 0, dX1 = 1, dY0 = 0, dY1 = 1;
-            var data = new StringBuilder();
-            string starter = "{{\"data\":[";
-            data.AppendFormat(starter);
-
-            //показать границы ящика
-            if (box != null && bBx) data.Append(BoxEdges());
-
-            //для каждого объекта сцены
-            List<Phob> lst = dicPhob.Values.ToList();
-            foreach (Phob ph in lst)
-            {   //перейти в СКК
-                ph.SaveCoord();
-                Traslate2Camera(ref ph.x, ref ph.y, ref ph.z, ref ph.radius, true);
-                if (box == null)
-                {
-                    if (i == 0)
-                    {
-                        dX0 = ph.x;
-                        dX1 = dX0 + 0.1;
-                        dY0 = ph.y;
-                        dY1 = dY0 + 0.1;
-                    }
-                    else
-                    {
-                        if (dX0 > ph.x) dX0 = ph.x;
-                        if (dX1 < ph.x) dX1 = ph.x;
-                        if (dY0 > ph.y) dY0 = ph.y;
-                        if (dY1 < ph.y) dY1 = ph.y;
-                    }
-                }
-                i++;
-            }
-            //сортировать по удаленности от камеры
-            lst.Sort(delegate (Phob x, Phob y)
-            {
-                return x.z >= y.z ? 1 : -1;
-            });
-
-            foreach (Phob ph in lst)
-            {
-                if (ph.z < z_cam && ph.Shape == null)
-                {
-                    if (data.Length > starter.Length) data.Append(",");
-                    if (ph.bDrawAsLine == false)
-                        data.Append(ph.ToJson());
-                    else
-                    {   //рисовать как линию
-                        double radius = 0.001;
-                        double px = ph.p1.x;
-                        double py = ph.p1.y;
-                        double pz = ph.p1.z;
-                        var xxx = ph.AttrGet("clr");
-                        var yyy = ph.AttrGet("lnw");
-                        var txt1 = ph.AttrGet("txt1");
-                        var txt2 = ph.AttrGet("txt2");
-                        var fontsize = ph.AttrGet("fontsize");
-                        Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat("{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
-                            D2S(px), D2S(py), "line", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt1) ? "" : txt1,
-                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
-
-                        px = ph.p2.x;
-                        py = ph.p2.y;
-                        pz = ph.p2.z;
-                        Dynamo.Traslate2Camera(ref px, ref py, ref pz, ref radius, true);
-                        data.AppendFormat(",{{\"x\":{0}, \"y\":{1}, \"csk\":\"{4}\", \"clr\":\"{4}\", \"rad\":\"{3}\", \"sty\":\"{2}\", \"txt\":\"{5}\", \"lnw\":\"{6}\", \"fontsize\":\"{7}\"}}",
-                            D2S(px), D2S(py), "line_end", D2S(radius),
-                            string.IsNullOrEmpty(xxx) ? clrNormal : xxx, string.IsNullOrEmpty(txt2) ? "" : txt2,
-                            string.IsNullOrEmpty(yyy) ? "3" : yyy, string.IsNullOrEmpty(fontsize) ? "" : fontsize);
-                    }
-                }
-                //воостановить координаты
-                ph.RestoreCoord();
-
-                if (ph.Shape != null)
-                {
-                    string ss = DrawShape(ph.Shape, ph);
-                    if (ss != "")
-                    {
-                        if (data.Length > starter.Length) data.Append(",");
-                        data.Append(ss);
-                    }
-                }
-            }
-
-            if (box == null)
-            {
-                var extra = (dX1 - dX0) * 0.01;
-                dX0 -= extra;
-                dX1 += extra;
-                extra = (dY1 - dY0) * 0.01;
-                dY0 -= extra;
-                dY1 += extra;
-            }
-            else
-            {
-                /*dX0 = box.x0;
-                dX1 = box.x1;
-                dY0 = box.y0;
-                dY1 = box.y1;*/
-                dX1 = physWidth;
-                dX0 = -dX1;
-                dY1 = physHeight;
-                dY0 = -dY1;
-            }
-            //параметры рисования: размеры, цвет, стиль
-            string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\" }}",
-                D2S(dX0), D2S(dX1),
-                D2S(dY0), D2S(dY1),
-                iCanvasWidth, iCanvasHeight, clrStroke, canvasBg);
-            //screenJson = string.Format("{{\"data\":[{1}], \"options\":{0}}}", opt, data.ToString());
-            data.AppendFormat("], \"options\":{0}}}", opt);
-            screenJson = data.ToString();
-
-            DateTime dt2 = DateTime.Now;
-            TimeSpan diff = dt2 - dt1;
-            int ms = (int)diff.TotalMilliseconds;
-            if ((loglevel & 0x1) > 0)
-                Log("SceneDrawShape ms=" + ms + ", len=" + screenJson.Length);
-
-            /*if (!bReady || dispObj.HasShutdownStarted) return;
-            //мы запускаем код в UI потоке
-            dispObj.Invoke(delegate
-            {
-                if (bCons) Console(screenJson);
-                webConsole.InvokeScript("ext_json", screenJson);
-            });*/
+            //dd.push(new Array(x, y, sz, clr, style, height, text, linewidth, colorstroke, fontsize));
+            data.AppendFormat("[{0},{1},{2},\"{3}\",\"{4}\",{5},\"{6}\",{7},\"{8}\",{9}]",
+                D2S(x), D2S(y), D2S(rad), 
+                clr, style,
+                height == null ? "null" : "\"" + height + "\"",
+                title,
+                lnw == null ? "null" : "\"" + lnw + "\"",
+                csk,
+                fontsize == null ? "null" : "\"" + fontsize + "\"");
         }
 
         /// <summary>
@@ -1600,15 +1240,6 @@ namespace MathPanel
             try
             {
                 StreamWriter sw = new StreamWriter(fname, false, Encoding.UTF8);
-                /*sw.WriteLine("{\"data\":[");
-                int i = 0;
-                foreach (Phob ph in lst)
-                {
-                    sw.WriteLine(string.Format("{1}{0}", ph.ToJson(), i > 0 ? "," : ""));
-                    i++;
-                }
-                sw.WriteLine("]}");*/
-
                 Scene sc = new Scene();
                 sc.xRotor = xRotor;
                 sc.yRotor = yRotor;
@@ -1879,6 +1510,7 @@ namespace MathPanel
             Console("post=" + s);
         }
 
+        //пока не используется!
         /// <summary>
         /// Load Scriplet result from server
         /// </summary>

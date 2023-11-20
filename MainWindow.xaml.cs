@@ -81,6 +81,14 @@ Dynamo.Console(hz.ToString());
             if (!string.IsNullOrEmpty(s))
                 DoLocal(s);
 
+            
+            s = ConfigurationManager.AppSettings["FontSize"];
+            if (!string.IsNullOrEmpty(s))
+            {
+                textBlock1.FontSize = int.Parse(s);
+                textBlock2.FontSize = int.Parse(s);
+            }
+
             /*//https://www.codeproject.com/Questions/707214/how-make-my-csharp-web-browser-to-support-html5
             try
             {   //you need administrative rights
@@ -576,19 +584,6 @@ Dynamo.Console(hz.ToString());
         {
             if (!bReady || dispObj.HasShutdownStarted) return;
             SceneDrawShapeHelper(bBx, bCons);
-
-            //мы запускаем код в UI потоке
-            dispObj.Invoke(delegate
-            {
-                if (bCons) Console(screenJson);
-                webConsole.InvokeScript("ext_json", screenJson);
-            });
-        }
-        //old low quality approach
-        public static void SceneDrawShapeBook(bool bBx = true, bool bCons = false)
-        {
-            if (!bReady || dispObj.HasShutdownStarted) return;
-            SceneDrawShapeBookHelper(bBx, bCons);
 
             //мы запускаем код в UI потоке
             dispObj.Invoke(delegate

@@ -141,9 +141,51 @@ namespace MathPanel
         }
 
         /// <summary>
-        /// привести Phob к строке в формате Json
+        /// привести Phob к строке в формате Json для рисования
+        /// new Array(x, y, sz, clr, style, height, text, linewidth, colorstroke, fontsize)
         /// </summary>
         public string ToJson()
+        {
+            //создаем StringBuilder для ускорения
+            var bui = new StringBuilder();
+            bui.AppendFormat("[{0},{1},{2}", Dynamo.D2S(x), Dynamo.D2S(y), Dynamo.D2S(radius));
+
+            var atr = AttrGet("clr");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            atr = AttrGet("sty");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            atr = AttrGet("hei");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            atr = AttrGet("text");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            atr = AttrGet("lnw");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            atr = AttrGet("csk");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            atr = AttrGet("fontsize");
+            if (atr != null) bui.AppendFormat(",\"{0}\"", atr);
+            else bui.Append(",null");
+
+            bui.AppendFormat("]");
+            return bui.ToString();
+        }
+
+        /// <summary>
+        /// привести Phob к строке в формате Json ассоциативно
+        /// </summary>
+        public string ToJsonAsso()
         {
             //создаем StringBuilder для ускорения
             var attr = new StringBuilder();

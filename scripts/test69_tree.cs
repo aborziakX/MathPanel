@@ -1,5 +1,8 @@
 ﻿//test69_tree
 Dynamo.SceneClear();
+Dynamo.XRotor = 0;
+Dynamo.YRotor = 0;
+Dynamo.ZRotor = 0;
 
 int id = Dynamo.PhobNew(0, 0, 0);
 Dynamo.Console(id.ToString());

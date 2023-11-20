@@ -180,7 +180,7 @@ namespace MathPanelExt
         /// <summary>
         /// рекурсивная обработка - очистка папки dir1 от файлов с расширением ext
         /// </summary>
-        public static int CleanDir(string dir1, string ext)
+        public static int CleanDir(string dir1, string ext, bool bShowOnly)
         {
             int iRemoved = 0;
             try
@@ -188,15 +188,19 @@ namespace MathPanelExt
                 string[] files = Directory.GetFiles(dir1, ext);
                 foreach (var f in files)
                 {
-                    File.Delete(f);
-                    log("remove=" + f);
+                    if (!bShowOnly)
+                    {
+                        File.Delete(f);
+                        log("удален=" + f);
+                    }
+                    else log("будет удален=" + f);
                     iRemoved++;
                 }
 
                 string[] subDir1 = Directory.GetDirectories(dir1);
                 foreach (var d in subDir1)
                 {
-                    iRemoved += CleanDir(d, ext);
+                    iRemoved += CleanDir(d, ext, bShowOnly);
                 }
             } catch (Exception) { };
             return iRemoved;

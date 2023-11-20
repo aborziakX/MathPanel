@@ -130,7 +130,10 @@ namespace DynamoCode
             }*/
 
             Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
+            Dynamo.BAxes = false;
+            Dynamo.BDrawBox = false;
             Dynamo.SceneDrawShape(true, false);
+            Dynamo.Console("js len=" + Dynamo.ScreenJson.Length);
 
             for (int i = 0; i < 1000; i++)
             {
@@ -142,6 +145,11 @@ namespace DynamoCode
                 if (i % 10 == 0)
                 {
                     Dynamo.Console("ms=" + ms);
+                }
+                string resp = Dynamo.KeyConsole;
+                if (resp == "Q")
+                {
+                    break;
                 }
                 System.Threading.Thread.Sleep(ms < 50 ? 50 - ms : 1);
             }

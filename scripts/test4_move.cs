@@ -6,14 +6,17 @@ Dynamo.Console(id.ToString());
 var hz0 = Dynamo.PhobGet(id) as Phob;
 Dynamo.Console(hz0.ToString());
 
-id = Dynamo.PhobNew(11, 12, 3);
+id = Dynamo.PhobNew(21, 22, 3);
 Dynamo.Console(id.ToString());
 Dynamo.PhobAttrSet(id, "size", "20");
 Dynamo.PhobAttrSet(id, "clr", "#ffaa00");
+Dynamo.PhobAttrSet(id, "sty", "dots");
 var hz1 = Dynamo.PhobGet(id) as Phob;
 Dynamo.Console(hz1.ToString());
 
-id = Dynamo.PhobNew(21, 22, 3);
+id = Dynamo.PhobNew(11, 12, 3);
+Dynamo.PhobAttrSet(id, "sty", "tri");
+Dynamo.PhobAttrSet(id, "text", "triangle");
 Dynamo.Console(id.ToString());
 var hz2 = Dynamo.PhobGet(id) as Phob;
 Dynamo.Console(hz2.ToString());

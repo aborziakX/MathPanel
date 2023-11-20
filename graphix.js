@@ -113,36 +113,36 @@ if (typeof GRAPHIX == "undefined") {
                 var r = data[i];//каждый элемент тоже массив
                 var x = r[0];
                 var y = r[1];
-                if( r.length > 2 && r[2] != null ) {//задан размер
+                if (r.length > 2 && r[2] != null && r[2] != "" ) {//задан размер
                     bRestoreSize = true;
                     sz_old = sz;
                     sz = r[2];
                 }
-                if (r.length > 3 && r[3] != null) {//задан цвет заполнения
+                if (r.length > 3 && r[3] != null && r[3] != "") {//задан цвет заполнения
                     bRestoreColor = true;
                     ctx.fillStyle = r[3];
                 }
-                if (r.length > 4 && r[4] != null) {//задан стиль
+                if (r.length > 4 && r[4] != null && r[4] != "") {//задан стиль
                     bRestoreStyle = true;
                     style = r[4];
                 }
-                if (r.length > 5 && r[5] != null) {//задана высота гистограммы
+                if (r.length > 5 && r[5] != null && r[5] != "") {//задана высота гистограммы
                     height = r[5];
                 }
-                if (r.length > 6 && r[6] != null) {//задан текст
+                if (r.length > 6 && r[6] != null && r[6] != "") {//задан текст
                     text = r[6];
                 }
                 else text = "";
 
-                if (r.length > 7 && r[7] != null) {//задана ширина линий
+                if (r.length > 7 && r[7] != null && r[7] != "") {//задана ширина линий
                     ctx.lineWidth = r[7];
                     bRestoreLw = true;
                 }
-                if (r.length > 8 && r[8] != null) {//задан цвет линий
+                if (r.length > 8 && r[8] != null && r[8] != "") {//задан цвет линий
                     ctx.strokeStyle = r[8];
                     bRestoreColorstroke = true;
                 }
-                if (r.length > 9 && r[9] != null) {//задан размер шрифта
+                if (r.length > 9 && r[9] != null && r[9] != "") {//задан размер шрифта
                     ctx.font = r[9] + "px Verdana";
                     bRestoreFont = true;
                 }
@@ -152,7 +152,7 @@ if (typeof GRAPHIX == "undefined") {
                 var m = Math.round((h - (h * (y - y0)) / dy) + this.PADDING);
                 //применить стиль
                 if (style == "dots") {//прямоугольники
-                    ctx.fillRect(l-sz/2, m-sz/2, sz, sz);
+                    ctx.fillRect(l - sz / 2, m - sz / 2, sz, sz);
                     if (text != "") ctx.fillText(text, l, m - 10);
                 }
                 else if (style == "circle") {//окружности
@@ -221,7 +221,7 @@ if (typeof GRAPHIX == "undefined") {
                     ctx.moveTo(l, m);
                     ctx.lineTo(l, m - height);
                     ctx.stroke();
-                    if( text != "" ) ctx.fillText(text, l, m - height - 10);
+                    if (text != "") ctx.fillText(text, l, m - height - 10);
                 }
                 else if (style == "line" || style == "line_end" || style == "line_endf") {//линия или конец линии
                     if (!bLine) {
@@ -234,10 +234,10 @@ if (typeof GRAPHIX == "undefined") {
                     }
                     if (style == "line_end" || style == "line_endf") {//конец линии
                         bLine = false;
-                        if( style == "line_endf") ctx.fill();//залить путь
+                        if (style == "line_endf") ctx.fill();//залить путь
                         //else 
                         ctx.stroke();
-                    }                  
+                    }
                     if (text != "") ctx.fillText(text, l, m - 10);
                 }
                 else if (style == "text") {
@@ -247,6 +247,17 @@ if (typeof GRAPHIX == "undefined") {
                         else ctx.fillText(text, l, m + fontsize * 1);//текст под точкой
                     }
                 }
+                else if (style == "tri") {
+                    ctx.beginPath();
+                    ctx.moveTo(l, m);
+                    ctx.lineTo(l + sz / 2, m + sz);
+                    ctx.lineTo(l - sz / 2, m + sz);
+                    ctx.lineTo(l, m);
+                    ctx.fill();
+                    ctx.stroke();
+                    if (text != "") ctx.fillText(text, l, m - 10);
+                }
+
                 //восстановить значения по умолчанию
                 if(bRestoreSize) {
                     bRestoreSize = false;
@@ -316,7 +327,7 @@ if (typeof GRAPHIX == "undefined") {
             return dpa;
         },
 
-        //отобразить json-object
+        //отобразить s = json-object
         drawJsonObj: function (canvas, s) {
             var cnv = document.getElementById(canvas);
             var ctx = cnv.getContext('2d');
@@ -334,49 +345,12 @@ if (typeof GRAPHIX == "undefined") {
             }
             //определить сжатие
             var scale = cnv.width / (opt["x1"] - opt["x0"]);
-            //создать пустой массив
-            var dd = new Array();
-            for (var i = 0; i < s["data"].length; i++) {
-                var row = s["data"][i];//это массив
-                var x = row["x"];//позиция по горизонтали
-                var y = row["y"];//позиция по вертикали
-                //размер точки
-                var sz = ("" + row["rad"]);
-                if( sz == "undefined" ) sz = null;
-                else {
-                    sz = sz * scale;
-                    if (sz < 1) sz = this.displaySubzero ? 1 : 0;
-                }
-                //цвет
-                var clr = ("" + row["clr"]);
-                if( clr == "undefined" ) clr = null;
-                //стиль
-                var style = ("" + row["sty"]);
-                if (style == "undefined") style = null;
-                //высота гистограммы
-                var height = ("" + row["hei"]);
-                if (height == "undefined") height = null;
-                //текст
-                var text = ("" + row["txt"]);
-                if (text == "undefined") text = null;
-                //ширина линии
-                var linewidth = ("" + row["lnw"]);
-                if (linewidth == "undefined") linewidth = null;
-                //цвет линии
-                var colorstroke = ("" + row["csk"]);
-                if (colorstroke == "undefined") colorstroke = null;
-                //размер шрифта
-                var fontsize = ("" + row["fontsize"]);
-                if (fontsize == "undefined") fontsize = null;
-                //запихнуть описание точки в массив
-                dd.push(new Array(x, y, sz, clr, style, height, text, linewidth, colorstroke, fontsize));
-            }
             //фон для холста?
-            if( ("" + opt["bg"]) != "undefined" ) {
+            if (("" + opt["bg"]) != "undefined") {
                 this.AX_BG = opt["bg"];
             }
             //рисовать поверх?
-            if( ("" + opt["second"]) == "undefined" ) {
+            if (("" + opt["second"]) == "undefined") {
                 //рисовать фон и границы    
                 this.AX_CL = "#ffff00";
                 this.PADDING = 5;
@@ -389,7 +363,59 @@ if (typeof GRAPHIX == "undefined") {
                 if (obj != null) try {
                     obj.src = opt["img"];
                     this.drawImage(canvas, "img1", 0, 0);
-                } catch (e) {  };
+                } catch (e) { };
+            }
+
+            var dd = s["dd"];
+            if (("" + dd) == "undefined") {
+                //создать пустой массив и заполнить
+                dd = new Array();
+                for (var i = 0; i < s["data"].length; i++) {
+                    var row = s["data"][i];//это массив
+                    var x = row["x"];//позиция по горизонтали
+                    var y = row["y"];//позиция по вертикали
+                    //размер точки
+                    var sz = ("" + row["rad"]);
+                    if (sz == "undefined") sz = null;
+                    else {
+                        sz = sz * scale;
+                        if (sz < 1) sz = this.displaySubzero ? 1 : 0;
+                    }
+                    //цвет
+                    var clr = ("" + row["clr"]);
+                    if (clr == "undefined") clr = null;
+                    //стиль
+                    var style = ("" + row["sty"]);
+                    if (style == "undefined") style = null;
+                    //высота гистограммы
+                    var height = ("" + row["hei"]);
+                    if (height == "undefined") height = null;
+                    //текст
+                    var text = ("" + row["txt"]);
+                    if (text == "undefined") text = null;
+                    //ширина линии
+                    var linewidth = ("" + row["lnw"]);
+                    if (linewidth == "undefined") linewidth = null;
+                    //цвет линии
+                    var colorstroke = ("" + row["csk"]);
+                    if (colorstroke == "undefined") colorstroke = null;
+                    //размер шрифта
+                    var fontsize = ("" + row["fontsize"]);
+                    if (fontsize == "undefined") fontsize = null;
+                    //запихнуть описание точки в массив
+                    dd.push(new Array(x, y, sz, clr, style, height, text, linewidth, colorstroke, fontsize));
+                }
+            }
+            else {
+                for (var i = 0; i < dd.length; i++) {
+                    var sz = ("" + dd[i][2]);
+                    if (sz == "undefined") sz = null;
+                    else {
+                        sz = sz * scale;
+                        if (sz < 1) sz = this.displaySubzero ? 1 : 0;
+                    }
+                    dd[i][2] = sz;
+                }
             }
             //отрисовать данные
             this.drawData(canvas, dd, opt);

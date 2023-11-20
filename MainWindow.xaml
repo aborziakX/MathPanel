@@ -17,11 +17,11 @@
         <Button x:Name="button6" Content="New script" HorizontalAlignment="Left" Height="28" Margin="717,4,0,0" VerticalAlignment="Top" Width="90"/>
         <Button x:Name="button7" Content="Image" HorizontalAlignment="Left" Height="28" Margin="827,4,0,0" VerticalAlignment="Top" Width="90"/>
         <ScrollViewer Name="sv1" VerticalScrollBarVisibility="Auto" BorderThickness="1" Width="1180" Margin="4,40,4,260" Height="320" Background="AliceBlue">
-            <TextBox x:Name="textBlock1" HorizontalAlignment="Left" VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" Text="" VerticalAlignment="Top" Height="280" Width="1150"/>
+            <TextBox x:Name="textBlock1" HorizontalAlignment="Left" VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" Text="" VerticalAlignment="Top" Height="280" Width="1150" FontFamily="Courier New" FontSize="14"/>
         </ScrollViewer>
         <ScrollViewer Name="sv2" VerticalScrollBarVisibility="Auto" BorderThickness="1" Width="1120" Height="200" Margin="47,364,0,9">
         </ScrollViewer>
-        <TextBox x:Name="textBlock2" HorizontalAlignment="Left" VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" Text="" VerticalAlignment="Top" Height="200" Width="1150" Margin="8,370,42,0"/>
+        <TextBox x:Name="textBlock2" HorizontalAlignment="Left" VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" Text="" VerticalAlignment="Top" Height="200" Width="1150" Margin="8,370,42,0" FontFamily="Courier New" FontSize="14"/>
         <WebBrowser x:Name="web1" HorizontalAlignment="Left" Height="550" VerticalAlignment="Bottom" Width="1180" Margin="0,0,0,9"/>
         <Image x:Name="img1" HorizontalAlignment="Left" Height="550" VerticalAlignment="Bottom" Width="1180" Margin="0,0,0,9" />
     </Grid>

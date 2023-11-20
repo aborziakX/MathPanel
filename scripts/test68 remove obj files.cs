@@ -13,7 +13,7 @@ namespace DynamoCode
 		public void Execute()
         {
             Dynamo.Console("test68 remove obj files started!");
-            int n = MathPanelExt.FileSystemClean.CleanDir(@"C:\VTK\", "*.obj");
+            int n = MathPanelExt.FileSystemClean.CleanDir(@"C:\VTK\", "*.obj", true);
             Dynamo.Console("removed =" + n);
         }  
     }  
