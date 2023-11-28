@@ -12,6 +12,10 @@ namespace MathPanel
     public class Tree : GeOb
     {
         static Random rand = new Random(); //генератор случайных чисел
+        //зона готово
+        public List<Vec3> lstBegFix = new List<Vec3>();
+        public List<Vec3> lstDirFix = new List<Vec3>();
+
         /// <summary>
         /// конструктор Дерева
         /// </summary>
@@ -31,10 +35,7 @@ namespace MathPanel
             Vec3 v0, v1, v2, v3, vBeg, vDir;
             v0 = new Vec3();
             v3 = new Vec3();
-
-            //зона готово
-            List<Vec3> lstBegFix = new List<Vec3>();
-            List<Vec3> lstDirFix = new List<Vec3>();
+            
             //зона роста
             List<Vec3> lstBeg = new List<Vec3>();
             List<Vec3> lstDir = new List<Vec3>();
