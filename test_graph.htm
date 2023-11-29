@@ -305,7 +305,25 @@ function ext_example3(w) {
     ctx.fillText("Hello World", 10, 50);
 }
 
+function nextDraw() {
+    GRAPHIX.drawImage("canvas2", diImg, diX, diY);
+}
 
+var diImg, diX, diY;
+//загрузить base64 для изображения и нарисовать
+function loadImageDraw(s, typ, img, x, y) {
+    var obj = document.getElementById(img);
+    obj.src = "data:image/" + typ + ";base64," + s;
+    diImg = img;
+    diX = x;
+    diY = y;
+    window.setTimeout("nextDraw()", 100); 
+}
+//загрузить base64 для изображения
+function loadImage(s, typ, img) {
+    var obj = document.getElementById(img);
+    obj.src = "data:image/" + typ + ";base64," + s;
+}
     </script>
 </body>
 </html>

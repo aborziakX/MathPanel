@@ -50,6 +50,7 @@ namespace MathPanel
         static object locker = new object(); //для синхронизации доступа
         static int loglevel = 0; //уровень логирования
         static string canvasBg = "#000000"; //фон канваса
+        static string imgBg = ""; //картинка-фон
         static string ext_params = ""; //дополнительный параметр
 
         static Mat3 matStepClock = new Mat3(0, 0, 0.1); //матрица для вращения стрекой почасовой
@@ -958,10 +959,10 @@ namespace MathPanel
                 dY0 = -dY1;
             }
             //параметры рисования: размеры, цвет, стиль
-            string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\" }}",
+            string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\", \"img\": \"{8}\" }}",
                 D2S(dX0), D2S(dX1),
                 D2S(dY0), D2S(dY1),
-                iCanvasWidth, iCanvasHeight, clrStroke, canvasBg);
+                iCanvasWidth, iCanvasHeight, clrStroke, canvasBg, imgBg);
             screenJson = string.Format("{{\"options\":{0}, \"dd\":[{1}]}}", opt, data.ToString());
 
             /*if (!bReady || dispObj.HasShutdownStarted) return;
@@ -1166,10 +1167,10 @@ namespace MathPanel
             }
 
             //параметры рисования: размеры, цвет, стиль
-            string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\" }}",
+            string opt = string.Format("{{\"x0\": {0}, \"x1\": {1}, \"y0\": {2}, \"y1\": {3}, \"clr\": \"#ff0000\", \"csk\": \"{6}\", \"sty\": \"circle\", \"size\":2, \"wid\": {4}, \"hei\": {5}, \"bg\": \"{7}\", \"img\": \"{8}\" }}",
                 D2S(dX0), D2S(dX1),
                 D2S(dY0), D2S(dY1),
-                iCanvasWidth, iCanvasHeight, clrStroke, canvasBg);
+                iCanvasWidth, iCanvasHeight, clrStroke, canvasBg, imgBg);
             data.AppendFormat("], \"options\":{0}}}", opt);
             screenJson = data.ToString();
 
@@ -1782,6 +1783,15 @@ namespace MathPanel
 
             m_1.BuildVec(ex_c, ey_c, ez_c);
             m_1.Inverse(ref matRotor);
+        }
+
+        /// <summary>
+        /// установить картинку-фон
+        /// </summary>
+        /// <param name="s">картинка-фон</param>
+        public static void SetImgBg(string s)
+        {
+            imgBg = s;
         }
     }
 }

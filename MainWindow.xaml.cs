@@ -726,5 +726,43 @@ Dynamo.Console(hz.ToString());
                 webConsole.InvokeScript("ext_example" + id);
             });
         }
+
+        /// <summary>
+        /// метод для загрузки изображения в канвас
+        /// </summary>
+        /// <param name="data">base64 изображения</param>
+        public static void LoadImageDraw(string data, string typ, string img, int x, int y)
+        {
+            if (!bReady || dispObj.HasShutdownStarted) return;
+            //launch in UI thread
+            dispObj.Invoke(delegate
+            {
+                var pars = new object[5];
+                pars[0] = data;
+                pars[1] = typ;
+                pars[2] = img;
+                pars[3] = x;
+                pars[4] = y;
+                webConsole.InvokeScript("loadImageDraw", pars);
+            });
+        }
+
+        /// <summary>
+        /// метод для загрузки изображения в img
+        /// </summary>
+        /// <param name="data">base64 изображения</param>
+        public static void LoadImage(string data, string typ, string img)
+        {
+            if (!bReady || dispObj.HasShutdownStarted) return;
+            //launch in UI thread
+            dispObj.Invoke(delegate
+            {
+                var pars = new object[3];
+                pars[0] = data;
+                pars[1] = typ;
+                pars[2] = img;
+                webConsole.InvokeScript("loadImage", pars);
+            });
+        }
     }
 }

@@ -357,12 +357,27 @@ if (typeof GRAPHIX == "undefined") {
                 this.borders = 0;//15;
                 this.drawAxes(canvas);
             }
-            //задать картинку?
-            if (("" + opt["img"]) != "undefined") {
-                var obj = document.getElementById("img1");
-                if (obj != null) try {
-                    obj.src = opt["img"];
-                    this.drawImage(canvas, "img1", 0, 0);
+            //задать картинку: img, imgObj, imgX, imgY
+            var img = ("" + opt["img"]);
+            if ( img != "undefined" && img != "" ) {
+                 try {
+                     var imgObj = "" + opt["imgObj"];
+                     if (imgObj == "undefined") imgObj = "img1";
+
+                     var imgX = "" + opt["imgX"];
+                     if (imgX == "undefined") imgX = 0;
+                     else imgX = imgX * 1;
+
+                     var imgY = "" + opt["imgY"];
+                     if (imgY == "undefined") imgY = 0;
+                     else imgY = imgY * 1;
+
+                     var obj = document.getElementById(imgObj);
+                     if (obj != null && img != "img1" && img != "img2" && img != "img3")
+                         obj.src = img;
+                     //else - preloaded image
+                     //alert(canvas + "," + imgObj + "," + imgX + "," + imgY);
+                     drawImage(canvas, imgObj, imgX, imgY);
                 } catch (e) { };
             }
 
