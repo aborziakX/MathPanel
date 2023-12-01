@@ -1230,6 +1230,7 @@ namespace MathPanel
             bAxes = true;
             CameraZ = 100;
             if (bConsoleClear) ConsoleClear();
+            imgBg = "";
         }
 
         /// <summary>

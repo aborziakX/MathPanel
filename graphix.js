@@ -302,7 +302,8 @@ if (typeof GRAPHIX == "undefined") {
             var cnv = document.getElementById(canvas);
             var ctx = cnv.getContext('2d');
             var img = document.getElementById(imgid);
-            if( img != null ) ctx.drawImage(img, x, y);
+            if (img != null) ctx.drawImage(img, x, y);
+            //alert("drawImage=" + imgid + "," + x + "," + y);
         },
         
         //отобразить json-string
@@ -377,8 +378,10 @@ if (typeof GRAPHIX == "undefined") {
                          obj.src = img;
                      //else - preloaded image
                      //alert(canvas + "," + imgObj + "," + imgX + "," + imgY);
-                     drawImage(canvas, imgObj, imgX, imgY);
-                } catch (e) { };
+                     this.drawImage(canvas, imgObj, imgX, imgY);
+                } catch (e) {
+                     //alert("e=" + e);
+                };
             }
 
             var dd = s["dd"];

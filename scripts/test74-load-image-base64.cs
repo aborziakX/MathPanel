@@ -9,7 +9,7 @@ bm.Save(fname);
 var bts = System.IO.File.ReadAllBytes(fname);
 var s = System.Convert.ToBase64String(bts);
 Dynamo.Console(s);
-Dynamo.LoadImage(s, "jpg", "img2", 20, 20);
+Dynamo.LoadImageDraw(s, "jpg", "img2", 20, 20);
 
 System.Threading.Thread.Sleep(150);
 Dynamo.GraphExample("1"); 
