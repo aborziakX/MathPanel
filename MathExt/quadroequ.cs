@@ -664,6 +664,9 @@ namespace MathPanelExt
 			return sb.ToString();
 		}
 
+		/// <summary>
+		/// подготовка данных для повернутого прямоугольника
+		/// </summary>
 		public static string DrawRotatedRect(double x0, double y0, double width, double height, double angleDegrees, bool bFill = false, DrawOpt opt = null)
 		{
 			string txt = "", sty = "line", clr = "undefined", rad = "undefined", fontsize = "undefined",
@@ -720,6 +723,100 @@ namespace MathPanelExt
 					hei, lnw, csk);
 			}
 
+			return sb.ToString();
+		}
+
+		//
+		/// <summary>
+		/// подготовка данных для спирали
+		/// </summary>
+		public static string DrawSpiral(double a, double b, double x0, double y0, double fi0, double fi1, int n, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				   hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double step = (fi1 - fi0) / n;
+			double fi = fi0;
+			double x, y;
+
+			for (int i = 0; i <= n; i++, fi += step)
+			{
+				x = x0 + (a + b * fi) * Math.Cos(fi);
+				y = y0 + (a + b * fi) * Math.Sin(fi);
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i == n && sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
+				if (i != 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+			}
+			return sb.ToString();
+		}
+		
+		/// <summary>
+		/// подготовка данных для трапеции
+		/// </summary>
+		public static string DrawTrapezoid(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				   hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double x = 0, y = 0;
+			for (int i = 0; i <= 4; i++)
+			{
+				if (i == 0)
+				{
+					x = x0;
+					y = y0;
+				}
+				else if (i == 1)
+				{
+					x = x1;
+					y = y1;
+				}
+				else if (i == 2)
+				{
+					x = x2;
+					y = y2;
+				}
+				else if (i == 3)
+				{
+					x = x3;
+					y = y3;
+				}
+				else if (i == 4)
+				{
+					x = x0;
+					y = y0;
+					if (sty == "line")
+						sty = bFill ? "line_endf" : "line_end";
+				}
+				if (i > 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+			}
 			return sb.ToString();
 		}
 	}
