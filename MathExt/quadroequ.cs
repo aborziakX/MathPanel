@@ -819,5 +819,42 @@ namespace MathPanelExt
 			}
 			return sb.ToString();
 		}
+
+		/// <summary>
+		/// подготовка данных для эллипса с поворотом на rotationAngle
+		/// </summary>
+		public static string DrawRotatedEllipse(double a, double b, double x0, double y0, double rotationAngle, double startAngle, double endAngle, int numberOfPoints, DrawOpt opt = null)
+		{
+			string txt = "", sty = "line", clr = "undefined", pointsize = "undefined", fontsize = "undefined",
+				hei = "undefined", lnw = "undefined", csk = "undefined";
+			bool bFill = false;
+			if (opt != null)
+			{
+				bFill = opt.bFill;
+				sty = opt.sty;
+				if (opt.clr != "") clr = opt.clr;
+				if (opt.csk != "") csk = opt.csk;
+				if (opt.rad != "") pointsize = opt.rad;
+				if (opt.lnw != "") lnw = opt.lnw;
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			double step = (endAngle - startAngle) / numberOfPoints;
+			double angle = startAngle;
+			double x, y;
+
+			for (int i = 0; i <= numberOfPoints; i++, angle += step)
+			{
+				x = x0 + a * Math.Cos(angle) * Math.Cos(rotationAngle) - b * Math.Sin(angle) * Math.Sin(rotationAngle);
+				y = y0 + a * Math.Cos(angle) * Math.Sin(rotationAngle) + b * Math.Sin(angle) * Math.Cos(rotationAngle);
+				if (opt != null) opt.Transform(ref x, ref y);
+				if (i == numberOfPoints && sty == "line")
+					sty = bFill ? "line_endf" : "line_end";
+				if (i != 0) sb.Append(",");
+				sb.AppendFormat(sFull_2, Dynamo.D2S(x), Dynamo.D2S(y), txt, sty, clr, pointsize, fontsize,
+					hei, lnw, csk);
+			}
+			return sb.ToString();
+		}
 	}
 }

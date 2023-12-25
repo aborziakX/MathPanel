@@ -1,6 +1,7 @@
 ﻿Dynamo.SceneClear();
 Dynamo.Console("test72_1000_nodes");
 
+Random rand = new Random(); //генератор случайных чисел
 int n = 0;
 for (int i = 0; i < 10; i++)
 {
@@ -12,7 +13,8 @@ for (int i = 0; i < 10; i++)
             if( n % 3 == 1 )
                 Dynamo.PhobAttrSet(id, "sty", "dots");
             else if (n % 3 == 2) Dynamo.PhobAttrSet(id, "sty", "tri");
-            Dynamo.PhobAttrSet(id, "size", "0.01");
+            Phob ph = Dynamo.PhobGet(id);
+            ph.radius = rand.NextDouble() * 0.33;
 
             if (n % 4 == 0)
                 Dynamo.PhobAttrSet(id, "clr", "#00aa00");
