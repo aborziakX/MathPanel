@@ -9,12 +9,12 @@ for (int i = 0; i < 10; i++)
     {
         for (int k = 0; k < 10; k++)
         {
-            int id = Dynamo.PhobNew(-10 + 2 * i, -10 + 2 * j, -4 * k);
-            if( n % 3 == 1 )
+            int id = Dynamo.PhobNew(-20 + 4 * i, -20 + 4 * j, -20 + 4 * k);
+            if( n % 7 == 1 )
                 Dynamo.PhobAttrSet(id, "sty", "dots");
-            else if (n % 3 == 2) Dynamo.PhobAttrSet(id, "sty", "tri");
+            else if (n % 7 == 2) Dynamo.PhobAttrSet(id, "sty", "tri");
             Phob ph = Dynamo.PhobGet(id);
-            ph.radius = rand.NextDouble() * 0.33;
+            ph.radius = rand.NextDouble() * 0.6;
 
             if (n % 4 == 0)
                 Dynamo.PhobAttrSet(id, "clr", "#00aa00");
@@ -33,11 +33,19 @@ Dynamo.SceneDrawShape(true, true);
 
 for (int i = 0; i < 1000; i++)
 {
+    DateTime dt1 = DateTime.Now;
     Dynamo.SceneDrawShape(true);
+    DateTime dt2 = DateTime.Now;
+    TimeSpan diff = dt2 - dt1;
+    int ms = (int)diff.Milliseconds;
+    if (i % 40 == 0)
+    {
+        Dynamo.Console("ms=" + ms);
+    }
     string resp = Dynamo.KeyConsole;
     if (resp == "Q")
     {
         break;
     }
-    System.Threading.Thread.Sleep(50);
+    System.Threading.Thread.Sleep(ms < 50 ? 50 - ms : 1);
 }
