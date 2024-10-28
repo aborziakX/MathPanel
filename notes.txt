@@ -1,0 +1,80 @@
+2023-08-22 программа перестала работать
+при выполнении скрипта compile error: Не удалось произвести запись в выходной файл "c:\Users\boraa\AppData\Local\Temp\kas3gonw.dll" -- "Could not execute CVTRES.EXE."
+
+Помогло только установка .Net framework 4.8.1 и пакета разработчика
+соответсвенно поменяем компиляцию проекта и путь в конфиге
+
+2023-08-24 использовать!
+public static void SceneJson(string s_json, bool bSecond = false)
+        {
+            if (!bReady || dispObj.HasShutdownStarted) return;
+            screenJson = s_json;
+            //мы запускаем код в UI потоке
+            dispObj.Invoke(delegate
+            {
+                webConsole.InvokeScript("ext_json", screenJson, bSecond);
+            });
+        }
+
+2023-08-25 down .Net core 6.021 runtime + SDK for VS
+
+2023-09-06
+bugs: 
+
+fixed: GetParams blocks other scripts, buggy - fixed
+
+use: check Q, SceneClear
+
+2023-11-20
+проверить стрелки - стало лучше, все напрвления независимы, но оставляют желать больше
+
+убрать oldcode
+
+Release проверить быстродействие covid.cs
+total RadiusVar=34
+total fac=17 984
+js len=3 362 304
+SceneDrawShape ms=356
+SceneDrawShape ms=454
+js draw ~ 300
+js parse ~ 75
+
+быстродействие covid_simple.cs
+total RadiusVar=34
+total fac=17 984
+js len=3 329 179
+SceneDrawShape ms=339
+SceneDrawShape ms=486
+js draw ms=296
+js parse=81
+
+перенести код в класс, снова проверить - TODO
+
+изменить формат - вместо ассоц.массива сделать обычный
+
+total RadiusVar=40
+total fac=20 480
+js len=2 631 957
+ms=317
+ms=363
+ms=319
+319-216 генерация строки
+draw ms=216, 
+parse=23
+Примерно в 1.3 раза меньше строка и в 1.3 раза быстрее!
+
+
+LoadScripresult ? check!
+ScripletHelper
+
+
+ТОДО
+Слишком маленькие ячейки не добавлять?
+
+2024-01-06
+MP экспорт в wrml (что лучше для дела)
+
+MathPanel - это калькулятор на стероидах. Мой пиар)
+Недавно так и использовал. Есть в Экселе способ заполнить колонку от числа с приращением.
+Я его раз использовал и забыл как делать.
+А в MathPanel пишеш скрипт (он уже есть test14_increment_excel.cs) , копи/паста и вуаля.
