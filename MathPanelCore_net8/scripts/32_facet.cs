@@ -23,7 +23,7 @@ public void Execute()
     hz.Shape = t1;
 
     //var bm = new BitmapSimple(@"world400.jpg");
-    var bm = new BitmapSimple(@"images\arrow_red2.png");
+    //var bm = new BitmapSimple(@"images\arrow_red2.png");
     id = Dynamo.PhobNew(-0, 0, -10);
     hz = Dynamo.PhobGet(id) as Phob;
     t1 = new OneFacet(new Vec3(-5, -7, -5), new Vec3(5, -7, -5),
@@ -38,6 +38,7 @@ public void Execute()
     Dynamo.Console("total fac=" + Dynamo.SceneFacets());
 
     Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
+    Dynamo.BDrawBox = false;
     Dynamo.SceneDrawShape(true, false);
 
     for (int i = 0; i < 1000; i++)

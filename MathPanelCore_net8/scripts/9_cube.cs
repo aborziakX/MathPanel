@@ -10,6 +10,7 @@ cub.bDrawNorm = true;
 hz.Shape = cub;
 
 Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
+Dynamo.BDrawBox = false;
 Dynamo.ZBoXTrans = -30;
 Dynamo.CameraZ = 40;
 Dynamo.SceneDrawShape(true, true);

@@ -18,7 +18,7 @@ Dynamo.Console("test37_bitmap_gradient");
             //var bm = new BitmapSimple(20, 20, colors);
             var bm = new BitmapSimple(200, 200, System.Drawing.Color.White, System.Drawing.Color.Blue, false);
             bm.Randomize(10000, 10);
-            bm.Save(@"scenes\white_blue_200.png");
+            //bm.Save(@"scenes\white_blue_200.png");
 
             int id = Dynamo.PhobNew(-0, 0, 15);
             var hz = Dynamo.PhobGet(id) as Phob;
@@ -31,7 +31,7 @@ Dynamo.Console("test37_bitmap_gradient");
             //second
             bm = new BitmapSimple(200, 200, System.Drawing.Color.DarkBlue, System.Drawing.Color.Blue, false);
             bm.Randomize(10000, 10);
-            bm.Save(@"scenes\dark_blue_200.png");
+            //bm.Save(@"scenes\dark_blue_200.png");
 
             id = Dynamo.PhobNew(-0, 0, 5);
             hz = Dynamo.PhobGet(id) as Phob;
@@ -48,7 +48,7 @@ Dynamo.Console("test37_bitmap_gradient");
             };
             bm = new BitmapSimple(200, 200, focus);
             bm.Randomize(10000, 10);
-            bm.Save(@"scenes\red_green_blue_200.png");
+            //bm.Save(@"scenes\red_green_blue_200.png");
 
             id = Dynamo.PhobNew(-0, 0, -5);
             hz = Dynamo.PhobGet(id) as Phob;
@@ -65,7 +65,7 @@ Dynamo.Console("test37_bitmap_gradient");
             };
             bm = new BitmapSimple(200, 200, focus2);
             bm.Randomize(100000, 10);
-            bm.Save(@"scenes\red_green_white_rand_200.png");
+            //bm.Save(@"scenes\red_green_white_rand_200.png");
 
             id = Dynamo.PhobNew(-0, 0, -15);
             hz = Dynamo.PhobGet(id) as Phob;
@@ -78,12 +78,13 @@ Dynamo.Console("test37_bitmap_gradient");
             Dynamo.Console("total area=" + Dynamo.SceneFacetsArea());
 
             Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
-            Dynamo.SceneDrawShape(false, false);
+			Dynamo.BDrawBox = false;
+            Dynamo.SceneDrawShape(true, false);
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 200; i++)
             {
                 DateTime dt1 = DateTime.Now;
-                Dynamo.SceneDrawShape(false, false);
+                Dynamo.SceneDrawShape(true, false);
                 DateTime dt2 = DateTime.Now;
                 TimeSpan diff = dt2 - dt1;
                 int ms = (int)diff.TotalMilliseconds;

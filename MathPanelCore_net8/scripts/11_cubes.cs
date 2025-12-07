@@ -36,6 +36,7 @@ cub4.ZRotor = -0.2;
 hz4.Shape = cub4;
 
 Dynamo.SceneBox = new Box(0, 120, 0, 80, 0, 40);
+Dynamo.BDrawBox = false;
 Dynamo.XBoXTrans = -60;
 Dynamo.YBoXTrans = -40;
 Dynamo.ZBoXTrans = -40;

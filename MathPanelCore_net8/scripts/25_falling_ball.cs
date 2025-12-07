@@ -32,6 +32,7 @@
 
             Dynamo.SceneBox = new Box(0, 40, 0, 40, 0, 40);
             Box bx = Dynamo.SceneBox;
+            Dynamo.BDrawBox = false;
             Dynamo.SceneDrawShape(true);
             int iTotalRes = 0;
 

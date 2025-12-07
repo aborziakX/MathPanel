@@ -4,7 +4,19 @@ public void Execute()
     Dynamo.Console("test35_facet_bitmap");
     //Dynamo.Scriplet("test35_facet_bitmap", "Просто грань");
     Dynamo.SceneClear();
-    var bm = new BitmapSimple(@"images\world200.png");
+    //var bm = new BitmapSimple(@"images\world200.png");
+    System.Drawing.Color[] colors = { 
+        System.Drawing.Color.Red,
+        System.Drawing.Color.Orange,
+        System.Drawing.Color.Yellow,
+        System.Drawing.Color.Green,
+        System.Drawing.Color.Blue,
+        /*System.Drawing.Color.Magenta,
+        System.Drawing.Color.Cyan,
+        System.Drawing.Color.White,
+        System.Drawing.Color.Green,*/
+    };
+    var bm = new BitmapSimple(20, 20, colors);
 
     int id = Dynamo.PhobNew(-0, 0, 0);
     var hz = Dynamo.PhobGet(id) as Phob;

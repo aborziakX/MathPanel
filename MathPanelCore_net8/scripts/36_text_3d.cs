@@ -78,6 +78,7 @@ public void Execute()
     Dynamo.Console("total fac=" + Dynamo.SceneFacets());
 
     Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
+    Dynamo.BDrawBox = false;
     Dynamo.BAxes = false;
     Dynamo.SceneDrawShape(false, true);
 

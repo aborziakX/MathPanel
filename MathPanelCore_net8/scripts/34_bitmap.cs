@@ -1,9 +1,9 @@
 ﻿//test34_bitmap
 public void Execute()
 {
-    Dynamo.Console("test34_bitmap");
-    //Dynamo.Scriplet("test34_bitmap", "Просто грань");
     Dynamo.SceneClear();
+    Dynamo.Console("test34_bitmap - Просто грань!");
+    //Dynamo.Scriplet("test34_bitmap", "Просто грань");
 
     System.Drawing.Color[] colors = { 
         System.Drawing.Color.Red,
@@ -17,19 +17,20 @@ public void Execute()
         System.Drawing.Color.Green,*/
     };
 
-    //var bm = new BitmapSimple(20, 20, colors);
+    var bm = new BitmapSimple(20, 20, colors);
     //var bm = new BitmapSimple(200, 200, System.Drawing.Color.White, System.Drawing.Color.Blue, false);
     //var bm = new BitmapSimple(@"arrow_red.png");
-    var bm = new BitmapSimple(@"images\world1960.jpg");
+    //var bm = new BitmapSimple(@"images\world1960.jpg");
     //var bm = new BitmapSimple(@"flag.jpg");
 
+//save is not suported on Linux
     //bm.Save(@"flag1_4.png", 4);
     //bm.Save(@"world1960.png", 1);
-    bm.Save(@"images\world200.png", 10);
+    //bm.Save(@"images\world200.png", 10);
 
     int id = Dynamo.PhobNew(-0, 0, 0);
     var hz = Dynamo.PhobGet(id) as Phob;
-    //var t1 = new Cube(10, "Yellow", 0, 10);
+    //var t1 = new Cube(10, "Yellow");
     //var t1 = new Sphere(20, "Yellow", 20, 0.0 * Math.PI, 0.5 * Math.PI, 0, Math.PI / 6);
     var t1 = new Sphere(20, "Yellow", 40);
     //t1.iFill = 3;
@@ -40,6 +41,7 @@ public void Execute()
     Dynamo.Console("total area=" + Dynamo.SceneFacetsArea());
 
     Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
+    Dynamo.BDrawBox = false;
     Dynamo.SceneDrawShape(true, false);
 
     for (int i = 0; i < 1000; i++)

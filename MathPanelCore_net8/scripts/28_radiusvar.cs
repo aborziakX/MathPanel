@@ -12,6 +12,7 @@
     hz.Shape = t1;
 
     Dynamo.SceneBox = new Box(-20, 20, -20, 20, -20, 20);
+    Dynamo.BDrawBox = false;
     Dynamo.SceneDrawShape(true, false);
 
     for (int i = 0; i < 1000; i++)
